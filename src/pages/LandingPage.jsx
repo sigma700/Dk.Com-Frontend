@@ -1,6 +1,7 @@
 import React from "react";
 import HamburgerMenu from "../components/menu";
 import {Search, ShoppingCart, SquareUserRound} from "lucide-react";
+import {AppleSearchAnimation} from "../utils/searchAnimation";
 const LandingPage = () => {
   const navLinks = [
     {label: "Home", href: "#"},
@@ -24,8 +25,8 @@ const LandingPage = () => {
               </li>
             ))}
           </ul>
-          <div className="icons-section flex gap-[20px]">
-            <Search />
+          <div className="icons-section flex gap-[20px] items-center">
+            <AppleSearchAnimation />
             <ShoppingCart />
             <SquareUserRound />
           </div>
