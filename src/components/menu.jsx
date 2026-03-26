@@ -1,314 +1,122 @@
-import {useState, useEffect} from "react";
+import {useState} from "react";
 import {motion, AnimatePresence} from "framer-motion";
+import {Search, X} from "lucide-react";
 
-const DEFAULT_LINKS = [
-  {label: "Maison", href: "#"},
-  {label: "Collections", href: "#"},
-  {label: "Atelier", href: "#"},
-  {label: "Journal", href: "#"},
-  {label: "Contact", href: "#"},
-];
-
-// ── Animation variants ────────────────────────────────────────────────────────
-
-const overlayVariants = {
-  closed: {
-    clipPath: "circle(0% at calc(100% - 44px) 44px)",
-    transition: {duration: 0.55, ease: [0.76, 0, 0.24, 1]},
-  },
-  open: {
-    clipPath: "circle(170% at calc(100% - 44px) 44px)",
-    transition: {duration: 0.6, ease: [0.76, 0, 0.24, 1]},
-  },
-};
-
-const navListVariants = {
-  closed: {transition: {staggerChildren: 0.04, staggerDirection: -1}},
-  open: {transition: {staggerChildren: 0.09, delayChildren: 0.25}},
-};
-
-const navItemVariants = {
-  closed: {opacity: 0, y: 32, transition: {duration: 0.3, ease: "easeIn"}},
-  open: {
-    opacity: 1,
-    y: 0,
-    transition: {duration: 0.5, ease: [0.16, 1, 0.3, 1]},
-  },
-};
-
-const footerVariants = {
-  closed: {opacity: 0, y: 16, transition: {duration: 0.2}},
-  open: {
-    opacity: 1,
-    y: 0,
-    transition: {duration: 0.5, delay: 0.55, ease: "easeOut"},
-  },
-};
-
-const dividerVariants = {
-  closed: {scaleX: 0, transition: {duration: 0.3}},
-  open: {
-    scaleX: 1,
-    transition: {duration: 0.6, delay: 0.3, ease: [0.16, 1, 0.3, 1]},
-  },
-};
-
-// ── Hamburger icon lines ──────────────────────────────────────────────────────
-
-function HamburgerIcon({isOpen, accent}) {
-  return (
-    <div className="flex flex-col justify-center items-end gap-[5px] w-6 h-5">
-      {/* Top bar */}
-      <motion.span
-        className="block h-px origin-right"
-        style={{background: isOpen ? accent : "#1A1410"}}
-        animate={
-          isOpen
-            ? {width: "100%", rotate: -45, y: 3, x: 1}
-            : {width: "100%", rotate: 0, y: 0, x: 0}
-        }
-        transition={{duration: 0.4, ease: [0.76, 0, 0.24, 1]}}
-      />
-      {/* Middle bar — shorter for elegance */}
-      <motion.span
-        className="block h-px"
-        style={{background: isOpen ? accent : "#1A1410"}}
-        animate={
-          isOpen ? {width: "0%", opacity: 0} : {width: "68%", opacity: 1}
-        }
-        transition={{duration: 0.3, ease: "easeInOut"}}
-      />
-      {/* Bottom bar */}
-      <motion.span
-        className="block h-px origin-right"
-        style={{background: isOpen ? accent : "#1A1410"}}
-        animate={
-          isOpen
-            ? {width: "100%", rotate: 45, y: -3, x: 1}
-            : {width: "100%", rotate: 0, y: 0, x: 0}
-        }
-        transition={{duration: 0.4, ease: [0.76, 0, 0.24, 1]}}
-      />
-    </div>
-  );
-}
-
-// ── Main component ────────────────────────────────────────────────────────────
-
-export default function HamburgerMenu({
-  links = DEFAULT_LINKS,
-  accent = "#C9A84C",
-  onNav,
-}) {
+export const AppleSearchAnimation = ({onOpen}) => {
   const [isOpen, setIsOpen] = useState(false);
+  const [query, setQuery] = useState("");
 
-  // Lock body scroll while open
-  useEffect(() => {
-    document.body.style.overflow = isOpen ? "hidden" : "";
-    return () => {
-      document.body.style.overflow = "";
-    };
-  }, [isOpen]);
+  const suggestions = [
+    "MacBook Pro",
+    "iPhone 16 Pro",
+    "AirPods Max",
+    "Apple Watch Ultra",
+    "iPad Pro",
+    "Vision Pro",
+  ];
 
-  const handleNav = (href) => {
+  const handleOpen = () => {
+    setIsOpen(true);
+    if (onOpen) onOpen();
+  };
+
+  const handleClose = () => {
     setIsOpen(false);
-    onNav?.(href);
+    setQuery("");
   };
 
   return (
     <>
-      {/* ── TRIGGER BUTTON — fixed to top-right ── */}
       <motion.button
-        className="fixed top-4 right-4 z-[60] flex items-center justify-center w-11 h-11 rounded-full focus:outline-none"
-        // ✅ FIX — add display: none when open
-        style={{
-          display: isOpen ? "none" : "flex",
-          background: "transparent",
-          border: "1px solid transparent",
-          transition: "background 0.3s, border-color 0.3s",
-        }}
-        whileTap={{scale: 0.92}}
-        onClick={() => setIsOpen((v) => !v)}
-        aria-label={isOpen ? "Close menu" : "Open menu"}
-        aria-expanded={isOpen}
+        onClick={handleOpen}
+        whileHover={{scale: 1.1}}
+        whileTap={{scale: 0.95}}
+        className="p-2 rounded-full hover:bg-white/10 transition-colors"
       >
-        <HamburgerIcon isOpen={isOpen} accent={accent} />
+        <Search className="w-6 h-6" />
       </motion.button>
 
-      {/* ── FULL-SCREEN OVERLAY ── */}
       <AnimatePresence>
         {isOpen && (
           <motion.div
-            key="backdrop"
-            className="fixed inset-0 z-40"
-            style={{
-              backdropFilter: "blur(4px)",
-              background: "rgba(15,12,8,0.15)",
-            }}
             initial={{opacity: 0}}
             animate={{opacity: 1}}
             exit={{opacity: 0}}
-            transition={{duration: 0.4}}
-            onClick={() => setIsOpen(false)}
-          />
+            className="fixed inset-0 z-[100] flex items-start justify-center pt-32 px-6"
+            onClick={handleClose}
+          >
+            <motion.div
+              initial={{y: -50, opacity: 0}}
+              animate={{y: 0, opacity: 1}}
+              exit={{y: -30, opacity: 0}}
+              transition={{type: "spring", stiffness: 300, damping: 30}}
+              className="max-w-3xl w-full mx-auto"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="relative">
+                <div className="flex items-center bg-black/40 backdrop-blur-xl rounded-3xl px-8 py-5 border border-white/20 shadow-2xl focus-within:border-white/40 transition-all">
+                  <Search className="w-7 h-7 text-white/60 mr-4" />
+                  <input
+                    type="text"
+                    value={query}
+                    onChange={(e) => setQuery(e.target.value)}
+                    placeholder="Search Apple.com"
+                    className="flex-1 bg-transparent outline-none text-2xl text-white placeholder-white/40"
+                    autoFocus
+                  />
+                  <motion.button
+                    onClick={handleClose}
+                    whileHover={{scale: 1.1}}
+                    whileTap={{scale: 0.9}}
+                    className="ml-4 p-2 rounded-full hover:bg-white/20"
+                  >
+                    <X className="w-6 h-6 text-white/60" />
+                  </motion.button>
+                </div>
+                <div className="h-0.5 bg-gradient-to-r from-transparent via-white/20 to-transparent mt-1 mx-auto w-3/4" />
+              </div>
+
+              <div className="mt-12">
+                <p className="text-white/50 text-sm tracking-widest mb-6 px-4">
+                  POPULAR SEARCHES
+                </p>
+                <div className="grid grid-cols-1 gap-2">
+                  {suggestions.map((suggestion, index) => (
+                    <motion.div
+                      key={suggestion}
+                      initial={{opacity: 0, x: -20}}
+                      animate={{opacity: 1, x: 0}}
+                      transition={{delay: 0.05 * index}}
+                      whileHover={{
+                        x: 8,
+                        backgroundColor: "rgba(0,0,0,0.4)",
+                      }}
+                      className="flex items-center px-8 py-5 text-xl rounded-2xl hover:bg-black/40 cursor-pointer group backdrop-blur-sm bg-black/20 border border-white/10"
+                      onClick={() => {
+                        setQuery(suggestion);
+                        console.log("Searching for:", suggestion);
+                      }}
+                    >
+                      <Search className="w-5 h-5 mr-6 text-white/40 group-hover:text-white transition-colors" />
+                      <span className="text-white/80 group-hover:text-white">
+                        {suggestion}
+                      </span>
+                    </motion.div>
+                  ))}
+                </div>
+              </div>
+
+              <div className="mt-16 text-center text-white/40 text-sm">
+                Press{" "}
+                <span className="font-mono bg-white/20 px-1.5 py-0.5 rounded backdrop-blur-sm">
+                  ESC
+                </span>{" "}
+                to close
+              </div>
+            </motion.div>
+          </motion.div>
         )}
       </AnimatePresence>
-
-      {/* ── SLIDE PANEL ── */}
-      <motion.div
-        className="fixed inset-0 z-50 flex flex-col"
-        style={{background: "#0F0C08", pointerEvents: isOpen ? "auto" : "none"}}
-        variants={overlayVariants}
-        initial="closed"
-        animate={isOpen ? "open" : "closed"}
-      >
-        {/* Top bar inside panel */}
-        <div className="flex items-center justify-between px-8 pt-6 pb-0">
-          {/* Wordmark */}
-          <div>
-            <div
-              className="text-xl tracking-[0.22em] uppercase"
-              style={{
-                fontFamily: "'Playfair Display', 'Georgia', serif",
-                fontWeight: 400,
-                color: "#F9F4EC",
-              }}
-            >
-              BF<span style={{color: accent}}>·</span>Suma
-            </div>
-            <div
-              className="text-[8px] tracking-[0.42em] uppercase mt-0.5"
-              style={{color: accent + "99", fontWeight: 300}}
-            >
-              Health You Happy Us
-            </div>
-          </div>
-
-          {/* Close trigger */}
-          <motion.button
-            className="flex items-center justify-center w-11 h-11 rounded-full"
-            style={{border: `1px solid ${accent}30`}}
-            whileTap={{scale: 0.92}}
-            onClick={() => setIsOpen(false)}
-            aria-label="Close menu"
-          >
-            <HamburgerIcon isOpen={true} accent={accent} />
-          </motion.button>
-        </div>
-
-        {/* Gold divider */}
-        <motion.div
-          className="mx-8 mt-8 mb-0 origin-left"
-          style={{height: 1, background: `${accent}30`}}
-          variants={dividerVariants}
-        />
-
-        {/* ── NAV LINKS ── */}
-        <motion.nav
-          className="flex-1 flex flex-col justify-center px-8"
-          variants={navListVariants}
-        >
-          <ul className="list-none p-0 m-0 space-y-1">
-            {links.map(({label, href}, i) => (
-              <motion.li key={label} variants={navItemVariants}>
-                <a
-                  href={href}
-                  onClick={(e) => {
-                    e.preventDefault();
-                    handleNav(href);
-                  }}
-                  className="group flex items-center justify-between py-5 no-underline"
-                  style={{borderBottom: `1px solid ${accent}14`}}
-                >
-                  {/* Index + label */}
-                  <div className="flex items-baseline gap-5">
-                    <span
-                      className="text-[10px] tracking-[0.3em]"
-                      style={{color: accent + "60", fontWeight: 300}}
-                    >
-                      0{i + 1}
-                    </span>
-                    <motion.span
-                      className="text-4xl tracking-tight leading-none"
-                      style={{
-                        fontFamily: "'Playfair Display', 'Georgia', serif",
-                        fontWeight: 300,
-                        color: "#F9F4EC",
-                        transition: "color 0.3s",
-                      }}
-                      whileHover={{color: accent}}
-                    >
-                      {label}
-                    </motion.span>
-                  </div>
-
-                  {/* Arrow — slides in on hover */}
-                  <motion.div
-                    className="opacity-0 group-hover:opacity-100"
-                    initial={{x: -8}}
-                    whileHover={{x: 0}}
-                    style={{
-                      transition: "opacity 0.3s, transform 0.3s",
-                      color: accent,
-                    }}
-                  >
-                    <svg
-                      width="20"
-                      height="20"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="1.3"
-                    >
-                      <path d="M5 12h14M12 5l7 7-7 7" />
-                    </svg>
-                  </motion.div>
-                </a>
-              </motion.li>
-            ))}
-          </ul>
-        </motion.nav>
-
-        {/* ── FOOTER META ── */}
-        <motion.div
-          className="px-8 pb-10 pt-6"
-          variants={footerVariants}
-          style={{borderTop: `1px solid ${accent}18`}}
-        >
-          <div className="flex items-center justify-between">
-            {/* Socials */}
-            <div className="flex gap-5">
-              {["IG", "FB", "TW", "TK"].map((s) => (
-                <button
-                  key={s}
-                  className="text-[9px] tracking-[0.3em] uppercase transition-colors duration-300"
-                  style={{
-                    background: "none",
-                    border: "none",
-                    cursor: "pointer",
-                    color: accent + "70",
-                    fontWeight: 400,
-                  }}
-                  onMouseEnter={(e) => (e.currentTarget.style.color = accent)}
-                  onMouseLeave={(e) =>
-                    (e.currentTarget.style.color = accent + "70")
-                  }
-                >
-                  {s}
-                </button>
-              ))}
-            </div>
-
-            {/* Tagline */}
-            <span
-              className="text-[9px] tracking-[0.3em] uppercase"
-              style={{color: accent + "50", fontWeight: 300}}
-            >
-              Pure · Natural · Luxe
-            </span>
-          </div>
-        </motion.div>
-      </motion.div>
     </>
   );
-}
+};
