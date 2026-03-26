@@ -116,14 +116,15 @@ export default function HamburgerMenu({
   };
 
   return (
-    // Wrapper — only visible on mobile (md:hidden in your layout)
-    <div className="relative z-50">
-      {/* ── TRIGGER BUTTON ── */}
+    <>
+      {/* ── TRIGGER BUTTON — fixed to top-right ── */}
       <motion.button
-        className="relative flex items-center justify-center w-11 h-11 rounded-full focus:outline-none"
+        className="fixed top-4 right-4 z-[60] flex items-center justify-center w-11 h-11 rounded-full focus:outline-none"
+        // ✅ FIX — add display: none when open
         style={{
-          background: isOpen ? `${accent}18` : "transparent",
-          border: `1px solid ${isOpen ? accent + "50" : "transparent"}`,
+          display: isOpen ? "none" : "flex",
+          background: "transparent",
+          border: "1px solid transparent",
           transition: "background 0.3s, border-color 0.3s",
         }}
         whileTap={{scale: 0.92}}
@@ -136,7 +137,6 @@ export default function HamburgerMenu({
 
       {/* ── FULL-SCREEN OVERLAY ── */}
       <AnimatePresence>
-        {/* Backdrop blur — separate layer */}
         {isOpen && (
           <motion.div
             key="backdrop"
@@ -184,7 +184,7 @@ export default function HamburgerMenu({
             </div>
           </div>
 
-          {/* Close trigger (re-uses the same button) */}
+          {/* Close trigger */}
           <motion.button
             className="flex items-center justify-center w-11 h-11 rounded-full"
             style={{border: `1px solid ${accent}30`}}
@@ -309,6 +309,6 @@ export default function HamburgerMenu({
           </div>
         </motion.div>
       </motion.div>
-    </div>
+    </>
   );
 }
