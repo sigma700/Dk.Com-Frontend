@@ -1,7 +1,8 @@
 import React from "react";
-import HamburgerMenu from "../components/menu";
+// import HamburgerMenu from "../components/menu";
 import {Search, ShoppingCart, SquareUserRound} from "lucide-react";
 import {AppleSearchAnimation} from "../utils/searchAnimation";
+import HamburgerMenu from "../components/menu";
 const LandingPage = () => {
   const navLinks = [
     {label: "Home", href: "#"},
@@ -17,10 +18,10 @@ const LandingPage = () => {
       {/* nav section */}
       <section className="p-[20px]">
         <nav className="lg:flex items-center justify-between hidden">
-          <img src="" alt="" />
+          <img src="" alt="logo-bs" />
           <ul className="flex gap-[40px] font-bold">
             {navigators.map((item) => (
-              <li className="hover:text-amber-400 hover:cursor-pointer hover:duration-75 hover:transition-colors duration-[0.5s] active:text-black active:duration-100 active:transition-colors duration-100">
+              <li className="hover:text-amber-400 hover:cursor-pointer hover:duration-75 hover:transition-colors duration-[0.5s] active:text-black active:duration-100 active:transition-colors ">
                 {item}
               </li>
             ))}
@@ -31,7 +32,7 @@ const LandingPage = () => {
             <SquareUserRound />
           </div>
         </nav>
-        <nav className="lg:hidden block-0">
+        <nav className="lg:hidden block flex justify-end">
           <HamburgerMenu links={navLinks} onNav={(href) => console.log(href)} />
         </nav>
       </section>
