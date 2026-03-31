@@ -8,7 +8,7 @@ export const useProductsStore = create((set) => ({
     set({isLoading: true});
     try {
       const response = await fetch(
-        `${process.env.BACKEND_URL_VITE}/api/getProducts`,
+        `${process.env.BACKEND_URL_VITE}/store/get-all-products`,
         {
           method: "GET",
           headers: {
