@@ -2,13 +2,15 @@ import {create} from "zustand";
 
 export const useProductsStore = create((set) => ({
   isLoading: false,
-  isSucess: false,
+  isSuccess: false,
+  allProducts: null,
 
-  showAllProdcts: async () => {
+  showAllProducts: async () => {
     set({isLoading: true});
+
     try {
       const response = await fetch(
-        `${process.env.BACKEND_URL_VITE}/store/get-all-products`,
+        `${import.meta.env.VITE_BACKEND_URL}/store/get-all-products`,
         {
           method: "GET",
           headers: {
@@ -23,8 +25,12 @@ export const useProductsStore = create((set) => ({
 
       set({
         isLoading: false,
-        isSucess: true,
+        allProducts: data,
+        isSuccess: true,
       });
-    } catch (error) {}
+    } catch (error) {
+      console.error(error);
+      set({isLoading: false});
+    }
   },
 }));

@@ -1,10 +1,11 @@
-import React, {useEffect, useRef, useState} from "react";
+import React, {useEffect, useRef, useState, useCallback} from "react";
 // import HamburgerMenu from "../components/menu";
 import {Search, ShoppingCart, SquareUserRound} from "lucide-react";
 import {AppleSearchAnimation} from "../utils/searchAnimation";
 import HamburgerMenu from "../components/menu";
 import BuyNowButton from "../components/buyButton";
 import {useInView, useScroll, useTransform, motion} from "framer-motion";
+import {useProductsStore} from "../stores/productDisplayStore";
 
 const GOLD = "#C9A84C";
 const GOLD_LIGHT = "#E8C97A";
@@ -78,6 +79,21 @@ const tags = [
 ];
 
 const LandingPage = () => {
+  const {showAllProducts, allProduts, isLoading} = useProductsStore();
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        await showAllProducts();
+      } catch (e) {
+        console.error(e);
+      }
+    };
+
+    if (!allProduts) {
+      fetchData();
+    }
+  }, []);
   const navLinks = [
     {label: "Home", href: "#"},
     {label: "Category", href: "#"},
