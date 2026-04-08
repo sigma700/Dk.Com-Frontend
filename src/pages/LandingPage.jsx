@@ -6,6 +6,7 @@ import HamburgerMenu from "../components/menu";
 import BuyNowButton from "../components/buyButton";
 import {useInView, useScroll, useTransform, motion} from "framer-motion";
 import {useProductsStore} from "../stores/productDisplayStore";
+import {bufferToDataURL} from "../utils/displayImage";
 
 const GOLD = "#C9A84C";
 const GOLD_LIGHT = "#E8C97A";
@@ -79,7 +80,7 @@ const tags = [
 ];
 
 const LandingPage = () => {
-  const {showAllProducts, allProduts, isLoading} = useProductsStore();
+  const {showAllProducts, allProducts, isLoading} = useProductsStore();
 
   useEffect(() => {
     const fetchData = async () => {
@@ -90,7 +91,7 @@ const LandingPage = () => {
       }
     };
 
-    if (!allProduts) {
+    if (allProducts.length === 0) {
       fetchData();
     }
   }, []);
@@ -705,7 +706,73 @@ const LandingPage = () => {
       `}</style>
         </section>
         {/* products section */}
-        <section className="all products section"></section>
+        <section className="all products section">
+          <h1 className="text-center font-extrabold lg:text-[40px]">
+            Featured Products
+          </h1>
+          <div className="section grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 mt-8">
+            {allProducts.map((product) => (
+              <div className="" key={product._id}>
+                <div className="group bg-white rounded-xl shadow-md overflow-hidden hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
+                  {/* Product Image */}
+                  <div className="relative overflow-hidden bg-gray-100 aspect-square">
+                    <img
+                      src={bufferToDataURL(product.image)}
+                      alt={product.name}
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                    />
+                    {/* Optional: Stock badge */}
+                    {product.stock < 50 && (
+                      <span className="absolute top-3 left-3 bg-orange-500 text-white text-xs font-bold px-2 py-1 rounded">
+                        Low Stock
+                      </span>
+                    )}
+                    {product.stock === 0 && (
+                      <span className="absolute top-3 left-3 bg-red-600 text-white text-xs font-bold px-2 py-1 rounded">
+                        Out of Stock
+                      </span>
+                    )}
+                  </div>
+
+                  {/* Product Info */}
+                  <div className="p-4">
+                    {/* Category */}
+                    <p className="text-xs text-gray-500 uppercase tracking-wide">
+                      {product.category}
+                    </p>
+
+                    {/* Name */}
+                    <h3 className="mt-1 text-lg font-semibold text-gray-800 line-clamp-1">
+                      {product.name}
+                    </h3>
+
+                    {/* Price */}
+                    <div className="mt-2 flex items-baseline justify-between">
+                      <span className="text-xl font-bold text-gray-900">
+                        ${product.price?.toFixed(2)}
+                      </span>
+                      <span className="text-sm text-gray-500">
+                        Stock: {product.stock}
+                      </span>
+                    </div>
+
+                    {/* Add to Cart Button */}
+                    <button
+                      disabled={product.stock === 0}
+                      className={`mt-4 w-full font-medium py-2 px-4 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 ${
+                        product.stock === 0
+                          ? "bg-gray-300 cursor-not-allowed text-gray-500"
+                          : "bg-gray-900 hover:bg-gray-800 text-white focus:ring-gray-500"
+                      }`}
+                    >
+                      {product.stock === 0 ? "Out of Stock" : "Add to Cart"}
+                    </button>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </section>
       </div>
     </main>
   );
