@@ -167,7 +167,6 @@ const LandingPage = () => {
             background: `linear-gradient(120deg, #FDFAF5 0%, #F5ECD7 35%, #EDD9B8 70%, #E8CFA0 100%)`,
           }}
         >
-          {/* ── Animated background orbs ── */}
           <motion.div
             animate={{x: [0, 30, 0], y: [0, -20, 0]}}
             transition={{duration: 12, repeat: Infinity, ease: "easeInOut"}}
@@ -202,7 +201,6 @@ const LandingPage = () => {
             }}
           />
 
-          {/* ── Decorative gold line top ── */}
           <motion.div
             initial={{scaleX: 0}}
             animate={isInView ? {scaleX: 1} : {scaleX: 0}}
@@ -218,7 +216,7 @@ const LandingPage = () => {
               pointerEvents: "none",
             }}
           />
-          {/* ── Decorative gold line bottom ── */}
+
           <motion.div
             initial={{scaleX: 0}}
             animate={isInView ? {scaleX: 1} : {scaleX: 0}}
@@ -249,7 +247,6 @@ const LandingPage = () => {
             }}
             className="hero-grid"
           >
-            {/* LEFT — Text panel */}
             <motion.div
               style={{
                 y: textY,
@@ -262,7 +259,6 @@ const LandingPage = () => {
               initial="hidden"
               animate={isInView ? "visible" : "hidden"}
             >
-              {/* Eyebrow pill */}
               <motion.div variants={itemVariants} style={{marginBottom: 28}}>
                 <div
                   style={{
@@ -299,7 +295,6 @@ const LandingPage = () => {
                 </div>
               </motion.div>
 
-              {/* Headline */}
               <motion.div variants={itemVariants} style={{marginBottom: 8}}>
                 <h2
                   style={{
@@ -359,7 +354,6 @@ const LandingPage = () => {
                 </h2>
               </motion.div>
 
-              {/* Divider */}
               <motion.div variants={itemVariants} style={{marginBottom: 28}}>
                 <div style={{display: "flex", alignItems: "center", gap: 14}}>
                   <div style={{width: 36, height: 1, background: GOLD}} />
@@ -438,7 +432,6 @@ const LandingPage = () => {
                 </button>
               </motion.div>
 
-              {/* Stats row */}
               <motion.div
                 variants={itemVariants}
                 style={{
@@ -500,7 +493,6 @@ const LandingPage = () => {
                 minHeight: 560,
               }}
             >
-              {/* Stage glow */}
               <div
                 style={{
                   position: "absolute",
@@ -514,7 +506,7 @@ const LandingPage = () => {
                   pointerEvents: "none",
                 }}
               />
-              {/* Concentric rings */}
+
               {[260, 360, 460].map((size, i) => (
                 <motion.div
                   key={size}
@@ -539,7 +531,6 @@ const LandingPage = () => {
                 />
               ))}
 
-              {/* Spinning badge */}
               <motion.div
                 variants={badgeVariants}
                 initial="hidden"
@@ -667,7 +658,7 @@ const LandingPage = () => {
                   Free shipping over $85
                 </div>
               </motion.div>
-              {/* Product image — floating */}
+
               <motion.div
                 variants={imageVariants}
                 initial="hidden"
@@ -721,7 +712,7 @@ const LandingPage = () => {
                       alt={product.name}
                       className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                     />
-                    {/* Optional: Stock badge */}
+
                     {product.stock < 50 && (
                       <span className="absolute top-3 left-3 bg-orange-500 text-white text-xs font-bold px-2 py-1 rounded">
                         Low Stock
@@ -734,19 +725,15 @@ const LandingPage = () => {
                     )}
                   </div>
 
-                  {/* Product Info */}
                   <div className="p-4">
-                    {/* Category */}
                     <p className="text-xs text-gray-500 uppercase tracking-wide">
                       {product.category}
                     </p>
 
-                    {/* Name */}
                     <h3 className="mt-1 text-lg font-semibold text-gray-800 line-clamp-1">
                       {product.name}
                     </h3>
 
-                    {/* Price */}
                     <div className="mt-2 flex items-baseline justify-between">
                       <span className="text-xl font-bold text-gray-900">
                         ${product.price?.toFixed(2)}
@@ -756,7 +743,6 @@ const LandingPage = () => {
                       </span>
                     </div>
 
-                    {/* Add to Cart Button */}
                     <button
                       disabled={product.stock === 0}
                       className={`mt-4 w-full font-medium py-2 px-4 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 ${
