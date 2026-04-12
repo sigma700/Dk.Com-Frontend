@@ -1,13 +1,12 @@
 import React, {useEffect, useRef, useState, useCallback} from "react";
 // import HamburgerMenu from "../components/menu";
-import {Search, ShoppingCart, SquareUserRound} from "lucide-react";
-import {AppleSearchAnimation} from "../utils/searchAnimation";
-import HamburgerMenu from "../components/menu";
+
 import BuyNowButton from "../components/buyButton";
 import {useInView, useScroll, useTransform, motion} from "framer-motion";
 import {useProductsStore} from "../stores/productDisplayStore";
 import {bufferToDataURL} from "../utils/displayImage";
-
+import {useNavigate} from "react-router-dom";
+import NavBar from "../components/navBar";
 const GOLD = "#C9A84C";
 const GOLD_LIGHT = "#E8C97A";
 const GOLD_PALE = "#F5EDD6";
@@ -95,13 +94,6 @@ const LandingPage = () => {
       fetchData();
     }
   }, []);
-  const navLinks = [
-    {label: "Home", href: "#"},
-    {label: "Category", href: "#"},
-    {label: "About Us", href: "#"},
-    {label: "FAQs", href: "#"},
-    {label: "Blog", href: "#"},
-  ];
 
   const sectionRef = useRef(null);
   const isInView = useInView(sectionRef, {once: true, margin: "-100px"});
@@ -121,40 +113,26 @@ const LandingPage = () => {
     const id = setInterval(() => setTick((t) => t + 1), 50);
     return () => clearInterval(id);
   }, []);
+  const [added, setAdded] = useState(false);
+  const navigate = useNavigate();
 
-  const navigators = ["Home", "About Us", "FAQs", "Blog", "Contacts"];
+  const handleClick = () => {
+    var singleProd = allProducts.map((single) => {
+      if (single.stock === 0 || added) return;
+    });
+
+    setAdded(true);
+
+    setTimeout(() => {
+      navigate("/cart-page");
+    }, 1200);
+  };
   return (
     <main className="w-full h-screen border-[2px]">
       {" "}
       {/* Removed flex centering */}
       <div className="main-container w-full h-full flex flex-col">
-        {/* nav section */}
-        <section className="p-[20px]">
-          <nav className="lg:flex items-center justify-between hidden">
-            <img src="" alt="logo-bs" />
-            <ul className="flex gap-[40px] font-bold">
-              {navigators.map((item, idx) => (
-                <li
-                  key={idx}
-                  className="hover:text-amber-400 hover:cursor-pointer hover:duration-75 hover:transition-colors duration-[0.5s] active:text-black active:duration-100 active:transition-colors"
-                >
-                  {item}
-                </li>
-              ))}
-            </ul>
-            <div className="icons-section flex gap-[20px] items-center">
-              <AppleSearchAnimation />
-              <ShoppingCart />
-              <SquareUserRound />
-            </div>
-          </nav>
-          <nav className="lg:hidden z-50 relative flex justify-end">
-            <HamburgerMenu
-              links={navLinks}
-              onNav={(href) => console.log(href)}
-            />
-          </nav>
-        </section>
+        <NavBar />
         {/* header section */}
         <section
           ref={sectionRef}
@@ -744,14 +722,44 @@ const LandingPage = () => {
                     </div>
 
                     <button
-                      disabled={product.stock === 0}
-                      className={`mt-4 w-full font-medium py-2 px-4 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 ${
+                      onClick={handleClick}
+                      disabled={product.stock === 0 || added}
+                      className={`mt-4 w-full font-medium py-2 px-4 rounded-lg transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 hover:cursor-pointer overflow-hidden relative ${
                         product.stock === 0
                           ? "bg-gray-300 cursor-not-allowed text-gray-500"
-                          : "bg-gray-900 hover:bg-gray-800 text-white focus:ring-gray-500"
+                          : added
+                            ? "bg-green-600 text-white focus:ring-green-500"
+                            : "bg-gray-900 hover:bg-gray-800 text-white focus:ring-gray-500"
                       }`}
                     >
-                      {product.stock === 0 ? "Out of Stock" : "Add to Cart"}
+                      <span
+                        className={`flex items-center justify-center gap-2 transition-all duration-300 ${
+                          added ? "opacity-100 scale-100" : "opacity-100"
+                        }`}
+                      >
+                        {product.stock === 0 ? (
+                          "Out of Stock"
+                        ) : added ? (
+                          <>
+                            <svg
+                              className="w-4 h-4 animate-bounce"
+                              fill="none"
+                              stroke="currentColor"
+                              viewBox="0 0 24 24"
+                            >
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth={2.5}
+                                d="M5 13l4 4L19 7"
+                              />
+                            </svg>
+                            Added to Cart!
+                          </>
+                        ) : (
+                          "Add to Cart"
+                        )}
+                      </span>
                     </button>
                   </div>
                 </div>
