@@ -4,6 +4,7 @@ import React, {useEffect, useRef, useState, useCallback} from "react";
 import BuyNowButton from "../components/buyButton";
 import {useInView, useScroll, useTransform, motion} from "framer-motion";
 import {useProductsStore} from "../stores/productDisplayStore";
+import {useAddToCartStore} from "../stores/addToCartStore";
 import {bufferToDataURL} from "../utils/displayImage";
 import {useNavigate} from "react-router-dom";
 import NavBar from "../components/navBar";
@@ -80,6 +81,9 @@ const tags = [
 
 const LandingPage = () => {
   const {showAllProducts, allProducts, isLoading} = useProductsStore();
+  const [productId, setProductId] = useState("");
+  const [quantity, setQuantity] = useState("");
+  const {addToCart, addedProduct} = useAddToCartStore();
 
   useEffect(() => {
     const fetchData = async () => {
@@ -116,7 +120,25 @@ const LandingPage = () => {
   const [added, setAdded] = useState(false);
   const navigate = useNavigate();
 
-  const handleClick = () => {
+  //this handleClick I want it to also act like a handleClick function also
+  const [addedStates, setAddedStates] = useState({});
+  const handleSubmit = async (e, productId) => {
+    e.preventDefault();
+    const product = allProducts.find((p) => p._id === productId);
+    if (!product || product.stock === 0 || addedStates[productId]) return;
+
+    try {
+      await addToCart(productId, 1);
+      setAddedStates((prev) => ({...prev, [productId]: true}));
+      setTimeout(() => {
+        navigate("/cart-page");
+      }, 1200);
+    } catch (e) {
+      console.error(e);
+    }
+  };
+  const handleClick = async (e) => {
+    e.preventDefault();
     var singleProd = allProducts.map((single) => {
       if (single.stock === 0 || added) return;
     });
@@ -720,47 +742,46 @@ const LandingPage = () => {
                         Stock: {product.stock}
                       </span>
                     </div>
-
-                    <button
-                      onClick={handleClick}
-                      disabled={product.stock === 0 || added}
-                      className={`mt-4 w-full font-medium py-2 px-4 rounded-lg transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 hover:cursor-pointer overflow-hidden relative ${
-                        product.stock === 0
-                          ? "bg-gray-300 cursor-not-allowed text-gray-500"
-                          : added
-                            ? "bg-green-600 text-white focus:ring-green-500"
-                            : "bg-gray-900 hover:bg-gray-800 text-white focus:ring-gray-500"
-                      }`}
-                    >
-                      <span
-                        className={`flex items-center justify-center gap-2 transition-all duration-300 ${
-                          added ? "opacity-100 scale-100" : "opacity-100"
+                    <form onSubmit={(e) => handleSubmit(e, product._id)}>
+                      <button
+                        type="submit"
+                        disabled={
+                          product.stock === 0 || addedStates[product._id]
+                        }
+                        className={`mt-4 w-full font-medium py-2 px-4 rounded-lg transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 hover:cursor-pointer overflow-hidden relative ${
+                          product.stock === 0
+                            ? "bg-gray-300 cursor-not-allowed text-gray-500"
+                            : addedStates[product._id]
+                              ? "bg-green-600 text-white focus:ring-green-500"
+                              : "bg-gray-900 hover:bg-gray-800 text-white focus:ring-gray-500"
                         }`}
                       >
-                        {product.stock === 0 ? (
-                          "Out of Stock"
-                        ) : added ? (
-                          <>
-                            <svg
-                              className="w-4 h-4 animate-bounce"
-                              fill="none"
-                              stroke="currentColor"
-                              viewBox="0 0 24 24"
-                            >
-                              <path
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                strokeWidth={2.5}
-                                d="M5 13l4 4L19 7"
-                              />
-                            </svg>
-                            Added to Cart!
-                          </>
-                        ) : (
-                          "Add to Cart"
-                        )}
-                      </span>
-                    </button>
+                        <span className="flex items-center justify-center gap-2 transition-all duration-300">
+                          {product.stock === 0 ? (
+                            "Out of Stock"
+                          ) : addedStates[product._id] ? (
+                            <>
+                              <svg
+                                className="w-4 h-4 animate-bounce"
+                                fill="none"
+                                stroke="currentColor"
+                                viewBox="0 0 24 24"
+                              >
+                                <path
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                  strokeWidth={2.5}
+                                  d="M5 13l4 4L19 7"
+                                />
+                              </svg>
+                              Added to Cart!
+                            </>
+                          ) : (
+                            "Add to Cart"
+                          )}
+                        </span>
+                      </button>
+                    </form>
                   </div>
                 </div>
               </div>
