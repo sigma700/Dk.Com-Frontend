@@ -5,8 +5,9 @@ import BuyNowButton from "../components/buyButton";
 import {useInView, useScroll, useTransform, motion} from "framer-motion";
 import {useProductsStore} from "../stores/productDisplayStore";
 import {useAddToCartStore} from "../stores/addToCartStore";
+import {useViewProd} from "../stores/viewProdStore";
 import {bufferToDataURL} from "../utils/displayImage";
-import {useNavigate} from "react-router-dom";
+import {Link, useNavigate} from "react-router-dom";
 import NavBar from "../components/navBar";
 const GOLD = "#C9A84C";
 const GOLD_LIGHT = "#E8C97A";
@@ -122,6 +123,7 @@ const LandingPage = () => {
 
   //this handleClick I want it to also act like a handleClick function also
   const [addedStates, setAddedStates] = useState({});
+  const [isHovered, setIsHovered] = useState(false);
   const handleSubmit = async (e, productId) => {
     e.preventDefault();
     const product = allProducts.find((p) => p._id === productId);
@@ -706,23 +708,44 @@ const LandingPage = () => {
               <div className="" key={product._id}>
                 <div className="group bg-white rounded-xl shadow-md overflow-hidden hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
                   {/* Product Image */}
-                  <div className="relative overflow-hidden bg-gray-100 aspect-square">
-                    <img
-                      src={bufferToDataURL(product.image)}
-                      alt={product.name}
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                    />
+                  <div
+                    className="relative overflow-hidden rounded-xl"
+                    onMouseEnter={() => setIsHovered(true)}
+                    onMouseLeave={() => setIsHovered(false)}
+                  >
+                    <Link to={`/order/${product._id}`}>
+                      <motion.img
+                        src={bufferToDataURL(product.image)}
+                        alt={product.name}
+                        className="w-full h-full object-cover"
+                        initial={{scale: 1}}
+                        animate={{scale: isHovered ? 1.08 : 1}}
+                        transition={{
+                          type: "spring",
+                          stiffness: 350,
+                          damping: 28,
+                          mass: 0.5,
+                          restDelta: 0.001,
+                        }}
+                      />
+                    </Link>
 
-                    {product.stock < 50 && (
-                      <span className="absolute top-3 left-3 bg-orange-500 text-white text-xs font-bold px-2 py-1 rounded">
-                        Low Stock
+                    <motion.div
+                      initial={{y: "100%"}}
+                      animate={{y: isHovered ? 0 : "100%"}}
+                      transition={{
+                        type: "spring",
+                        stiffness: 400,
+                        damping: 35,
+                        mass: 0.6,
+                        velocity: 10, // adds a slight overshoot for premium feel
+                      }}
+                      className="absolute inset-x-0 bottom-0 flex items-center justify-center bg-gradient-to-t from-black/85 via-black/60 to-transparent backdrop-blur-md py-5 pointer-events-none"
+                    >
+                      <span className="text-white text-sm md:text-base uppercase tracking-wider font-light border-b border-white/40 pb-1.5 px-4">
+                        View details
                       </span>
-                    )}
-                    {product.stock === 0 && (
-                      <span className="absolute top-3 left-3 bg-red-600 text-white text-xs font-bold px-2 py-1 rounded">
-                        Out of Stock
-                      </span>
-                    )}
+                    </motion.div>
                   </div>
 
                   <div className="p-4">

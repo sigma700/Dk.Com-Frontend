@@ -1,7 +1,7 @@
 import React, {useState, useRef} from "react";
 import NavBar from "../components/navBar";
 import {motion, AnimatePresence, useInView} from "framer-motion";
-import {useAddToCartStore} from "../stores/addToCartStore";
+import {useAddToCartStore} from "../stores/addToCartStore.js";
 import {bufferToDataURL} from "../utils/displayImage";
 import {useNavigate} from "react-router-dom";
 
@@ -353,10 +353,10 @@ const CartPage = () => {
                               border: `1px solid ${GOLD}30`,
                             }}
                           >
-                            {item.image ? (
+                            {item.product.image ? (
                               <img
-                                src={bufferToDataURL(item.image)}
-                                alt={item.name}
+                                src={bufferToDataURL(item.product.image)}
+                                alt={item.product.name}
                                 style={{
                                   width: "100%",
                                   height: "100%",
@@ -407,7 +407,7 @@ const CartPage = () => {
                                 margin: "0 0 4px",
                               }}
                             >
-                              {item.category || "Botanical"}
+                              {item.product.category || "Botanical"}
                             </p>
                             <p
                               style={{
@@ -421,7 +421,7 @@ const CartPage = () => {
                                 textOverflow: "ellipsis",
                               }}
                             >
-                              {item.name || "Product"}
+                              {item.product.name || "Product"}
                             </p>
                             <p
                               style={{

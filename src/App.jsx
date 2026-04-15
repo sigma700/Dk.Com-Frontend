@@ -2,6 +2,7 @@ import React from "react";
 import {createBrowserRouter, RouterProvider} from "react-router-dom";
 import LandingPage from "./pages/LandingPage";
 import CartPage from "./pages/CartPage";
+import Order from "./pages/Order";
 
 const router = createBrowserRouter([
   {
@@ -11,6 +12,10 @@ const router = createBrowserRouter([
   {
     path: "/cart-page",
     element: <CartPage />,
+  },
+  {
+    path: "/order/:productId",
+    element: <Order />,
   },
 ]);
 
