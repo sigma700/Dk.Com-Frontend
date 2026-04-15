@@ -1,4 +1,4 @@
-import React, {useState, useRef} from "react";
+import React, {useState, useRef, useEffect} from "react";
 import NavBar from "../components/navBar";
 import {motion, AnimatePresence, useInView} from "framer-motion";
 import {useAddToCartStore} from "../stores/addToCartStore.js";
@@ -36,10 +36,14 @@ const slideIn = {
 };
 
 const CartPage = () => {
-  const {addedProduct} = useAddToCartStore();
+  const {addedProduct, fetchCart, isLoading} = useAddToCartStore();
   const navigate = useNavigate();
   const sectionRef = useRef(null);
   const isInView = useInView(sectionRef, {once: true, margin: "-80px"});
+
+  useEffect(() => {
+    fetchCart();
+  }, []);
 
   const [quantities, setQuantities] = useState(() =>
     Object.fromEntries(
@@ -50,6 +54,17 @@ const CartPage = () => {
     ),
   );
   const [removedIds, setRemovedIds] = useState([]);
+
+  useEffect(() => {
+    setQuantities(
+      Object.fromEntries(
+        (addedProduct || []).map((item) => [
+          item._id || item.product,
+          item.quantity || 1,
+        ]),
+      ),
+    );
+  }, [addedProduct]);
 
   const visibleItems = (addedProduct || []).filter(
     (item) => !removedIds.includes(item._id || item.product),
@@ -72,6 +87,31 @@ const CartPage = () => {
   }, 0);
   const total = subtotal + (visibleItems.length > 0 ? DELIVERY : 0);
 
+  if (isLoading && visibleItems.length === 0) {
+    return (
+      <main
+        style={{
+          minHeight: "100vh",
+          background: `linear-gradient(135deg, ${CREAM} 0%, #F5ECD7 50%, #EDD9B8 100%)`,
+        }}
+      >
+        <NavBar />
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            height: "60vh",
+          }}
+        >
+          <div style={{color: GOLD, fontSize: 14, letterSpacing: "0.2em"}}>
+            Loading cart...
+          </div>
+        </div>
+      </main>
+    );
+  }
+
   return (
     <main
       style={{
@@ -81,7 +121,6 @@ const CartPage = () => {
     >
       <NavBar />
 
-      {/* Decorative orbs */}
       <motion.div
         animate={{x: [0, 25, 0], y: [0, -15, 0]}}
         transition={{duration: 14, repeat: Infinity, ease: "easeInOut"}}
@@ -129,7 +168,6 @@ const CartPage = () => {
             padding: "0 24px",
           }}
         >
-          {/* Page heading */}
           <motion.div
             initial={{opacity: 0, y: 30}}
             animate={isInView ? {opacity: 1, y: 0} : {}}
@@ -219,7 +257,6 @@ const CartPage = () => {
             </div>
           </motion.div>
 
-          {/* Main grid */}
           <div
             className="cart-grid"
             style={{
@@ -229,7 +266,6 @@ const CartPage = () => {
               alignItems: "start",
             }}
           >
-            {/* LEFT — Cart items */}
             <motion.div
               variants={containerVariants}
               initial="hidden"
@@ -317,7 +353,7 @@ const CartPage = () => {
                   style={{display: "flex", flexDirection: "column", gap: 16}}
                 >
                   <AnimatePresence>
-                    {visibleItems.map((item, index) => {
+                    {visibleItems.map((item) => {
                       const id = item._id || item.product;
                       const qty = quantities[id] || 1;
                       const price = item.priceAtAdd || item.price || 0;
@@ -341,7 +377,6 @@ const CartPage = () => {
                             gap: 20,
                           }}
                         >
-                          {/* Image */}
                           <div
                             style={{
                               width: 100,
@@ -353,7 +388,7 @@ const CartPage = () => {
                               border: `1px solid ${GOLD}30`,
                             }}
                           >
-                            {item.product.image ? (
+                            {item.product?.image ? (
                               <img
                                 src={bufferToDataURL(item.product.image)}
                                 alt={item.product.name}
@@ -395,7 +430,6 @@ const CartPage = () => {
                             )}
                           </div>
 
-                          {/* Info */}
                           <div style={{flex: 1, minWidth: 0}}>
                             <p
                               style={{
@@ -407,7 +441,7 @@ const CartPage = () => {
                                 margin: "0 0 4px",
                               }}
                             >
-                              {item.product.category || "Botanical"}
+                              {item.product?.category || "Botanical"}
                             </p>
                             <p
                               style={{
@@ -421,7 +455,7 @@ const CartPage = () => {
                                 textOverflow: "ellipsis",
                               }}
                             >
-                              {item.product.name || "Product"}
+                              {item.product?.name || "Product"}
                             </p>
                             <p
                               style={{
@@ -436,7 +470,6 @@ const CartPage = () => {
                             </p>
                           </div>
 
-                          {/* Controls */}
                           <div
                             style={{
                               display: "flex",
@@ -445,7 +478,6 @@ const CartPage = () => {
                               gap: 16,
                             }}
                           >
-                            {/* Qty stepper */}
                             <div
                               style={{
                                 display: "flex",
@@ -518,7 +550,6 @@ const CartPage = () => {
                               </button>
                             </div>
 
-                            {/* Actions */}
                             <div style={{display: "flex", gap: 12}}>
                               <button
                                 title="Save for later"
@@ -601,7 +632,6 @@ const CartPage = () => {
                     })}
                   </AnimatePresence>
 
-                  {/* Continue shopping */}
                   <motion.div variants={itemVariants}>
                     <button
                       onClick={() => navigate("/")}
@@ -642,7 +672,6 @@ const CartPage = () => {
               )}
             </motion.div>
 
-            {/* RIGHT — Order summary */}
             <motion.div
               variants={slideIn}
               initial="hidden"
@@ -658,7 +687,6 @@ const CartPage = () => {
                   overflow: "hidden",
                 }}
               >
-                {/* Header */}
                 <div
                   style={{
                     padding: "28px 28px 20px",
@@ -699,7 +727,6 @@ const CartPage = () => {
                   </p>
                 </div>
 
-                {/* Line items */}
                 <div
                   style={{
                     padding: "24px 28px",
@@ -757,7 +784,6 @@ const CartPage = () => {
                     <span style={{fontSize: 13, color: MUTED}}>—</span>
                   </div>
 
-                  {/* Divider */}
                   <div
                     style={{
                       height: 1,
@@ -797,7 +823,6 @@ const CartPage = () => {
                   </div>
                 </div>
 
-                {/* Promo code */}
                 <div style={{padding: "0 28px 24px"}}>
                   <div
                     style={{
@@ -848,7 +873,6 @@ const CartPage = () => {
                   </div>
                 </div>
 
-                {/* Checkout CTA */}
                 <div style={{padding: "0 28px 28px"}}>
                   <motion.button
                     whileHover={{scale: 1.02}}
@@ -877,7 +901,6 @@ const CartPage = () => {
                     Proceed to Checkout
                   </motion.button>
 
-                  {/* Trust badges */}
                   <div
                     style={{
                       display: "flex",
