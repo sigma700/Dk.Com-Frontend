@@ -1,5 +1,6 @@
 import React from "react";
 import {AppleSearchAnimation} from "../utils/searchAnimation";
+import {Link} from "react-router-dom";
 import {ShoppingCart, SquareUserRound} from "lucide-react";
 import HamburgerMenu from "./menu";
 
@@ -30,7 +31,9 @@ const NavBar = () => {
           </ul>
           <div className="icons-section flex gap-[20px] items-center">
             <AppleSearchAnimation />
-            <ShoppingCart />
+            <Link to={"/cart-page"}>
+              <ShoppingCart />
+            </Link>
             <SquareUserRound />
           </div>
         </nav>

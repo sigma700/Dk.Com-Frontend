@@ -225,7 +225,7 @@ const Order = () => {
   /* ── Handlers ── */
   const handleAddToCart = () => {
     if (!orderItem) return;
-    addToCart({...orderItem._id, quantity: qty});
+    addToCart(orderItem._id, qty);
     setAddedPulse(true);
     setToastVisible(true);
     setTimeout(() => setAddedPulse(false), 600);
