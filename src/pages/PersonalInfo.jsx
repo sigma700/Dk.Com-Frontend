@@ -2,6 +2,7 @@
 import React, {useState, useEffect, useRef} from "react";
 import {useForm} from "react-hook-form";
 import {useNavigate} from "react-router-dom";
+import {motion, AnimatePresence} from "framer-motion";
 import {useAddToCartStore} from "../stores/addToCartStore";
 import NavBar from "../components/navBar";
 import {bufferToDataURL} from "../utils/displayImage";
@@ -10,6 +11,15 @@ import {SiEasyeda} from "react-icons/si";
 import {FaBoltLightning} from "react-icons/fa6";
 import {IoCashOutline} from "react-icons/io5";
 import {CiMobile1} from "react-icons/ci";
+
+/* ─── Brand Palette (green – matches LandingPage & Order) ─── */
+const GREEN = "#4A8C2A";
+const GREEN_LIGHT = "#72B84A";
+const GREEN_PALE = "#E8F5E0";
+const DARK = "#1A1A1A";
+const MUTED = "#5A7A4A";
+const CREAM = "#F7FBF4";
+const BORDER = "#D4E2C8";
 
 const KENYAN_COUNTIES = [
   "Mombasa",
@@ -67,32 +77,64 @@ const isValidKenyanPhone = (phone) => {
   return /^(?:\+254|0)?([7-9][0-9]{8})$/.test(cleaned);
 };
 
-/* ─── Step indicators ─────────────────────────────────────────────────── */
 const STEPS = ["Contact", "Address", "Delivery", "Payment"];
 
-/* ─── Sub-components ─────────────────────────────────────────────────── */
+/* ─── Motion variants ────────────────────────────────────────────── */
+const fadeInUp = (delay = 0) => ({
+  hidden: {opacity: 0, y: 20, filter: "blur(4px)"},
+  visible: {
+    opacity: 1,
+    y: 0,
+    filter: "blur(0px)",
+    transition: {duration: 0.6, ease: [0.16, 1, 0.3, 1], delay},
+  },
+});
 
+const slideIn = (direction = "right") => ({
+  hidden: {opacity: 0, x: direction === "right" ? 40 : -40},
+  visible: {
+    opacity: 1,
+    x: 0,
+    transition: {duration: 0.5, ease: [0.16, 1, 0.3, 1]},
+  },
+  exit: {
+    opacity: 0,
+    x: direction === "right" ? -20 : 20,
+    transition: {duration: 0.3},
+  },
+});
+
+/* ─── Helper Components ──────────────────────────────────────────── */
 const FieldWrapper = ({label, error, children, optional}) => (
-  <div style={{marginBottom: "1.5rem"}}>
+  <motion.div variants={fadeInUp()} style={{marginBottom: "1.5rem"}}>
     <label style={styles.label}>
       {label}
       {optional && <span style={styles.optional}> — optional</span>}
     </label>
     {children}
-    {error && (
-      <p style={styles.errorText}>
-        <span style={{marginRight: 6}}>⚠</span>
-        {error}
-      </p>
-    )}
-  </div>
+    <AnimatePresence>
+      {error && (
+        <motion.p
+          initial={{opacity: 0, y: -6}}
+          animate={{opacity: 1, y: 0}}
+          exit={{opacity: 0}}
+          style={styles.errorText}
+        >
+          <span style={{marginRight: 6}}>⚠</span>
+          {error}
+        </motion.p>
+      )}
+    </AnimatePresence>
+  </motion.div>
 );
 
 const InputField = React.forwardRef(
   ({error, style: extraStyle, ...props}, ref) => (
-    <input
+    <motion.input
       ref={ref}
       {...props}
+      whileFocus={{scale: 1.01}}
+      transition={{duration: 0.2}}
       style={{
         ...styles.input,
         ...(error ? styles.inputError : {}),
@@ -103,9 +145,10 @@ const InputField = React.forwardRef(
 );
 
 const SelectField = React.forwardRef(({error, children, ...props}, ref) => (
-  <select
+  <motion.select
     ref={ref}
     {...props}
+    whileFocus={{scale: 1.01}}
     style={{
       ...styles.input,
       ...styles.select,
@@ -113,26 +156,99 @@ const SelectField = React.forwardRef(({error, children, ...props}, ref) => (
     }}
   >
     {children}
-  </select>
+  </motion.select>
 ));
 
-const StepDivider = ({number, title, active, done}) => (
-  <div style={styles.stepDivider}>
+const SectionCard = ({title, icon, children}) => (
+  <motion.div
+    variants={fadeInUp()}
+    initial="hidden"
+    animate="visible"
+    style={styles.sectionCard}
+  >
+    <div style={styles.sectionHeader}>
+      <span style={styles.sectionIcon}>{icon}</span>
+      <h2 style={styles.sectionTitle}>{title}</h2>
+    </div>
+    <div style={styles.sectionBody}>{children}</div>
+  </motion.div>
+);
+
+const DeliveryOption = ({
+  id,
+  value,
+  name,
+  register,
+  checked,
+  title,
+  subtitle,
+  cost,
+}) => (
+  <motion.label
+    htmlFor={id}
+    whileHover={{scale: 1.01, backgroundColor: "#FEFCF8"}}
+    transition={{duration: 0.2}}
+    style={{...styles.radioCard, ...(checked ? styles.radioCardActive : {})}}
+  >
+    <input
+      type="radio"
+      id={id}
+      value={value}
+      {...register(name)}
+      style={{display: "none"}}
+    />
     <div
       style={{
-        ...styles.stepBadge,
-        ...(active || done ? styles.stepBadgeActive : {}),
+        ...styles.radioCircle,
+        ...(checked ? styles.radioCircleActive : {}),
       }}
     >
-      {done ? "✓" : number}
+      {checked && <div style={styles.radioDot} />}
     </div>
-    <span
-      style={{...styles.stepTitle, ...(active ? styles.stepTitleActive : {})}}
+    <div style={{flex: 1}}>
+      <p style={styles.radioTitle}>{title}</p>
+      <p style={styles.radioSubtitle}>{subtitle}</p>
+    </div>
+    <span style={styles.radioCost}>{cost}</span>
+  </motion.label>
+);
+
+const PaymentOption = ({
+  id,
+  value,
+  name,
+  register,
+  checked,
+  icon,
+  title,
+  subtitle,
+}) => (
+  <motion.label
+    htmlFor={id}
+    whileHover={{scale: 1.01, backgroundColor: "#FEFCF8"}}
+    style={{...styles.radioCard, ...(checked ? styles.radioCardActive : {})}}
+  >
+    <input
+      type="radio"
+      id={id}
+      value={value}
+      {...register(name)}
+      style={{display: "none"}}
+    />
+    <div style={styles.payIcon}>{icon}</div>
+    <div style={{flex: 1}}>
+      <p style={styles.radioTitle}>{title}</p>
+      <p style={styles.radioSubtitle}>{subtitle}</p>
+    </div>
+    <div
+      style={{
+        ...styles.radioCircle,
+        ...(checked ? styles.radioCircleActive : {}),
+      }}
     >
-      {title}
-    </span>
-    <div style={styles.stepLine} />
-  </div>
+      {checked && <div style={styles.radioDot} />}
+    </div>
+  </motion.label>
 );
 
 const ShimmerCard = () => (
@@ -142,8 +258,96 @@ const ShimmerCard = () => (
   </div>
 );
 
-/* ─── Main component ─────────────────────────────────────────────────── */
+const NavButtons = ({onNext, onBack, isFirst, isLast}) => (
+  <div
+    style={{
+      display: "flex",
+      gap: "1rem",
+      marginTop: "1.5rem",
+      marginBottom: "2.5rem",
+    }}
+  >
+    {!isFirst && (
+      <motion.button
+        type="button"
+        onClick={onBack}
+        whileHover={{borderColor: GREEN, color: GREEN}}
+        style={styles.backBtn}
+      >
+        ← Back
+      </motion.button>
+    )}
+    {!isLast && (
+      <motion.button
+        type="button"
+        onClick={onNext}
+        whileHover={{scale: 1.02, boxShadow: `0 6px 20px ${GREEN}40`}}
+        whileTap={{scale: 0.98}}
+        style={styles.nextBtn}
+      >
+        Continue →
+      </motion.button>
+    )}
+  </div>
+);
 
+/* ─── Icons (SVG) ───────────────────────────────────────────────── */
+const iconPerson = (
+  <svg
+    width="18"
+    height="18"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="1.75"
+  >
+    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+    <circle cx="12" cy="7" r="4" />
+  </svg>
+);
+const iconPin = (
+  <svg
+    width="18"
+    height="18"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="1.75"
+  >
+    <path d="M21 10c0 7-9 13-9 13S3 17 3 10a9 9 0 0 1 18 0z" />
+    <circle cx="12" cy="10" r="3" />
+  </svg>
+);
+const iconTruck = (
+  <svg
+    width="18"
+    height="18"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="1.75"
+  >
+    <rect x="1" y="3" width="15" height="13" />
+    <polygon points="16 8 20 8 23 11 23 16 16 16 16 8" />
+    <circle cx="5.5" cy="18.5" r="2.5" />
+    <circle cx="18.5" cy="18.5" r="2.5" />
+  </svg>
+);
+const iconCard = (
+  <svg
+    width="18"
+    height="18"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="1.75"
+  >
+    <rect x="1" y="4" width="22" height="16" rx="2" ry="2" />
+    <line x1="1" y1="10" x2="23" y2="10" />
+  </svg>
+);
+
+/* ─── Main Checkout Component ────────────────────────────────────── */
 const Checkout = () => {
   const navigate = useNavigate();
   const {addedProduct, fetchCart} = useAddToCartStore();
@@ -156,7 +360,7 @@ const Checkout = () => {
   const [focusedField, setFocusedField] = useState(null);
   const formRef = useRef(null);
 
-  const {register, handleSubmit, watch, getValues, trigger} = useForm({
+  const {register, handleSubmit, watch, getValues} = useForm({
     defaultValues: {
       firstName: "",
       lastName: "",
@@ -252,6 +456,7 @@ const Checkout = () => {
       errors.shippingMethod = "Please select a shipping method";
     if (!data.paymentMethod)
       errors.paymentMethod = "Please select a payment method";
+    return errors;
   };
 
   const onSubmit = async (data) => {
@@ -309,14 +514,294 @@ const Checkout = () => {
     },
   });
 
+  const stepContent = [
+    // Step 0: Contact
+    <motion.div
+      key="step0"
+      variants={slideIn("right")}
+      initial="hidden"
+      animate="visible"
+      exit="exit"
+    >
+      <SectionCard title="Contact Information" icon={iconPerson}>
+        <div style={styles.twoCol}>
+          <FieldWrapper label="First Name" error={fieldErrors.firstName}>
+            <InputField {...inputProps("firstName")} placeholder="Amara" />
+          </FieldWrapper>
+          <FieldWrapper label="Last Name" error={fieldErrors.lastName}>
+            <InputField {...inputProps("lastName")} placeholder="Odhiambo" />
+          </FieldWrapper>
+        </div>
+        <FieldWrapper label="Email Address" error={fieldErrors.email}>
+          <InputField
+            {...inputProps("email")}
+            type="email"
+            placeholder="amara@example.com"
+          />
+        </FieldWrapper>
+        <FieldWrapper label="Phone Number" error={fieldErrors.phoneNumber}>
+          <div style={{position: "relative"}}>
+            <span style={styles.phonePrefix}>🇰🇪 +254</span>
+            <InputField
+              {...inputProps("phoneNumber")}
+              placeholder="0712 345 678"
+              style={{...styles.input, paddingLeft: "5.5rem"}}
+            />
+          </div>
+        </FieldWrapper>
+      </SectionCard>
+      <NavButtons onNext={nextStep} isFirst />
+    </motion.div>,
+
+    // Step 1: Address
+    <motion.div
+      key="step1"
+      variants={slideIn("right")}
+      initial="hidden"
+      animate="visible"
+      exit="exit"
+    >
+      <SectionCard title="Shipping Address" icon={iconPin}>
+        <FieldWrapper label="County" error={fieldErrors.county}>
+          <SelectField {...register("county")} error={fieldErrors.county}>
+            <option value="">— Select your county —</option>
+            {KENYAN_COUNTIES.map((c) => (
+              <option key={c}>{c}</option>
+            ))}
+          </SelectField>
+        </FieldWrapper>
+        <div style={styles.twoCol}>
+          <FieldWrapper label="Sub-County" error={fieldErrors.subCounty}>
+            <InputField
+              {...inputProps("subCounty")}
+              placeholder="e.g. Westlands"
+            />
+          </FieldWrapper>
+          <FieldWrapper label="Ward" error={fieldErrors.ward}>
+            <InputField {...inputProps("ward")} placeholder="e.g. Kitisuru" />
+          </FieldWrapper>
+        </div>
+        <FieldWrapper label="Estate / Area" optional>
+          <InputField
+            {...inputProps("estateOrArea")}
+            placeholder="e.g. Lavington, Karen"
+          />
+        </FieldWrapper>
+        <FieldWrapper label="Street Address" error={fieldErrors.streetAddress}>
+          <InputField
+            {...inputProps("streetAddress")}
+            placeholder="Building name, street, door number"
+          />
+        </FieldWrapper>
+        <div style={styles.twoCol}>
+          <FieldWrapper label="Postal Code" optional>
+            <InputField {...inputProps("postalCode")} placeholder="00100" />
+          </FieldWrapper>
+          <div />
+        </div>
+        <FieldWrapper label="Delivery Instructions" optional>
+          <textarea
+            {...register("deliveryInstructions")}
+            rows={3}
+            placeholder="Gate code, call before arrival, leave at reception…"
+            style={{...styles.input, resize: "vertical", minHeight: 80}}
+          />
+        </FieldWrapper>
+      </SectionCard>
+      <NavButtons onNext={nextStep} onBack={() => setActiveStep(0)} />
+    </motion.div>,
+
+    // Step 2: Delivery
+    <motion.div
+      key="step2"
+      variants={slideIn("right")}
+      initial="hidden"
+      animate="visible"
+      exit="exit"
+    >
+      <SectionCard title="Delivery Method" icon={iconTruck}>
+        {!selectedCounty ? (
+          <div style={styles.emptyState}>
+            <div style={styles.emptyIcon}>📍</div>
+            <p style={styles.emptyText}>
+              Please complete your address first to see delivery options.
+            </p>
+            <button
+              type="button"
+              onClick={() => setActiveStep(1)}
+              style={styles.ghostBtn}
+            >
+              Go back to address
+            </button>
+          </div>
+        ) : loadingRates ? (
+          <>
+            {[0, 1].map((i) => (
+              <ShimmerCard key={i} />
+            ))}
+          </>
+        ) : shippingRates ? (
+          Object.entries(shippingRates).map(([key, method]) => (
+            <DeliveryOption
+              key={key}
+              id={key}
+              value={key}
+              name="shippingMethod"
+              register={register}
+              checked={selectedMethod === key}
+              title={method.name}
+              subtitle={method.days}
+              cost={`KES ${method.cost.toFixed(2)}`}
+            />
+          ))
+        ) : (
+          <p style={styles.emptyText}>
+            No delivery options found for {selectedCounty}.
+          </p>
+        )}
+        {fieldErrors.shippingMethod && (
+          <p style={styles.errorText}>{fieldErrors.shippingMethod}</p>
+        )}
+      </SectionCard>
+      <NavButtons onNext={nextStep} onBack={() => setActiveStep(1)} />
+    </motion.div>,
+
+    // Step 3: Payment
+    <motion.div
+      key="step3"
+      variants={slideIn("right")}
+      initial="hidden"
+      animate="visible"
+      exit="exit"
+    >
+      <SectionCard title="Payment Method" icon={iconCard}>
+        <PaymentOption
+          id="cod"
+          value="CASH_ON_DELIVERY"
+          name="paymentMethod"
+          register={register}
+          checked={selectedPayment === "CASH_ON_DELIVERY"}
+          icon={<IoCashOutline />}
+          title="Cash on Delivery"
+          subtitle="Pay when your order arrives"
+        />
+        <PaymentOption
+          id="mpesa"
+          value="MobilePay"
+          name="paymentMethod"
+          register={register}
+          checked={selectedPayment === "MobilePay"}
+          icon={<CiMobile1 />}
+          title="M-Pesa"
+          subtitle="Pay securely via mobile money"
+        />
+        {fieldErrors.paymentMethod && (
+          <p style={styles.errorText}>{fieldErrors.paymentMethod}</p>
+        )}
+      </SectionCard>
+
+      {serverError && (
+        <motion.div
+          initial={{opacity: 0, y: -10}}
+          animate={{opacity: 1, y: 0}}
+          style={styles.errorBox}
+        >
+          <svg
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+          >
+            <circle cx="12" cy="12" r="10" />
+            <line x1="12" y1="8" x2="12" y2="12" />
+            <line x1="12" y1="16" x2="12.01" y2="16" />
+          </svg>
+          {serverError}
+        </motion.div>
+      )}
+
+      <motion.button
+        type="submit"
+        disabled={isSubmitting}
+        whileHover={{scale: 1.01, boxShadow: "0 8px 28px rgba(26,20,16,0.2)"}}
+        whileTap={{scale: 0.98}}
+        style={{
+          ...styles.submitBtn,
+          ...(isSubmitting ? styles.submitBtnDisabled : {}),
+        }}
+      >
+        {isSubmitting ? (
+          <span
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: 10,
+              justifyContent: "center",
+            }}
+          >
+            <span className="spinner" />
+            Placing your order…
+          </span>
+        ) : (
+          <span
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: 10,
+              justifyContent: "center",
+            }}
+          >
+            <svg
+              width="18"
+              height="18"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+            >
+              <rect x="3" y="11" width="18" height="11" rx="2" />
+              <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+            </svg>
+            Place Order · KES{" "}
+            {total.toLocaleString("en-KE", {minimumFractionDigits: 2})}
+          </span>
+        )}
+      </motion.button>
+
+      <p style={styles.secureNote}>
+        <svg
+          width="12"
+          height="12"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2"
+        >
+          <rect x="3" y="11" width="18" height="11" rx="2" />
+          <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+        </svg>{" "}
+        Your order is protected by SSL encryption.
+      </p>
+
+      <NavButtons onBack={() => setActiveStep(2)} isLast />
+    </motion.div>,
+  ];
+
   return (
     <>
       <style>{injectCSS}</style>
       <main style={styles.page}>
         <NavBar />
 
-        {/* ── Hero header ───────────────────────────────────────────── */}
-        <div style={styles.header}>
+        {/* Hero Header with motion */}
+        <motion.div
+          initial={{opacity: 0, y: -20}}
+          animate={{opacity: 1, y: 0}}
+          transition={{duration: 0.8, ease: [0.16, 1, 0.3, 1]}}
+          style={styles.header}
+        >
           <div style={styles.headerInner}>
             <p style={styles.headerEyebrow}>Secure Checkout</p>
             <h1 style={styles.headerTitle}>Complete Your Order</h1>
@@ -328,8 +813,6 @@ const Checkout = () => {
                 fill="none"
                 stroke="currentColor"
                 strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
               >
                 <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
                 <path d="M7 11V7a5 5 0 0 1 10 0v4" />
@@ -337,14 +820,19 @@ const Checkout = () => {
               <span>256-bit SSL encrypted · Your data is safe</span>
             </div>
           </div>
-        </div>
+        </motion.div>
 
-        {/* ── Step bar ──────────────────────────────────────────────── */}
+        {/* Step Bar with animated indicators */}
         <div style={styles.stepBar}>
           <div style={styles.stepBarInner}>
             {STEPS.map((label, i) => (
               <div key={label} style={styles.stepItem}>
-                <div
+                <motion.div
+                  animate={{
+                    borderColor: i <= activeStep ? GREEN : BORDER,
+                    backgroundColor: i < activeStep ? GREEN : "#fff",
+                  }}
+                  transition={{duration: 0.3}}
                   style={{
                     ...styles.stepDot,
                     ...(i <= activeStep ? styles.stepDotActive : {}),
@@ -364,21 +852,20 @@ const Checkout = () => {
                   ) : (
                     <span style={styles.stepNum}>{i + 1}</span>
                   )}
-                </div>
-                <span
-                  style={{
-                    ...styles.stepLabel,
-                    ...(i === activeStep ? styles.stepLabelActive : {}),
+                </motion.div>
+                <motion.span
+                  animate={{
+                    color: i === activeStep ? DARK : MUTED,
+                    fontWeight: i === activeStep ? 600 : 400,
                   }}
+                  style={{...styles.stepLabel}}
                 >
                   {label}
-                </span>
+                </motion.span>
                 {i < STEPS.length - 1 && (
-                  <div
-                    style={{
-                      ...styles.connector,
-                      ...(i < activeStep ? styles.connectorDone : {}),
-                    }}
+                  <motion.div
+                    animate={{background: i < activeStep ? GREEN : BORDER}}
+                    style={{...styles.connector}}
                   />
                 )}
               </div>
@@ -386,7 +873,7 @@ const Checkout = () => {
           </div>
         </div>
 
-        {/* ── Content grid ──────────────────────────────────────────── */}
+        {/* Main Grid */}
         <div style={styles.grid}>
           <form
             ref={formRef}
@@ -394,287 +881,18 @@ const Checkout = () => {
             noValidate
             style={styles.formCol}
           >
-            {/* ── STEP 0: Contact ─────────────────────────────────── */}
-            <div style={{display: activeStep === 0 ? "block" : "none"}}>
-              <SectionCard title="Contact Information" icon={iconPerson}>
-                <div style={styles.twoCol}>
-                  <FieldWrapper
-                    label="First Name"
-                    error={fieldErrors.firstName}
-                  >
-                    <InputField
-                      {...inputProps("firstName")}
-                      placeholder="Amara"
-                    />
-                  </FieldWrapper>
-                  <FieldWrapper label="Last Name" error={fieldErrors.lastName}>
-                    <InputField
-                      {...inputProps("lastName")}
-                      placeholder="Odhiambo"
-                    />
-                  </FieldWrapper>
-                </div>
-                <FieldWrapper label="Email Address" error={fieldErrors.email}>
-                  <InputField
-                    {...inputProps("email")}
-                    type="email"
-                    placeholder="amara@example.com"
-                  />
-                </FieldWrapper>
-                <FieldWrapper
-                  label="Phone Number"
-                  error={fieldErrors.phoneNumber}
-                >
-                  <div style={{position: "relative"}}>
-                    <span style={styles.phonePrefix}>🇰🇪 +254</span>
-                    <InputField
-                      {...inputProps("phoneNumber")}
-                      placeholder="0712 345 678"
-                      style={{
-                        ...styles.input,
-                        paddingLeft: "5.5rem",
-                        ...(fieldErrors.phoneNumber ? styles.inputError : {}),
-                      }}
-                    />
-                  </div>
-                </FieldWrapper>
-              </SectionCard>
-              <NavButtons onNext={nextStep} isFirst />
-            </div>
-
-            {/* ── STEP 1: Address ─────────────────────────────────── */}
-            <div style={{display: activeStep === 1 ? "block" : "none"}}>
-              <SectionCard title="Shipping Address" icon={iconPin}>
-                <FieldWrapper label="County" error={fieldErrors.county}>
-                  <SelectField
-                    {...register("county")}
-                    error={fieldErrors.county}
-                  >
-                    <option value="">— Select your county —</option>
-                    {KENYAN_COUNTIES.map((c) => (
-                      <option key={c}>{c}</option>
-                    ))}
-                  </SelectField>
-                </FieldWrapper>
-                <div style={styles.twoCol}>
-                  <FieldWrapper
-                    label="Sub-County"
-                    error={fieldErrors.subCounty}
-                  >
-                    <InputField
-                      {...inputProps("subCounty")}
-                      placeholder="e.g. Westlands"
-                    />
-                  </FieldWrapper>
-                  <FieldWrapper label="Ward" error={fieldErrors.ward}>
-                    <InputField
-                      {...inputProps("ward")}
-                      placeholder="e.g. Kitisuru"
-                    />
-                  </FieldWrapper>
-                </div>
-                <FieldWrapper label="Estate / Area" optional>
-                  <InputField
-                    {...inputProps("estateOrArea")}
-                    placeholder="e.g. Lavington, Karen"
-                  />
-                </FieldWrapper>
-                <FieldWrapper
-                  label="Street Address"
-                  error={fieldErrors.streetAddress}
-                >
-                  <InputField
-                    {...inputProps("streetAddress")}
-                    placeholder="Building name, street, door number"
-                  />
-                </FieldWrapper>
-                <div style={styles.twoCol}>
-                  <FieldWrapper label="Postal Code" optional>
-                    <InputField
-                      {...inputProps("postalCode")}
-                      placeholder="00100"
-                    />
-                  </FieldWrapper>
-                  <div />
-                </div>
-                <FieldWrapper label="Delivery Instructions" optional>
-                  <textarea
-                    {...register("deliveryInstructions")}
-                    rows={3}
-                    placeholder="Gate code, call before arrival, leave at reception…"
-                    style={{...styles.input, resize: "vertical", minHeight: 80}}
-                  />
-                </FieldWrapper>
-              </SectionCard>
-              <NavButtons onNext={nextStep} onBack={() => setActiveStep(0)} />
-            </div>
-
-            {/* ── STEP 2: Delivery ─────────────────────────────────── */}
-            <div style={{display: activeStep === 2 ? "block" : "none"}}>
-              <SectionCard title="Delivery Method" icon={iconTruck}>
-                {!selectedCounty ? (
-                  <div style={styles.emptyState}>
-                    <div style={styles.emptyIcon}>📍</div>
-                    <p style={styles.emptyText}>
-                      Please complete your address first to see delivery
-                      options.
-                    </p>
-                    <button
-                      type="button"
-                      onClick={() => setActiveStep(1)}
-                      style={styles.ghostBtn}
-                    >
-                      Go back to address
-                    </button>
-                  </div>
-                ) : loadingRates ? (
-                  <>
-                    {[0, 1].map((i) => (
-                      <ShimmerCard key={i} />
-                    ))}
-                  </>
-                ) : shippingRates ? (
-                  Object.entries(shippingRates).map(([key, method]) => (
-                    <DeliveryOption
-                      key={key}
-                      id={key}
-                      value={key}
-                      name="shippingMethod"
-                      register={register}
-                      checked={selectedMethod === key}
-                      title={method.name}
-                      subtitle={method.days}
-                      cost={`KES ${method.cost.toFixed(2)}`}
-                    />
-                  ))
-                ) : (
-                  <p style={styles.emptyText}>
-                    No delivery options found for {selectedCounty}.
-                  </p>
-                )}
-                {fieldErrors.shippingMethod && (
-                  <p style={styles.errorText}>{fieldErrors.shippingMethod}</p>
-                )}
-              </SectionCard>
-              <NavButtons onNext={nextStep} onBack={() => setActiveStep(1)} />
-            </div>
-
-            {/* ── STEP 3: Payment ──────────────────────────────────── */}
-            <div style={{display: activeStep === 3 ? "block" : "none"}}>
-              <SectionCard title="Payment Method" icon={iconCard}>
-                <PaymentOption
-                  id="cod"
-                  value="CASH_ON_DELIVERY"
-                  name="paymentMethod"
-                  register={register}
-                  checked={selectedPayment === "CASH_ON_DELIVERY"}
-                  icon=<IoCashOutline />
-                  title="Cash on Delivery"
-                  subtitle="Pay when your order arrives"
-                />
-                <PaymentOption
-                  id="mpesa"
-                  value="MobilePay"
-                  name="paymentMethod"
-                  register={register}
-                  checked={selectedPayment === "MobilePay"}
-                  icon=<CiMobile1 />
-                  title="M-Pesa"
-                  subtitle="Pay securely via mobile money"
-                />
-                {fieldErrors.paymentMethod && (
-                  <p style={styles.errorText}>{fieldErrors.paymentMethod}</p>
-                )}
-              </SectionCard>
-
-              {serverError && (
-                <div style={styles.errorBox}>
-                  <svg
-                    width="16"
-                    height="16"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    style={{flexShrink: 0}}
-                  >
-                    <circle cx="12" cy="12" r="10" />
-                    <line x1="12" y1="8" x2="12" y2="12" />
-                    <line x1="12" y1="16" x2="12.01" y2="16" />
-                  </svg>
-                  {serverError}
-                </div>
-              )}
-
-              <button
-                type="submit"
-                disabled={isSubmitting}
-                style={{
-                  ...styles.submitBtn,
-                  ...(isSubmitting ? styles.submitBtnDisabled : {}),
-                }}
-                className="submit-btn"
-              >
-                {isSubmitting ? (
-                  <span
-                    style={{
-                      display: "flex",
-                      alignItems: "center",
-                      gap: 10,
-                      justifyContent: "center",
-                    }}
-                  >
-                    <span className="spinner" />
-                    Placing your order…
-                  </span>
-                ) : (
-                  <span
-                    style={{
-                      display: "flex",
-                      alignItems: "center",
-                      gap: 10,
-                      justifyContent: "center",
-                    }}
-                  >
-                    <svg
-                      width="18"
-                      height="18"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                    >
-                      <rect x="3" y="11" width="18" height="11" rx="2" />
-                      <path d="M7 11V7a5 5 0 0 1 10 0v4" />
-                    </svg>
-                    Place Order · KES{" "}
-                    {total.toLocaleString("en-KE", {minimumFractionDigits: 2})}
-                  </span>
-                )}
-              </button>
-
-              <p style={styles.secureNote}>
-                <svg
-                  width="12"
-                  height="12"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  style={{verticalAlign: "middle"}}
-                >
-                  <rect x="3" y="11" width="18" height="11" rx="2" />
-                  <path d="M7 11V7a5 5 0 0 1 10 0v4" />
-                </svg>{" "}
-                Your order is protected by SSL encryption.
-              </p>
-
-              <NavButtons onBack={() => setActiveStep(2)} isLast />
-            </div>
+            <AnimatePresence mode="wait">
+              {stepContent[activeStep]}
+            </AnimatePresence>
           </form>
 
-          {/* ── Order summary sidebar ─────────────────────────────── */}
-          <aside style={styles.sidebar}>
+          {/* Order Summary Sidebar */}
+          <motion.aside
+            initial={{opacity: 0, x: 30}}
+            animate={{opacity: 1, x: 0}}
+            transition={{duration: 0.6, delay: 0.2}}
+            style={styles.sidebar}
+          >
             <div style={styles.sidebarCard}>
               <h3 style={styles.sidebarTitle}>Order Summary</h3>
               <div style={styles.sidebarDivider} />
@@ -683,12 +901,18 @@ const Checkout = () => {
                 <p style={styles.emptyText}>Your cart is empty.</p>
               ) : (
                 (addedProduct || []).map((item, i) => (
-                  <div key={i} style={styles.cartItem}>
+                  <motion.div
+                    key={i}
+                    initial={{opacity: 0, y: 10}}
+                    animate={{opacity: 1, y: 0}}
+                    transition={{delay: i * 0.05}}
+                    style={styles.cartItem}
+                  >
                     <div style={styles.cartItemImg}>
                       {item.product?.image?.data ? (
                         <img
                           src={bufferToDataURL(item.product.image)}
-                          alt={item.product.name || "Product"}
+                          alt={item.product.name}
                           style={styles.cartImg}
                         />
                       ) : (
@@ -697,7 +921,7 @@ const Checkout = () => {
                         </div>
                       )}
                       <span style={styles.cartQtyBadge}>
-                        {item.product.quantity || 1}
+                        {item.quantity || 1}
                       </span>
                     </div>
                     <div style={{flex: 1}}>
@@ -711,11 +935,10 @@ const Checkout = () => {
                     <span style={styles.cartItemPrice}>
                       KES{" "}
                       {(
-                        (item.product.priceAtAdd || 0) *
-                        (item.product.quantity || 1)
+                        (item.priceAtAdd || 0) * (item.quantity || 1)
                       ).toLocaleString("en-KE", {minimumFractionDigits: 2})}
                     </span>
-                  </div>
+                  </motion.div>
                 ))
               )}
 
@@ -747,13 +970,14 @@ const Checkout = () => {
                 </span>
               </div>
 
-              <button
+              <motion.button
                 type="button"
-                onClick={() => navigate("/cart")}
+                onClick={() => navigate("/cart-page")}
+                whileHover={{borderColor: GREEN, color: GREEN}}
                 style={styles.editCartBtn}
               >
                 ← Edit Cart
-              </button>
+              </motion.button>
 
               {/* Trust badges */}
               <div style={styles.trustRow}>
@@ -762,198 +986,25 @@ const Checkout = () => {
                   {icon: <FaBoltLightning />, label: "Fast Delivery"},
                   {icon: <SiEasyeda />, label: "Easy Returns"},
                 ].map(({icon, label}) => (
-                  <div key={label} style={styles.trustBadge}>
+                  <motion.div
+                    key={label}
+                    whileHover={{y: -2}}
+                    style={styles.trustBadge}
+                  >
                     <span style={{fontSize: 18}}>{icon}</span>
                     <span style={styles.trustLabel}>{label}</span>
-                  </div>
+                  </motion.div>
                 ))}
               </div>
             </div>
-          </aside>
+          </motion.aside>
         </div>
       </main>
     </>
   );
 };
 
-/* ─── Sub-component helpers ──────────────────────────────────────────── */
-
-const SectionCard = ({title, icon, children}) => (
-  <div style={styles.sectionCard}>
-    <div style={styles.sectionHeader}>
-      <span style={styles.sectionIcon}>{icon}</span>
-      <h2 style={styles.sectionTitle}>{title}</h2>
-    </div>
-    <div style={styles.sectionBody}>{children}</div>
-  </div>
-);
-
-const NavButtons = ({onNext, onBack, isFirst, isLast}) => (
-  <div
-    style={{
-      display: "flex",
-      gap: "1rem",
-      marginTop: "1.5rem",
-      marginBottom: "2.5rem",
-    }}
-  >
-    {!isFirst && (
-      <button type="button" onClick={onBack} style={styles.backBtn}>
-        ← Back
-      </button>
-    )}
-    {!isLast && (
-      <button
-        type="button"
-        onClick={onNext}
-        style={styles.nextBtn}
-        className="next-btn"
-      >
-        Continue →
-      </button>
-    )}
-  </div>
-);
-
-const DeliveryOption = ({
-  id,
-  value,
-  name,
-  register,
-  checked,
-  title,
-  subtitle,
-  cost,
-}) => (
-  <label
-    htmlFor={id}
-    style={{...styles.radioCard, ...(checked ? styles.radioCardActive : {})}}
-  >
-    <input
-      type="radio"
-      id={id}
-      value={value}
-      {...register(name)}
-      style={{display: "none"}}
-    />
-    <div
-      style={{
-        ...styles.radioCircle,
-        ...(checked ? styles.radioCircleActive : {}),
-      }}
-    >
-      {checked && <div style={styles.radioDot} />}
-    </div>
-    <div style={{flex: 1}}>
-      <p style={styles.radioTitle}>{title}</p>
-      <p style={styles.radioSubtitle}>{subtitle}</p>
-    </div>
-    <span style={styles.radioCost}>{cost}</span>
-  </label>
-);
-
-const PaymentOption = ({
-  id,
-  value,
-  name,
-  register,
-  checked,
-  icon,
-  title,
-  subtitle,
-}) => (
-  <label
-    htmlFor={id}
-    style={{...styles.radioCard, ...(checked ? styles.radioCardActive : {})}}
-  >
-    <input
-      type="radio"
-      id={id}
-      value={value}
-      {...register(name)}
-      style={{display: "none"}}
-    />
-    <div style={styles.payIcon}>{icon}</div>
-    <div style={{flex: 1}}>
-      <p style={styles.radioTitle}>{title}</p>
-      <p style={styles.radioSubtitle}>{subtitle}</p>
-    </div>
-    <div
-      style={{
-        ...styles.radioCircle,
-        ...(checked ? styles.radioCircleActive : {}),
-      }}
-    >
-      {checked && <div style={styles.radioDot} />}
-    </div>
-  </label>
-);
-
-/* ─── Icons ──────────────────────────────────────────────────────────── */
-const iconPerson = (
-  <svg
-    width="18"
-    height="18"
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth="1.75"
-  >
-    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
-    <circle cx="12" cy="7" r="4" />
-  </svg>
-);
-const iconPin = (
-  <svg
-    width="18"
-    height="18"
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth="1.75"
-  >
-    <path d="M21 10c0 7-9 13-9 13S3 17 3 10a9 9 0 0 1 18 0z" />
-    <circle cx="12" cy="10" r="3" />
-  </svg>
-);
-const iconTruck = (
-  <svg
-    width="18"
-    height="18"
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth="1.75"
-  >
-    <rect x="1" y="3" width="15" height="13" />
-    <polygon points="16 8 20 8 23 11 23 16 16 16 16 8" />
-    <circle cx="5.5" cy="18.5" r="2.5" />
-    <circle cx="18.5" cy="18.5" r="2.5" />
-  </svg>
-);
-const iconCard = (
-  <svg
-    width="18"
-    height="18"
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth="1.75"
-  >
-    <rect x="1" y="4" width="22" height="16" rx="2" ry="2" />
-    <line x1="1" y1="10" x2="23" y2="10" />
-  </svg>
-);
-
-/* ─── Styles ─────────────────────────────────────────────────────────── */
-const GOLD = "#B8955A";
-const GOLD_LIGHT = "#D4AF70";
-const GOLD_DARK = "#8A6D3C";
-const CREAM = "#FDFAF5";
-const DARK = "#1A1410";
-const MUTED = "#6B5F50";
-const BORDER = "#E8E0D0";
-
+/* ─── Styles (green palette + refined shadows) ─── */
 const styles = {
   page: {
     minHeight: "100vh",
@@ -962,7 +1013,7 @@ const styles = {
     color: DARK,
   },
   header: {
-    background: `linear-gradient(135deg, #1A1410 0%, #2D2318 50%, #1A1410 100%)`,
+    background: `linear-gradient(135deg, #1A1A1A 0%, #2D2A24 50%, #1A1A1A 100%)`,
     padding: "3.5rem 1.5rem 3rem",
     textAlign: "center",
   },
@@ -971,7 +1022,7 @@ const styles = {
     fontFamily: "'Montserrat', 'Helvetica Neue', sans-serif",
     fontSize: "0.65rem",
     letterSpacing: "0.25em",
-    color: GOLD,
+    color: GREEN_LIGHT,
     textTransform: "uppercase",
     marginBottom: "0.75rem",
     fontWeight: 500,
@@ -988,11 +1039,11 @@ const styles = {
     display: "inline-flex",
     alignItems: "center",
     gap: 8,
-    background: "rgba(184,149,90,0.15)",
-    border: `1px solid rgba(184,149,90,0.3)`,
+    background: "rgba(74,140,42,0.15)",
+    border: `1px solid rgba(74,140,42,0.3)`,
     borderRadius: 999,
     padding: "0.4rem 1.1rem",
-    color: GOLD_LIGHT,
+    color: GREEN_LIGHT,
     fontFamily: "'Montserrat', sans-serif",
     fontSize: "0.7rem",
     letterSpacing: "0.08em",
@@ -1031,8 +1082,8 @@ const styles = {
     transition: "all 0.3s ease",
   },
   stepDotActive: {
-    border: `2px solid ${GOLD}`,
-    background: GOLD,
+    border: `2px solid ${GREEN}`,
+    background: GREEN,
     color: "#fff",
   },
   stepNum: {
@@ -1051,7 +1102,6 @@ const styles = {
     whiteSpace: "nowrap",
     fontWeight: 400,
   },
-  stepLabelActive: {color: DARK, fontWeight: 600},
   connector: {
     flex: 1,
     height: 1,
@@ -1059,7 +1109,6 @@ const styles = {
     marginLeft: 8,
     transition: "background 0.4s ease",
   },
-  connectorDone: {background: GOLD},
   grid: {
     maxWidth: 1200,
     margin: "0 auto",
@@ -1076,7 +1125,7 @@ const styles = {
     border: `1px solid ${BORDER}`,
     marginBottom: "1.5rem",
     overflow: "hidden",
-    boxShadow: "0 2px 24px rgba(26,20,16,0.04)",
+    boxShadow: "0 4px 24px rgba(26,20,16,0.04)",
   },
   sectionHeader: {
     display: "flex",
@@ -1084,9 +1133,9 @@ const styles = {
     gap: 12,
     padding: "1.5rem 2rem 1.25rem",
     borderBottom: `1px solid ${BORDER}`,
-    color: GOLD_DARK,
+    color: GREEN,
   },
-  sectionIcon: {display: "flex", color: GOLD},
+  sectionIcon: {display: "flex", color: GREEN},
   sectionTitle: {
     fontFamily: "'Cormorant Garamond', Georgia, serif",
     fontSize: "1.25rem",
@@ -1126,12 +1175,10 @@ const styles = {
     outline: "none",
     transition: "border-color 0.2s, box-shadow 0.2s",
     boxSizing: "border-box",
-    appearance: "none",
-    WebkitAppearance: "none",
   },
   inputFocused: {
-    borderColor: GOLD,
-    boxShadow: `0 0 0 3px rgba(184,149,90,0.12)`,
+    borderColor: GREEN,
+    boxShadow: `0 0 0 3px rgba(74,140,42,0.12)`,
     background: "#fff",
   },
   inputError: {
@@ -1139,17 +1186,13 @@ const styles = {
     boxShadow: `0 0 0 3px rgba(192,57,43,0.08)`,
   },
   select: {
-    backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%236B5F50' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E")`,
+    backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%235A7A4A' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E")`,
     backgroundRepeat: "no-repeat",
     backgroundPosition: "right 1rem center",
     paddingRight: "2.5rem",
     cursor: "pointer",
   },
-  twoCol: {
-    display: "grid",
-    gridTemplateColumns: "1fr 1fr",
-    gap: "1rem",
-  },
+  twoCol: {display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1rem"},
   phonePrefix: {
     position: "absolute",
     left: "1rem",
@@ -1196,9 +1239,9 @@ const styles = {
     background: "#FDFBF8",
   },
   radioCardActive: {
-    borderColor: GOLD,
+    borderColor: GREEN,
     background: "#FEFCF6",
-    boxShadow: `0 0 0 3px rgba(184,149,90,0.1)`,
+    boxShadow: `0 0 0 3px rgba(74,140,42,0.1)`,
   },
   radioCircle: {
     width: 20,
@@ -1211,13 +1254,8 @@ const styles = {
     flexShrink: 0,
     transition: "border-color 0.2s",
   },
-  radioCircleActive: {borderColor: GOLD},
-  radioDot: {
-    width: 10,
-    height: 10,
-    borderRadius: "50%",
-    background: GOLD,
-  },
+  radioCircleActive: {borderColor: GREEN},
+  radioDot: {width: 10, height: 10, borderRadius: "50%", background: GREEN},
   radioTitle: {
     fontFamily: "'Montserrat', sans-serif",
     fontWeight: 600,
@@ -1235,14 +1273,14 @@ const styles = {
     fontFamily: "'Cormorant Garamond', Georgia, serif",
     fontSize: "1.05rem",
     fontWeight: 600,
-    color: GOLD_DARK,
+    color: GREEN,
     whiteSpace: "nowrap",
   },
   payIcon: {fontSize: 22, flexShrink: 0},
   nextBtn: {
     flex: 1,
     padding: "0.95rem 2rem",
-    background: `linear-gradient(135deg, ${GOLD} 0%, ${GOLD_LIGHT} 100%)`,
+    background: `linear-gradient(135deg, ${GREEN} 0%, ${GREEN_LIGHT} 100%)`,
     border: "none",
     borderRadius: 10,
     fontSize: "0.8rem",
@@ -1269,7 +1307,7 @@ const styles = {
   submitBtn: {
     width: "100%",
     padding: "1.05rem",
-    background: `linear-gradient(135deg, ${DARK} 0%, #2D2318 100%)`,
+    background: `linear-gradient(135deg, ${DARK} 0%, #2D2A24 100%)`,
     border: "none",
     borderRadius: 12,
     fontSize: "0.85rem",
@@ -1375,7 +1413,7 @@ const styles = {
     width: 18,
     height: 18,
     borderRadius: "50%",
-    background: GOLD,
+    background: GREEN,
     color: "#fff",
     fontSize: "0.62rem",
     fontFamily: "'Montserrat', sans-serif",
@@ -1433,7 +1471,7 @@ const styles = {
     fontFamily: "'Cormorant Garamond', Georgia, serif",
     fontSize: "1.4rem",
     fontWeight: 700,
-    color: GOLD_DARK,
+    color: GREEN,
   },
   editCartBtn: {
     width: "100%",
@@ -1449,11 +1487,7 @@ const styles = {
     color: MUTED,
     transition: "all 0.2s",
   },
-  trustRow: {
-    display: "flex",
-    gap: 8,
-    marginTop: "1.5rem",
-  },
+  trustRow: {display: "flex", gap: 8, marginTop: "1.5rem"},
   trustBadge: {
     flex: 1,
     display: "flex",
@@ -1474,34 +1508,14 @@ const styles = {
     textTransform: "uppercase",
     fontWeight: 500,
   },
-  stepDivider: {},
-  stepBadge: {},
-  stepBadgeActive: {},
-  stepTitle: {},
-  stepTitleActive: {},
-  stepLine: {},
 };
 
-/* ─── Global CSS injected for hover states, animations ──────────────── */
 const injectCSS = `
   @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600;700&family=Montserrat:wght@300;400;500;600;700&display=swap');
-
   * { box-sizing: border-box; }
-
   textarea { font-family: 'Montserrat', sans-serif; font-size: 0.9rem; }
-
-  .next-btn:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(184,149,90,0.35); }
-  .next-btn:active { transform: translateY(0); }
-  .submit-btn:not(:disabled):hover { transform: translateY(-1px); box-shadow: 0 6px 24px rgba(26,20,16,0.25); }
-  .submit-btn:not(:disabled):active { transform: translateY(0); }
-
-  @keyframes shimmer {
-    0%, 100% { opacity: 1; }
-    50% { opacity: 0.55; }
-  }
-
+  @keyframes shimmer { 0%, 100% { opacity: 1; } 50% { opacity: 0.55; } }
   @keyframes spin { to { transform: rotate(360deg); } }
-
   .spinner {
     display: inline-block;
     width: 16px; height: 16px;
@@ -1509,18 +1523,14 @@ const injectCSS = `
     border-top-color: #F5EDD8;
     border-radius: 50%;
     animation: spin 0.7s linear infinite;
-    flex-shrink: 0;
   }
-
   @media (max-width: 860px) {
     .checkout-grid { grid-template-columns: 1fr !important; }
     .step-label { display: none; }
   }
-
   @media (max-width: 540px) {
     .two-col { grid-template-columns: 1fr !important; }
   }
-
   input::placeholder, textarea::placeholder { color: #C8BBAA; }
   select option { color: #1A1410; }
 `;
