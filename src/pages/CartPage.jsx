@@ -3,7 +3,7 @@ import NavBar from "../components/navBar";
 import {motion, AnimatePresence, useInView} from "framer-motion";
 import {useAddToCartStore} from "../stores/addToCartStore.js";
 import {bufferToDataURL} from "../utils/displayImage";
-import {useNavigate} from "react-router-dom";
+import {Link, useNavigate} from "react-router-dom";
 
 const GOLD = "#C9A84C";
 const GOLD_LIGHT = "#E8C97A";
@@ -874,33 +874,34 @@ const CartPage = () => {
                 </div>
 
                 <div style={{padding: "0 28px 28px"}}>
-                  <motion.button
-                    whileHover={{scale: 1.02}}
-                    whileTap={{scale: 0.98}}
-                    onClick={() => navigate("/checkout")}
-                    disabled={visibleItems.length === 0}
-                    style={{
-                      width: "100%",
-                      padding: "16px",
-                      background:
-                        visibleItems.length === 0
-                          ? "rgba(255,255,255,0.08)"
-                          : `linear-gradient(135deg, ${GOLD} 0%, ${GOLD_LIGHT} 100%)`,
-                      border: "none",
-                      borderRadius: 12,
-                      cursor:
-                        visibleItems.length === 0 ? "not-allowed" : "pointer",
-                      fontSize: 11,
-                      fontWeight: 500,
-                      letterSpacing: "0.3em",
-                      textTransform: "uppercase",
-                      color: visibleItems.length === 0 ? MUTED : DARK,
-                      transition: "opacity 0.3s",
-                    }}
-                  >
-                    Proceed to Checkout
-                  </motion.button>
-
+                  <Link to={"/cart-page/shipping-info"}>
+                    <motion.button
+                      whileHover={{scale: 1.02}}
+                      whileTap={{scale: 0.98}}
+                      onClick={() => navigate("/checkout")}
+                      disabled={visibleItems.length === 0}
+                      style={{
+                        width: "100%",
+                        padding: "16px",
+                        background:
+                          visibleItems.length === 0
+                            ? "rgba(255,255,255,0.08)"
+                            : `linear-gradient(135deg, ${GOLD} 0%, ${GOLD_LIGHT} 100%)`,
+                        border: "none",
+                        borderRadius: 12,
+                        cursor:
+                          visibleItems.length === 0 ? "not-allowed" : "pointer",
+                        fontSize: 11,
+                        fontWeight: 500,
+                        letterSpacing: "0.3em",
+                        textTransform: "uppercase",
+                        color: visibleItems.length === 0 ? MUTED : DARK,
+                        transition: "opacity 0.3s",
+                      }}
+                    >
+                      Proceed to Checkout
+                    </motion.button>
+                  </Link>
                   <div
                     style={{
                       display: "flex",

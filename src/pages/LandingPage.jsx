@@ -9,12 +9,14 @@ import {useViewProd} from "../stores/viewProdStore";
 import {bufferToDataURL} from "../utils/displayImage";
 import {Link, useNavigate} from "react-router-dom";
 import NavBar from "../components/navBar";
-const GOLD = "#C9A84C";
-const GOLD_LIGHT = "#E8C97A";
-const GOLD_PALE = "#F5EDD6";
-const CREAM = "#FDFAF5";
-const DARK = "#1A1410";
-const MUTED = "#8A7560";
+
+// ── Mindful Living KE — Brand Palette ──
+const GOLD = "#4A8C2A"; // primary green (matches logo)
+const GOLD_LIGHT = "#72B84A"; // lighter green
+const GOLD_PALE = "#E8F5E0"; // pale green tint
+const CREAM = "#F7FBF4"; // off-white with green tint
+const DARK = "#1A1A1A"; // near-black (logo text colour)
+const MUTED = "#5A7A4A"; // muted green-grey
 
 // Stagger container
 const containerVariants = {
@@ -121,9 +123,9 @@ const LandingPage = () => {
   const [added, setAdded] = useState(false);
   const navigate = useNavigate();
 
-  //this handleClick I want it to also act like a handleClick function also
   const [addedStates, setAddedStates] = useState({});
   const [isHovered, setIsHovered] = useState(false);
+
   const handleSubmit = async (e, productId) => {
     e.preventDefault();
     const product = allProducts.find((p) => p._id === productId);
@@ -139,6 +141,7 @@ const LandingPage = () => {
       console.error(e);
     }
   };
+
   const handleClick = async (e) => {
     e.preventDefault();
     var singleProd = allProducts.map((single) => {
@@ -151,13 +154,13 @@ const LandingPage = () => {
       navigate("/cart-page");
     }, 1200);
   };
+
   return (
     <main className="w-full h-screen border-[2px]">
-      {" "}
-      {/* Removed flex centering */}
       <div className="main-container w-full h-full flex flex-col">
         <NavBar />
-        {/* header section */}
+
+        {/* ── Hero Section ── */}
         <section
           ref={sectionRef}
           style={{
@@ -166,9 +169,11 @@ const LandingPage = () => {
             minHeight: "100vh",
             display: "flex",
             alignItems: "center",
-            background: `linear-gradient(120deg, #FDFAF5 0%, #F5ECD7 35%, #EDD9B8 70%, #E8CFA0 100%)`,
+            // Updated: green-tinted gradient to match Mindful Living KE
+            background: `linear-gradient(120deg, #F7FBF4 0%, #E8F5E0 35%, #D4EDBE 70%, #C5E4AC 100%)`,
           }}
         >
+          {/* Floating orb — top right */}
           <motion.div
             animate={{x: [0, 30, 0], y: [0, -20, 0]}}
             transition={{duration: 12, repeat: Infinity, ease: "easeInOut"}}
@@ -183,6 +188,8 @@ const LandingPage = () => {
               pointerEvents: "none",
             }}
           />
+
+          {/* Floating orb — bottom left */}
           <motion.div
             animate={{x: [0, -25, 0], y: [0, 30, 0]}}
             transition={{
@@ -203,6 +210,7 @@ const LandingPage = () => {
             }}
           />
 
+          {/* Top border line */}
           <motion.div
             initial={{scaleX: 0}}
             animate={isInView ? {scaleX: 1} : {scaleX: 0}}
@@ -219,6 +227,7 @@ const LandingPage = () => {
             }}
           />
 
+          {/* Bottom border line */}
           <motion.div
             initial={{scaleX: 0}}
             animate={isInView ? {scaleX: 1} : {scaleX: 0}}
@@ -249,6 +258,7 @@ const LandingPage = () => {
             }}
             className="hero-grid"
           >
+            {/* LEFT — Text */}
             <motion.div
               style={{
                 y: textY,
@@ -261,6 +271,7 @@ const LandingPage = () => {
               initial="hidden"
               animate={isInView ? "visible" : "hidden"}
             >
+              {/* Badge pill — updated copy to match brand tagline */}
               <motion.div variants={itemVariants} style={{marginBottom: 28}}>
                 <div
                   style={{
@@ -292,7 +303,8 @@ const LandingPage = () => {
                       color: GOLD,
                     }}
                   >
-                    Top Product of the Month
+                    {/* Updated: matches logo tagline */}
+                    Kenya's Natural Choice
                   </span>
                 </div>
               </motion.div>
@@ -356,6 +368,7 @@ const LandingPage = () => {
                 </h2>
               </motion.div>
 
+              {/* Divider + label — updated to match logo tagline */}
               <motion.div variants={itemVariants} style={{marginBottom: 28}}>
                 <div style={{display: "flex", alignItems: "center", gap: 14}}>
                   <div style={{width: 36, height: 1, background: GOLD}} />
@@ -368,12 +381,13 @@ const LandingPage = () => {
                       color: MUTED,
                     }}
                   >
-                    Botanical Formula
+                    {/* Updated: matches logo "-THE NATURAL WAY-" */}
+                    The Natural Way
                   </span>
                 </div>
               </motion.div>
 
-              {/* Body */}
+              {/* Body copy */}
               <motion.p
                 variants={itemVariants}
                 style={{
@@ -434,6 +448,7 @@ const LandingPage = () => {
                 </button>
               </motion.div>
 
+              {/* Stats row */}
               <motion.div
                 variants={itemVariants}
                 style={{
@@ -495,6 +510,7 @@ const LandingPage = () => {
                 minHeight: 560,
               }}
             >
+              {/* Radial glow behind image */}
               <div
                 style={{
                   position: "absolute",
@@ -509,6 +525,7 @@ const LandingPage = () => {
                 }}
               />
 
+              {/* Pulsing rings */}
               {[260, 360, 460].map((size, i) => (
                 <motion.div
                   key={size}
@@ -533,6 +550,7 @@ const LandingPage = () => {
                 />
               ))}
 
+              {/* Est. badge — updated bg to rich dark green */}
               <motion.div
                 variants={badgeVariants}
                 initial="hidden"
@@ -545,7 +563,8 @@ const LandingPage = () => {
                   width: 88,
                   height: 88,
                   borderRadius: "50%",
-                  background: DARK,
+                  // Updated: dark green instead of dark brown
+                  background: "#14280F",
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
@@ -607,7 +626,8 @@ const LandingPage = () => {
                   </div>
                 </div>
               </motion.div>
-              {/* Price tag */}
+
+              {/* Price tag — updated bg to deep forest green */}
               <motion.div
                 initial={{opacity: 0, y: 20}}
                 animate={isInView ? {opacity: 1, y: 0} : {opacity: 0, y: 20}}
@@ -621,7 +641,8 @@ const LandingPage = () => {
                   bottom: 24,
                   right: 0,
                   zIndex: 10,
-                  background: "rgba(15,12,8,0.88)",
+                  // Updated: deep forest green instead of near-black brown
+                  background: "rgba(20,40,15,0.88)",
                   backdropFilter: "blur(14px)",
                   padding: "16px 22px",
                 }}
@@ -661,6 +682,7 @@ const LandingPage = () => {
                 </div>
               </motion.div>
 
+              {/* Product image */}
               <motion.div
                 variants={imageVariants}
                 initial="hidden"
@@ -678,27 +700,29 @@ const LandingPage = () => {
                   }}
                   style={{
                     width: "clamp(320px, 45vw, 600px)",
+                    // Updated: green-tinted shadow instead of brown
                     filter:
-                      "drop-shadow(0 50px 100px rgba(80,45,8,0.42)) drop-shadow(0 12px 28px rgba(80,45,8,0.2))",
+                      "drop-shadow(0 50px 100px rgba(30,70,10,0.38)) drop-shadow(0 12px 28px rgba(30,70,10,0.18))",
                   }}
                 />
               </motion.div>
             </motion.div>
           </div>
 
-          {/* Shimmer keyframe */}
+          {/* Shimmer keyframe + responsive */}
           <style>{`
-        @keyframes shimmer-text {
-          0%   { background-position: 0%   center }
-          50%  { background-position: 100% center }
-          100% { background-position: 0%   center }
-        }
-        @media (max-width: 768px) {
-          .hero-grid { grid-template-columns: 1fr !important; padding: 60px 28px !important; }
-        }
-      `}</style>
+            @keyframes shimmer-text {
+              0%   { background-position: 0%   center }
+              50%  { background-position: 100% center }
+              100% { background-position: 0%   center }
+            }
+            @media (max-width: 768px) {
+              .hero-grid { grid-template-columns: 1fr !important; padding: 60px 28px !important; }
+            }
+          `}</style>
         </section>
-        {/* products section */}
+
+        {/* ── Products Section ── */}
         <section className="all products section">
           <h1 className="text-center font-extrabold lg:text-[40px]">
             Featured Products
@@ -738,7 +762,7 @@ const LandingPage = () => {
                         stiffness: 400,
                         damping: 35,
                         mass: 0.6,
-                        velocity: 10, // adds a slight overshoot for premium feel
+                        velocity: 10,
                       }}
                       className="absolute inset-x-0 bottom-0 flex items-center justify-center bg-gradient-to-t from-black/85 via-black/60 to-transparent backdrop-blur-md py-5 pointer-events-none"
                     >
@@ -765,6 +789,7 @@ const LandingPage = () => {
                         Stock: {product.stock}
                       </span>
                     </div>
+
                     <form onSubmit={(e) => handleSubmit(e, product._id)}>
                       <button
                         type="submit"
@@ -776,7 +801,8 @@ const LandingPage = () => {
                             ? "bg-gray-300 cursor-not-allowed text-gray-500"
                             : addedStates[product._id]
                               ? "bg-green-600 text-white focus:ring-green-500"
-                              : "bg-gray-900 hover:bg-gray-800 text-white focus:ring-gray-500"
+                              : // Updated: brand green instead of gray-900
+                                "bg-[#4A8C2A] hover:bg-[#3A7020] text-white focus:ring-[#4A8C2A]"
                         }`}
                       >
                         <span className="flex items-center justify-center gap-2 transition-all duration-300">

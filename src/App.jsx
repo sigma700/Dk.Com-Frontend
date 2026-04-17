@@ -3,6 +3,7 @@ import {createBrowserRouter, RouterProvider} from "react-router-dom";
 import LandingPage from "./pages/LandingPage";
 import CartPage from "./pages/CartPage";
 import Order from "./pages/Order";
+import PersonalInfo from "./pages/PersonalInfo";
 
 const router = createBrowserRouter([
   {
@@ -16,6 +17,10 @@ const router = createBrowserRouter([
   {
     path: "/order/:productId",
     element: <Order />,
+  },
+  {
+    path: "/cart-page/shipping-info",
+    element: <PersonalInfo />,
   },
 ]);
 
