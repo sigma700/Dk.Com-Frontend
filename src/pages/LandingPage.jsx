@@ -1,30 +1,25 @@
-import React, {useEffect, useRef, useState, useCallback} from "react";
-// import HamburgerMenu from "../components/menu";
-
+import React, {useEffect, useRef, useState} from "react";
 import BuyNowButton from "../components/buyButton";
 import {useInView, useScroll, useTransform, motion} from "framer-motion";
 import {useProductsStore} from "../stores/productDisplayStore";
 import {useAddToCartStore} from "../stores/addToCartStore";
-import {useViewProd} from "../stores/viewProdStore";
 import {bufferToDataURL} from "../utils/displayImage";
 import {Link, useNavigate} from "react-router-dom";
 import NavBar from "../components/navBar";
 
 // ── Mindful Living KE — Brand Palette ──
-const GOLD = "#4A8C2A"; // primary green (matches logo)
+const GOLD = "#4A8C2A"; // primary green
 const GOLD_LIGHT = "#72B84A"; // lighter green
 const GOLD_PALE = "#E8F5E0"; // pale green tint
-const CREAM = "#F7FBF4"; // off-white with green tint
-const DARK = "#1A1A1A"; // near-black (logo text colour)
-const MUTED = "#5A7A4A"; // muted green-grey
+const CREAM = "#F7FBF4"; // off‑white with green tint
+const DARK = "#1A1A1A"; // near‑black
+const MUTED = "#5A7A4A"; // muted green‑grey
 
-// Stagger container
+// Hero section animation variants (unchanged)
 const containerVariants = {
   hidden: {},
   visible: {transition: {staggerChildren: 0.13, delayChildren: 0.2}},
 };
-
-// Each text block
 const itemVariants = {
   hidden: {opacity: 0, y: 40, filter: "blur(6px)"},
   visible: {
@@ -34,8 +29,6 @@ const itemVariants = {
     transition: {duration: 0.9, ease: [0.16, 1, 0.3, 1]},
   },
 };
-
-// Image entrance
 const imageVariants = {
   hidden: {opacity: 0, scale: 0.88, x: 60},
   visible: {
@@ -45,8 +38,6 @@ const imageVariants = {
     transition: {duration: 1.2, ease: [0.16, 1, 0.3, 1], delay: 0.3},
   },
 };
-
-// Floating badge
 const badgeVariants = {
   hidden: {opacity: 0, scale: 0.7, rotate: -15},
   visible: {
@@ -56,8 +47,6 @@ const badgeVariants = {
     transition: {duration: 0.8, ease: [0.16, 1, 0.3, 1], delay: 0.9},
   },
 };
-
-// Stat card
 const statVariants = {
   hidden: {opacity: 0, y: 24},
   visible: (i) => ({
@@ -77,16 +66,27 @@ const stats = [
   {num: "4.9★", label: "Rating"},
 ];
 
-const tags = [
-  {text: "Argan Oil · Morocco", pos: {bottom: 130, left: -30}, delay: 1.1},
-  {text: "Tea Tree · Australia", pos: {top: 100, right: -20}, delay: 1.3},
-];
+// New product‑section animation variants
+const productsContainerVariants = {
+  hidden: {opacity: 0},
+  visible: {
+    opacity: 1,
+    transition: {staggerChildren: 0.1, delayChildren: 0.2},
+  },
+};
+const productCardVariants = {
+  hidden: {opacity: 0, y: 30},
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: {duration: 0.6, ease: [0.16, 1, 0.3, 1]},
+  },
+};
 
 const LandingPage = () => {
-  const {showAllProducts, allProducts, isLoading} = useProductsStore();
-  const [productId, setProductId] = useState("");
-  const [quantity, setQuantity] = useState("");
-  const {addToCart, addedProduct} = useAddToCartStore();
+  const {showAllProducts, allProducts} = useProductsStore();
+  const {addToCart} = useAddToCartStore();
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchData = async () => {
@@ -96,16 +96,15 @@ const LandingPage = () => {
         console.error(e);
       }
     };
-
-    if (allProducts.length === 0) {
-      fetchData();
-    }
+    if (allProducts.length === 0) fetchData();
   }, []);
 
+  const [addedStates, setAddedStates] = useState({});
+  const [hoveredCard, setHoveredCard] = useState(null);
   const sectionRef = useRef(null);
   const isInView = useInView(sectionRef, {once: true, margin: "-100px"});
 
-  // Parallax on image
+  // Parallax for hero image (unchanged)
   const {scrollYProgress} = useScroll({
     target: sectionRef,
     offset: ["start start", "end start"],
@@ -113,18 +112,6 @@ const LandingPage = () => {
   const imageY = useTransform(scrollYProgress, [0, 1], ["0%", "-12%"]);
   const textY = useTransform(scrollYProgress, [0, 1], ["0%", "8%"]);
   const opacity = useTransform(scrollYProgress, [0, 0.7], [1, 0]);
-
-  // Rotating shimmer angle for background
-  const [tick, setTick] = useState(0);
-  useEffect(() => {
-    const id = setInterval(() => setTick((t) => t + 1), 50);
-    return () => clearInterval(id);
-  }, []);
-  const [added, setAdded] = useState(false);
-  const navigate = useNavigate();
-
-  const [addedStates, setAddedStates] = useState({});
-  const [isHovered, setIsHovered] = useState(false);
 
   const handleSubmit = async (e, productId) => {
     e.preventDefault();
@@ -134,33 +121,18 @@ const LandingPage = () => {
     try {
       await addToCart(productId, 1);
       setAddedStates((prev) => ({...prev, [productId]: true}));
-      setTimeout(() => {
-        navigate("/cart-page");
-      }, 1200);
+      setTimeout(() => navigate("/cart-page"), 1200);
     } catch (e) {
       console.error(e);
     }
   };
 
-  const handleClick = async (e) => {
-    e.preventDefault();
-    var singleProd = allProducts.map((single) => {
-      if (single.stock === 0 || added) return;
-    });
-
-    setAdded(true);
-
-    setTimeout(() => {
-      navigate("/cart-page");
-    }, 1200);
-  };
-
   return (
-    <main className="w-full h-screen border-[2px]">
+    <main className="w-full h-full border-[2px]">
       <div className="main-container w-full h-full flex flex-col">
         <NavBar />
 
-        {/* ── Hero Section ── */}
+        {/* ── Hero Section (exactly as original) ── */}
         <section
           ref={sectionRef}
           style={{
@@ -169,8 +141,7 @@ const LandingPage = () => {
             minHeight: "100vh",
             display: "flex",
             alignItems: "center",
-            // Updated: green-tinted gradient to match Mindful Living KE
-            background: `linear-gradient(120deg, #F7FBF4 0%, #E8F5E0 35%, #D4EDBE 70%, #C5E4AC 100%)`,
+            background: `linear-gradient(135deg, ${CREAM} 0%, ${GOLD_PALE} 45%, #C5E4AC 100%)`,
           }}
         >
           {/* Floating orb — top right */}
@@ -244,7 +215,7 @@ const LandingPage = () => {
             }}
           />
 
-          {/* ── Main grid ── */}
+          {/* Main grid */}
           <div
             style={{
               display: "grid",
@@ -271,7 +242,7 @@ const LandingPage = () => {
               initial="hidden"
               animate={isInView ? "visible" : "hidden"}
             >
-              {/* Badge pill — updated copy to match brand tagline */}
+              {/* Badge pill */}
               <motion.div variants={itemVariants} style={{marginBottom: 28}}>
                 <div
                   style={{
@@ -303,7 +274,6 @@ const LandingPage = () => {
                       color: GOLD,
                     }}
                   >
-                    {/* Updated: matches logo tagline */}
                     Kenya's Natural Choice
                   </span>
                 </div>
@@ -368,7 +338,7 @@ const LandingPage = () => {
                 </h2>
               </motion.div>
 
-              {/* Divider + label — updated to match logo tagline */}
+              {/* Divider + label */}
               <motion.div variants={itemVariants} style={{marginBottom: 28}}>
                 <div style={{display: "flex", alignItems: "center", gap: 14}}>
                   <div style={{width: 36, height: 1, background: GOLD}} />
@@ -381,7 +351,6 @@ const LandingPage = () => {
                       color: MUTED,
                     }}
                   >
-                    {/* Updated: matches logo "-THE NATURAL WAY-" */}
                     The Natural Way
                   </span>
                 </div>
@@ -550,7 +519,7 @@ const LandingPage = () => {
                 />
               ))}
 
-              {/* Est. badge — updated bg to rich dark green */}
+              {/* Est. badge */}
               <motion.div
                 variants={badgeVariants}
                 initial="hidden"
@@ -563,7 +532,6 @@ const LandingPage = () => {
                   width: 88,
                   height: 88,
                   borderRadius: "50%",
-                  // Updated: dark green instead of dark brown
                   background: "#14280F",
                   display: "flex",
                   alignItems: "center",
@@ -627,7 +595,7 @@ const LandingPage = () => {
                 </div>
               </motion.div>
 
-              {/* Price tag — updated bg to deep forest green */}
+              {/* Price tag */}
               <motion.div
                 initial={{opacity: 0, y: 20}}
                 animate={isInView ? {opacity: 1, y: 0} : {opacity: 0, y: 20}}
@@ -641,7 +609,6 @@ const LandingPage = () => {
                   bottom: 24,
                   right: 0,
                   zIndex: 10,
-                  // Updated: deep forest green instead of near-black brown
                   background: "rgba(20,40,15,0.88)",
                   backdropFilter: "blur(14px)",
                   padding: "16px 22px",
@@ -700,7 +667,6 @@ const LandingPage = () => {
                   }}
                   style={{
                     width: "clamp(320px, 45vw, 600px)",
-                    // Updated: green-tinted shadow instead of brown
                     filter:
                       "drop-shadow(0 50px 100px rgba(30,70,10,0.38)) drop-shadow(0 12px 28px rgba(30,70,10,0.18))",
                   }}
@@ -709,7 +675,6 @@ const LandingPage = () => {
             </motion.div>
           </div>
 
-          {/* Shimmer keyframe + responsive */}
           <style>{`
             @keyframes shimmer-text {
               0%   { background-position: 0%   center }
@@ -722,119 +687,298 @@ const LandingPage = () => {
           `}</style>
         </section>
 
-        {/* ── Products Section ── */}
-        <section className="all products section">
-          <h1 className="text-center font-extrabold lg:text-[40px]">
-            Featured Products
-          </h1>
-          <div className="section grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 mt-8">
+        {/* ── REFINED PRODUCTS SECTION ── */}
+        <section
+          style={{
+            padding: "100px 80px",
+            background: CREAM,
+            position: "relative",
+            overflow: "hidden",
+          }}
+        >
+          {/* Subtle decorative top border */}
+          <motion.div
+            initial={{scaleX: 0}}
+            whileInView={{scaleX: 1}}
+            viewport={{once: true}}
+            transition={{duration: 1.2, ease: [0.16, 1, 0.3, 1]}}
+            style={{
+              position: "absolute",
+              top: 0,
+              left: "10%",
+              right: "10%",
+              height: 1,
+              background: `linear-gradient(90deg, transparent, ${GOLD}40, transparent)`,
+            }}
+          />
+
+          {/* Section header */}
+          <div style={{textAlign: "center", marginBottom: 64}}>
+            <motion.div
+              initial={{opacity: 0, y: 20}}
+              whileInView={{opacity: 1, y: 0}}
+              viewport={{once: true}}
+              transition={{duration: 0.6}}
+              style={{
+                display: "inline-flex",
+                alignItems: "center",
+                gap: 14,
+                marginBottom: 24,
+              }}
+            >
+              <div style={{width: 36, height: 1, background: GOLD}} />
+              <span
+                style={{
+                  fontSize: 9,
+                  fontWeight: 500,
+                  letterSpacing: "0.4em",
+                  textTransform: "uppercase",
+                  color: MUTED,
+                }}
+              >
+                Handcrafted Collection
+              </span>
+              <div style={{width: 36, height: 1, background: GOLD}} />
+            </motion.div>
+
+            <motion.h2
+              initial={{opacity: 0, y: 20}}
+              whileInView={{opacity: 1, y: 0}}
+              viewport={{once: true}}
+              transition={{duration: 0.6, delay: 0.1}}
+              style={{
+                fontFamily: "'Playfair Display', 'Georgia', serif",
+                fontSize: "clamp(32px, 4vw, 48px)",
+                fontWeight: 300,
+                color: DARK,
+                letterSpacing: "-0.01em",
+                margin: 0,
+              }}
+            >
+              Featured Products
+            </motion.h2>
+            <motion.p
+              initial={{opacity: 0, y: 20}}
+              whileInView={{opacity: 1, y: 0}}
+              viewport={{once: true}}
+              transition={{duration: 0.6, delay: 0.2}}
+              style={{
+                fontSize: 14,
+                color: MUTED,
+                maxWidth: 480,
+                margin: "16px auto 0",
+                fontWeight: 300,
+                letterSpacing: "0.02em",
+              }}
+            >
+              Pure botanicals, thoughtfully formulated for your daily ritual
+            </motion.p>
+          </div>
+
+          {/* Products Grid */}
+          <motion.div
+            variants={productsContainerVariants}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{once: true, margin: "-50px"}}
+            style={{
+              display: "grid",
+              gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))",
+              gap: "32px",
+              maxWidth: 1400,
+              margin: "0 auto",
+            }}
+          >
             {allProducts.map((product) => (
-              <div className="" key={product._id}>
-                <div className="group bg-white rounded-xl shadow-md overflow-hidden hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
-                  {/* Product Image */}
-                  <div
-                    className="relative overflow-hidden rounded-xl"
-                    onMouseEnter={() => setIsHovered(true)}
-                    onMouseLeave={() => setIsHovered(false)}
-                  >
-                    <Link to={`/order/${product._id}`}>
-                      <motion.img
-                        src={bufferToDataURL(product.image)}
-                        alt={product.name}
-                        className="w-full h-full object-cover"
-                        initial={{scale: 1}}
-                        animate={{scale: isHovered ? 1.08 : 1}}
-                        transition={{
-                          type: "spring",
-                          stiffness: 350,
-                          damping: 28,
-                          mass: 0.5,
-                          restDelta: 0.001,
-                        }}
-                      />
-                    </Link>
-
-                    <motion.div
-                      initial={{y: "100%"}}
-                      animate={{y: isHovered ? 0 : "100%"}}
-                      transition={{
-                        type: "spring",
-                        stiffness: 400,
-                        damping: 35,
-                        mass: 0.6,
-                        velocity: 10,
+              <motion.div
+                key={product._id}
+                variants={productCardVariants}
+                onHoverStart={() => setHoveredCard(product._id)}
+                onHoverEnd={() => setHoveredCard(null)}
+                style={{
+                  background: "white",
+                  borderRadius: 24,
+                  overflow: "hidden",
+                  transition: "box-shadow 0.4s ease, transform 0.3s ease",
+                  boxShadow:
+                    hoveredCard === product._id
+                      ? "0 25px 40px -12px rgba(0,0,0,0.15)"
+                      : "0 8px 20px -6px rgba(0,0,0,0.05)",
+                  transform:
+                    hoveredCard === product._id
+                      ? "translateY(-4px)"
+                      : "translateY(0)",
+                }}
+              >
+                {/* Image Container */}
+                <div style={{position: "relative", overflow: "hidden"}}>
+                  <Link to={`/order/${product._id}`}>
+                    <motion.img
+                      src={bufferToDataURL(product.image)}
+                      alt={product.name}
+                      style={{
+                        width: "100%",
+                        height: 320,
+                        objectFit: "cover",
+                        transition:
+                          "transform 0.5s cubic-bezier(0.16, 1, 0.3, 1)",
                       }}
-                      className="absolute inset-x-0 bottom-0 flex items-center justify-center bg-gradient-to-t from-black/85 via-black/60 to-transparent backdrop-blur-md py-5 pointer-events-none"
+                      whileHover={{scale: 1.05}}
+                    />
+                  </Link>
+
+                  {/* Overlay on hover */}
+                  <motion.div
+                    initial={{opacity: 0}}
+                    animate={{opacity: hoveredCard === product._id ? 1 : 0}}
+                    transition={{duration: 0.3}}
+                    style={{
+                      position: "absolute",
+                      inset: 0,
+                      background: `linear-gradient(to top, ${DARK}CC, transparent)`,
+                      display: "flex",
+                      alignItems: "flex-end",
+                      justifyContent: "center",
+                      paddingBottom: 24,
+                      pointerEvents: "none",
+                    }}
+                  >
+                    <span
+                      style={{
+                        color: "white",
+                        fontSize: 11,
+                        letterSpacing: "0.3em",
+                        textTransform: "uppercase",
+                        borderBottom: `1px solid ${GOLD}`,
+                        paddingBottom: 6,
+                      }}
                     >
-                      <span className="text-white text-sm md:text-base uppercase tracking-wider font-light border-b border-white/40 pb-1.5 px-4">
-                        View details
-                      </span>
-                    </motion.div>
-                  </div>
-
-                  <div className="p-4">
-                    <p className="text-xs text-gray-500 uppercase tracking-wide">
-                      {product.category}
-                    </p>
-
-                    <h3 className="mt-1 text-lg font-semibold text-gray-800 line-clamp-1">
-                      {product.name}
-                    </h3>
-
-                    <div className="mt-2 flex items-baseline justify-between">
-                      <span className="text-xl font-bold text-gray-900">
-                        ${product.price?.toFixed(2)}
-                      </span>
-                      <span className="text-sm text-gray-500">
-                        Stock: {product.stock}
-                      </span>
-                    </div>
-
-                    <form onSubmit={(e) => handleSubmit(e, product._id)}>
-                      <button
-                        type="submit"
-                        disabled={
-                          product.stock === 0 || addedStates[product._id]
-                        }
-                        className={`mt-4 w-full font-medium py-2 px-4 rounded-lg transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 hover:cursor-pointer overflow-hidden relative ${
-                          product.stock === 0
-                            ? "bg-gray-300 cursor-not-allowed text-gray-500"
-                            : addedStates[product._id]
-                              ? "bg-green-600 text-white focus:ring-green-500"
-                              : // Updated: brand green instead of gray-900
-                                "bg-[#4A8C2A] hover:bg-[#3A7020] text-white focus:ring-[#4A8C2A]"
-                        }`}
-                      >
-                        <span className="flex items-center justify-center gap-2 transition-all duration-300">
-                          {product.stock === 0 ? (
-                            "Out of Stock"
-                          ) : addedStates[product._id] ? (
-                            <>
-                              <svg
-                                className="w-4 h-4 animate-bounce"
-                                fill="none"
-                                stroke="currentColor"
-                                viewBox="0 0 24 24"
-                              >
-                                <path
-                                  strokeLinecap="round"
-                                  strokeLinejoin="round"
-                                  strokeWidth={2.5}
-                                  d="M5 13l4 4L19 7"
-                                />
-                              </svg>
-                              Added to Cart!
-                            </>
-                          ) : (
-                            "Add to Cart"
-                          )}
-                        </span>
-                      </button>
-                    </form>
-                  </div>
+                      View details
+                    </span>
+                  </motion.div>
                 </div>
-              </div>
+
+                {/* Card Content */}
+                <div style={{padding: "24px 20px 28px"}}>
+                  <div
+                    style={{
+                      fontSize: 10,
+                      fontWeight: 500,
+                      letterSpacing: "0.2em",
+                      color: GOLD,
+                      textTransform: "uppercase",
+                      marginBottom: 8,
+                    }}
+                  >
+                    {product.category}
+                  </div>
+
+                  <h3
+                    style={{
+                      fontFamily: "'Playfair Display', 'Georgia', serif",
+                      fontSize: 20,
+                      fontWeight: 400,
+                      color: DARK,
+                      margin: "0 0 12px 0",
+                      lineHeight: 1.3,
+                    }}
+                  >
+                    {product.name}
+                  </h3>
+
+                  <div
+                    style={{
+                      display: "flex",
+                      alignItems: "baseline",
+                      justifyContent: "space-between",
+                      marginBottom: 20,
+                      paddingBottom: 12,
+                      borderBottom: `1px solid ${GOLD}20`,
+                    }}
+                  >
+                    <span
+                      style={{
+                        fontSize: 26,
+                        fontWeight: 300,
+                        fontFamily: "'Playfair Display', serif",
+                        color: DARK,
+                      }}
+                    >
+                      ${product.price?.toFixed(2)}
+                    </span>
+                    <span
+                      style={{
+                        fontSize: 11,
+                        color: product.stock > 0 ? GOLD : "#C41E3A",
+                        letterSpacing: "0.02em",
+                      }}
+                    >
+                      {product.stock > 0
+                        ? `Stock: ${product.stock}`
+                        : "Out of Stock"}
+                    </span>
+                  </div>
+
+                  <form onSubmit={(e) => handleSubmit(e, product._id)}>
+                    <motion.button
+                      type="submit"
+                      disabled={product.stock === 0 || addedStates[product._id]}
+                      whileTap={{scale: 0.97}}
+                      style={{
+                        width: "100%",
+                        background:
+                          product.stock === 0
+                            ? "#E0E0E0"
+                            : addedStates[product._id]
+                              ? GOLD_LIGHT
+                              : GOLD,
+                        border: "none",
+                        borderRadius: 40,
+                        padding: "12px 0",
+                        color: "white",
+                        fontSize: 12,
+                        fontWeight: 500,
+                        letterSpacing: "0.2em",
+                        textTransform: "uppercase",
+                        cursor:
+                          product.stock === 0 || addedStates[product._id]
+                            ? "not-allowed"
+                            : "pointer",
+                        transition: "background 0.2s ease",
+                      }}
+                      whileHover={{
+                        background:
+                          product.stock > 0 && !addedStates[product._id]
+                            ? GOLD_LIGHT
+                            : undefined,
+                      }}
+                    >
+                      {product.stock === 0
+                        ? "Out of Stock"
+                        : addedStates[product._id]
+                          ? "✓ Added"
+                          : "Add to Cart"}
+                    </motion.button>
+                  </form>
+                </div>
+              </motion.div>
             ))}
+          </motion.div>
+
+          {/* Subtle background leaf decoration */}
+          <div
+            style={{
+              position: "absolute",
+              bottom: 40,
+              right: 20,
+              opacity: 0.08,
+              pointerEvents: "none",
+              fontSize: 200,
+              fontFamily: "serif",
+              transform: "rotate(15deg)",
+            }}
+          >
+            ✿
           </div>
         </section>
       </div>

@@ -6,14 +6,15 @@ import {useAddToCartStore} from "../stores/addToCartStore";
 import {bufferToDataURL} from "../utils/displayImage";
 import {useNavigate, useParams} from "react-router-dom";
 
-/* ─── Palette (matches CartPage) ─── */
-const GOLD = "#C9A84C";
-const GOLD_LIGHT = "#E8C97A";
-const DARK = "#1A1410";
-const MUTED = "#8A7560";
-const CREAM = "#FDFAF5";
+/* ─── Updated brand palette (matches LandingPage) ─── */
+const GOLD = "#4A8C2A"; // primary green
+const GOLD_LIGHT = "#72B84A"; // lighter green
+const GOLD_PALE = "#E8F5E0"; // pale green tint
+const DARK = "#1A1A1A"; // near-black
+const MUTED = "#5A7A4A"; // muted green-grey
+const CREAM = "#F7FBF4"; // off-white with green tint
 
-/* ─── Motion presets ─── */
+/* ─── Motion presets (unchanged, but use new colours) ─── */
 const fadeUp = (delay = 0) => ({
   hidden: {opacity: 0, y: 36, filter: "blur(6px)"},
   visible: {
@@ -39,7 +40,7 @@ const stagger = {
   visible: {transition: {staggerChildren: 0.08, delayChildren: 0.2}},
 };
 
-/* ─── Sub-components (no hooks at module level) ─── */
+/* ─── Sub-components (updated colours) ─── */
 const GoldLine = ({width = 48, style}) => (
   <div
     style={{
@@ -115,7 +116,6 @@ const SkeletonPulse = ({style}) => (
   />
 );
 
-/* AccordionRow uses useState — that's fine because it's a proper component */
 const AccordionRow = ({label, children}) => {
   const [open, setOpen] = useState(false);
   return (
@@ -189,23 +189,22 @@ const AccordionRow = ({label, children}) => {
 };
 
 /* ══════════════════════════════════════════════════
-   MAIN PAGE
+   MAIN PAGE (Order)
 ══════════════════════════════════════════════════ */
 const Order = () => {
-  /* ── All hooks at the top of the component — never outside ── */
   const {productId} = useParams();
   const navigate = useNavigate();
   const {isLoading, orderItem, viewProd} = useViewProd();
   const {addToCart} = useAddToCartStore();
 
   const imageWrapRef = useRef(null);
-
   const [ready, setReady] = useState(false);
   const [qty, setQty] = useState(1);
   const [addedPulse, setAddedPulse] = useState(false);
   const [activeThumb, setActiveThumb] = useState(0);
   const [wishListed, setWishListed] = useState(false);
   const [toastVisible, setToastVisible] = useState(false);
+  const [imgZoom, setImgZoom] = useState(false);
 
   const {scrollYProgress} = useScroll({
     target: imageWrapRef,
@@ -222,7 +221,6 @@ const Order = () => {
     return () => clearTimeout(t);
   }, []);
 
-  /* ── Handlers ── */
   const handleAddToCart = () => {
     if (!orderItem) return;
     addToCart(orderItem._id, qty);
@@ -239,18 +237,17 @@ const Order = () => {
   const price = orderItem?.price ?? 0;
   const oldPrice = orderItem?.oldPrice ?? null;
 
-  /* ── Render ── */
   return (
     <main
       style={{
         minHeight: "100vh",
-        background: `linear-gradient(135deg, ${CREAM} 0%, #F5ECD7 55%, #EDD9B8 100%)`,
+        background: `linear-gradient(135deg, ${CREAM} 0%, ${GOLD_PALE} 45%, #C5E4AC 100%)`,
         overflowX: "hidden",
       }}
     >
       <NavBar />
 
-      {/* Ambient orbs */}
+      {/* Ambient orbs (green tint) */}
       <motion.div
         animate={{x: [0, 30, 0], y: [0, -20, 0]}}
         transition={{duration: 16, repeat: Infinity, ease: "easeInOut"}}
@@ -287,7 +284,7 @@ const Order = () => {
         }}
       />
 
-      {/* Toast */}
+      {/* Toast notification (green accent) */}
       <AnimatePresence>
         {toastVisible && (
           <motion.div
@@ -434,7 +431,7 @@ const Order = () => {
               style={{
                 textAlign: "center",
                 padding: "120px 40px",
-                background: "rgba(253,250,245,0.6)",
+                background: "rgba(247,251,244,0.7)",
                 backdropFilter: "blur(16px)",
                 borderRadius: 24,
                 border: `1px solid ${GOLD}25`,
@@ -482,14 +479,13 @@ const Order = () => {
                 alignItems: "start",
               }}
             >
-              {/* LEFT — Gallery */}
+              {/* LEFT — Gallery (with premium zoom) */}
               <motion.div
                 variants={fadeRight(0.1)}
                 initial="hidden"
                 animate={ready ? "visible" : "hidden"}
                 style={{position: "sticky", top: 100}}
               >
-                {/* Main image */}
                 <div
                   ref={imageWrapRef}
                   style={{
@@ -499,10 +495,18 @@ const Order = () => {
                     background: `linear-gradient(145deg, ${GOLD}10 0%, ${CREAM} 100%)`,
                     border: `1px solid ${GOLD}25`,
                     aspectRatio: "4/5",
-                    cursor: "zoom-in",
+                    cursor: imgZoom ? "zoom-out" : "zoom-in",
                   }}
+                  onClick={() => setImgZoom(!imgZoom)}
                 >
-                  <motion.div style={{y: imageY, height: "100%"}}>
+                  <motion.div
+                    style={{
+                      y: imageY,
+                      height: "100%",
+                      scale: imgZoom ? 1.2 : 1,
+                      transition: "scale 0.3s cubic-bezier(0.16,1,0.3,1)",
+                    }}
+                  >
                     {orderItem.image ? (
                       <img
                         src={bufferToDataURL(orderItem.image)}
@@ -593,7 +597,10 @@ const Order = () => {
                   <motion.button
                     whileHover={{scale: 1.1}}
                     whileTap={{scale: 0.9}}
-                    onClick={() => setWishListed((p) => !p)}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setWishListed((p) => !p);
+                    }}
                     style={{
                       position: "absolute",
                       bottom: 20,
@@ -603,7 +610,7 @@ const Order = () => {
                       borderRadius: "50%",
                       background: wishListed
                         ? `${GOLD}30`
-                        : "rgba(253,250,245,0.7)",
+                        : "rgba(247,251,244,0.7)",
                       backdropFilter: "blur(12px)",
                       border: `1px solid ${GOLD}40`,
                       display: "flex",
@@ -791,8 +798,8 @@ const Order = () => {
                           fontWeight: 600,
                           letterSpacing: "0.25em",
                           textTransform: "uppercase",
-                          color: "#8BC47A",
-                          border: "1px solid #8BC47A50",
+                          color: GOLD_LIGHT,
+                          border: `1px solid ${GOLD_LIGHT}50`,
                           padding: "3px 10px",
                           borderRadius: 100,
                         }}
@@ -832,7 +839,7 @@ const Order = () => {
                         border: `1px solid ${GOLD}40`,
                         borderRadius: 14,
                         overflow: "hidden",
-                        background: "rgba(253,250,245,0.6)",
+                        background: "rgba(247,251,244,0.6)",
                         backdropFilter: "blur(8px)",
                       }}
                     >
@@ -954,28 +961,30 @@ const Order = () => {
                         textTransform: "uppercase",
                         color: GOLD_LIGHT,
                         height: 52,
-                        transition: "background 0.3s",
+                        transition: "all 0.2s",
                       }}
-                      onMouseEnter={(e) =>
-                        (e.currentTarget.style.background = "#2A1F18")
-                      }
-                      onMouseLeave={(e) =>
-                        (e.currentTarget.style.background = DARK)
-                      }
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.background = "#2A2A2A";
+                        e.currentTarget.style.borderColor = GOLD;
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.background = DARK;
+                        e.currentTarget.style.borderColor = `${GOLD}40`;
+                      }}
                     >
                       Buy Now
                     </motion.button>
                   </div>
                 </motion.div>
 
-                {/* Shipping strip */}
+                {/* Shipping strip (green accents) */}
                 <motion.div variants={fadeUp(0.18)} style={{marginBottom: 36}}>
                   <div
                     style={{
                       display: "flex",
                       flexDirection: "column",
                       gap: 0,
-                      background: "rgba(253,250,245,0.5)",
+                      background: "rgba(247,251,244,0.5)",
                       backdropFilter: "blur(12px)",
                       border: `1px solid ${GOLD}20`,
                       borderRadius: 14,
@@ -1045,7 +1054,7 @@ const Order = () => {
                   </div>
                 </motion.div>
 
-                {/* Accordions */}
+                {/* Accordions (unchanged text, green borders) */}
                 <motion.div variants={fadeUp(0.2)}>
                   <div style={{borderTop: `1px solid ${GOLD}20`}}>
                     <AccordionRow label="Details">
@@ -1068,7 +1077,7 @@ const Order = () => {
                   </div>
                 </motion.div>
 
-                {/* Trust badges */}
+                {/* Trust badges (green) */}
                 <motion.div variants={fadeUp(0.22)} style={{marginTop: 36}}>
                   <div
                     style={{

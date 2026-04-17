@@ -1,47 +1,426 @@
-import React from "react";
+import React, {useState, useEffect, useRef} from "react";
 import {AppleSearchAnimation} from "../utils/searchAnimation";
-import {Link} from "react-router-dom";
-import {ShoppingCart, SquareUserRound} from "lucide-react";
+import {Link, useLocation} from "react-router-dom";
+import {ShoppingCart, SquareUserRound, Leaf} from "lucide-react";
 import HamburgerMenu from "./menu";
+import {
+  motion,
+  useScroll,
+  useMotionValueEvent,
+  AnimatePresence,
+} from "framer-motion";
 
-const NavBar = () => {
-  const navigators = ["Home", "About Us", "FAQs", "Blog", "Contacts"];
-  const navLinks = [
-    {label: "Home", href: "#"},
-    {label: "Category", href: "#"},
-    {label: "About Us", href: "#"},
-    {label: "FAQs", href: "#"},
-    {label: "Blog", href: "#"},
-  ];
+// ── Mindful Living KE — Brand Palette ──
+const GREEN = "#4A8C2A";
+const GREEN_LIGHT = "#72B84A";
+const GREEN_DARK = "#14280F";
+const MUTED = "#5A7A4A";
+const CREAM = "#F7FBF4";
+
+const navLinks = [
+  {label: "Home", href: "#"},
+  {label: "Category", href: "#"},
+  {label: "About Us", href: "#"},
+  {label: "FAQs", href: "#"},
+  {label: "Blog", href: "#"},
+];
+
+/* ── Magnetic hover helper ── */
+const MagneticLink = ({label, index}) => {
+  const ref = useRef(null);
+  const [pos, setPos] = useState({x: 0, y: 0});
+  const [hovered, setHovered] = useState(false);
+
+  const handleMouseMove = (e) => {
+    const rect = ref.current.getBoundingClientRect();
+    const x = e.clientX - rect.left - rect.width / 2;
+    const y = e.clientY - rect.top - rect.height / 2;
+    setPos({x: x * 0.22, y: y * 0.22});
+  };
+
+  const handleMouseLeave = () => {
+    setPos({x: 0, y: 0});
+    setHovered(false);
+  };
+
   return (
-    <div>
-      {/* nav section */}
-      <section className="p-[20px]">
-        <nav className="lg:flex items-center justify-between hidden">
-          <img src="" alt="logo-bs" />
-          <ul className="flex gap-[40px] font-bold">
-            {navigators.map((item, idx) => (
-              <li
-                key={idx}
-                className="hover:text-amber-400 hover:cursor-pointer hover:duration-75 hover:transition-colors duration-[0.5s] active:text-black active:duration-100 active:transition-colors"
-              >
-                {item}
-              </li>
-            ))}
-          </ul>
-          <div className="icons-section flex gap-[20px] items-center">
-            <AppleSearchAnimation />
-            <Link to={"/cart-page"}>
-              <ShoppingCart />
-            </Link>
-            <SquareUserRound />
-          </div>
-        </nav>
-        <nav className="lg:hidden z-50 relative flex justify-end">
-          <HamburgerMenu links={navLinks} onNav={(href) => console.log(href)} />
-        </nav>
-      </section>
+    <motion.li
+      ref={ref}
+      onMouseMove={handleMouseMove}
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={handleMouseLeave}
+      animate={{x: pos.x, y: pos.y}}
+      transition={{type: "spring", stiffness: 300, damping: 20}}
+      style={{listStyle: "none", position: "relative", cursor: "pointer"}}
+      initial={{opacity: 0, y: -20}}
+      whileInView={{opacity: 1, y: 0}}
+      viewport={{once: true}}
+    >
+      {/* Animated underline */}
+      <span
+        style={{
+          position: "relative",
+          fontSize: 13,
+          fontWeight: 500,
+          letterSpacing: "0.12em",
+          textTransform: "uppercase",
+          color: hovered ? GREEN : "#2a2a2a",
+          transition: "color 0.3s ease",
+          paddingBottom: 4,
+        }}
+      >
+        {label}
+        <motion.span
+          layoutId={`underline-${label}`}
+          style={{
+            position: "absolute",
+            bottom: 0,
+            left: 0,
+            right: 0,
+            height: 1.5,
+            background: `linear-gradient(90deg, ${GREEN}, ${GREEN_LIGHT})`,
+            borderRadius: 2,
+            originX: 0,
+          }}
+          initial={{scaleX: 0}}
+          animate={{scaleX: hovered ? 1 : 0}}
+          transition={{duration: 0.35, ease: [0.16, 1, 0.3, 1]}}
+        />
+      </span>
+
+      {/* Pollen dot that appears on hover */}
+      <AnimatePresence>
+        {hovered && (
+          <motion.span
+            initial={{opacity: 0, scale: 0, y: 6}}
+            animate={{opacity: 1, scale: 1, y: 0}}
+            exit={{opacity: 0, scale: 0, y: 6}}
+            transition={{duration: 0.25}}
+            style={{
+              position: "absolute",
+              bottom: -10,
+              left: "50%",
+              transform: "translateX(-50%)",
+              width: 4,
+              height: 4,
+              borderRadius: "50%",
+              background: GREEN,
+            }}
+          />
+        )}
+      </AnimatePresence>
+    </motion.li>
+  );
+};
+
+/* ── Icon button with ripple ── */
+const IconButton = ({children, to}) => {
+  const [ripples, setRipples] = useState([]);
+
+  const addRipple = (e) => {
+    const rect = e.currentTarget.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+    const id = Date.now();
+    setRipples((prev) => [...prev, {x, y, id}]);
+    setTimeout(
+      () => setRipples((prev) => prev.filter((r) => r.id !== id)),
+      600,
+    );
+  };
+
+  const inner = (
+    <motion.div
+      onClick={addRipple}
+      whileHover={{scale: 1.12}}
+      whileTap={{scale: 0.92}}
+      transition={{type: "spring", stiffness: 400, damping: 20}}
+      style={{
+        position: "relative",
+        width: 38,
+        height: 38,
+        borderRadius: "50%",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        border: `1px solid ${GREEN}30`,
+        background: `${GREEN}0a`,
+        cursor: "pointer",
+        overflow: "hidden",
+        color: "#2a2a2a",
+      }}
+    >
+      {children}
+      {ripples.map((r) => (
+        <motion.span
+          key={r.id}
+          initial={{width: 0, height: 0, opacity: 0.5, x: r.x, y: r.y}}
+          animate={{
+            width: 80,
+            height: 80,
+            opacity: 0,
+            x: r.x - 40,
+            y: r.y - 40,
+          }}
+          transition={{duration: 0.55, ease: "easeOut"}}
+          style={{
+            position: "absolute",
+            borderRadius: "50%",
+            background: GREEN,
+            pointerEvents: "none",
+          }}
+        />
+      ))}
+    </motion.div>
+  );
+
+  return to ? <Link to={to}>{inner}</Link> : inner;
+};
+
+/* ── Animated logo leaf ── */
+const LogoMark = () => (
+  <motion.div
+    initial={{opacity: 0, x: -24}}
+    animate={{opacity: 1, x: 0}}
+    transition={{duration: 0.8, ease: [0.16, 1, 0.3, 1]}}
+    style={{display: "flex", alignItems: "center", gap: 10, cursor: "pointer"}}
+  >
+    {/* Leaf icon that rotates subtly on hover */}
+    <motion.div
+      whileHover={{rotate: [0, -15, 10, 0], scale: 1.1}}
+      transition={{duration: 0.6}}
+      style={{
+        width: 36,
+        height: 36,
+        borderRadius: "50%",
+        background: `linear-gradient(135deg, ${GREEN} 0%, ${GREEN_LIGHT} 100%)`,
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        boxShadow: `0 4px 18px ${GREEN}40`,
+      }}
+    >
+      <Leaf size={18} color="#fff" strokeWidth={2} />
+    </motion.div>
+
+    <div style={{lineHeight: 1}}>
+      <div
+        style={{
+          fontFamily: "'Playfair Display', 'Georgia', serif",
+          fontSize: 16,
+          fontWeight: 700,
+          color: "#1a1a1a",
+          letterSpacing: "-0.01em",
+        }}
+      >
+        Mindful Living <span style={{color: GREEN}}>KE</span>
+      </div>
+      <div
+        style={{
+          fontSize: 8,
+          fontWeight: 500,
+          letterSpacing: "0.35em",
+          textTransform: "uppercase",
+          color: MUTED,
+          marginTop: 2,
+        }}
+      >
+        The Natural Way
+      </div>
     </div>
+  </motion.div>
+);
+
+/* ── Main NavBar ── */
+const NavBar = () => {
+  const {scrollY} = useScroll();
+  const [scrolled, setScrolled] = useState(false);
+  const [visible, setVisible] = useState(true);
+  const lastY = useRef(0);
+
+  // Hide on scroll down, show on scroll up
+  useMotionValueEvent(scrollY, "change", (y) => {
+    setScrolled(y > 40);
+    setVisible(y < lastY.current || y < 80);
+    lastY.current = y;
+  });
+
+  return (
+    <AnimatePresence>
+      {visible && (
+        <motion.div
+          key="navbar"
+          initial={{y: -80, opacity: 0}}
+          animate={{y: 0, opacity: 1}}
+          exit={{y: -80, opacity: 0}}
+          transition={{duration: 0.5, ease: [0.16, 1, 0.3, 1]}}
+          style={{
+            position: "sticky",
+            top: 0,
+            zIndex: 100,
+            // Glass morphism background that transitions in on scroll
+            background: scrolled ? "rgba(247, 251, 244, 0.82)" : "transparent",
+            backdropFilter: scrolled ? "blur(20px) saturate(1.6)" : "none",
+            WebkitBackdropFilter: scrolled
+              ? "blur(20px) saturate(1.6)"
+              : "none",
+            borderBottom: scrolled
+              ? `1px solid ${GREEN}20`
+              : "1px solid transparent",
+            transition:
+              "background 0.4s ease, border-color 0.4s ease, backdrop-filter 0.4s ease",
+          }}
+        >
+          {/* Animated top progress bar */}
+          <motion.div
+            style={{
+              position: "absolute",
+              top: 0,
+              left: 0,
+              right: 0,
+              height: 2,
+              background: `linear-gradient(90deg, ${GREEN}, ${GREEN_LIGHT}, ${GREEN})`,
+              backgroundSize: "200% auto",
+              animation: "shimmer-bar 3s linear infinite",
+              opacity: scrolled ? 1 : 0,
+              transition: "opacity 0.4s ease",
+            }}
+          />
+
+          {/* ── Desktop nav ── */}
+          <section style={{padding: "0 32px"}}>
+            <nav
+              style={{
+                display: "none",
+                alignItems: "center",
+                justifyContent: "space-between",
+                height: 72,
+              }}
+              className="lg-nav"
+            >
+              <LogoMark />
+
+              {/* Nav links with stagger */}
+              <motion.ul
+                style={{
+                  display: "flex",
+                  gap: 44,
+                  margin: 0,
+                  padding: 0,
+                  alignItems: "center",
+                }}
+                initial="hidden"
+                animate="visible"
+                variants={{
+                  hidden: {},
+                  visible: {
+                    transition: {staggerChildren: 0.07, delayChildren: 0.2},
+                  },
+                }}
+              >
+                {navLinks.map((link, idx) => (
+                  <MagneticLink
+                    key={link.label}
+                    label={link.label}
+                    index={idx}
+                  />
+                ))}
+              </motion.ul>
+
+              {/* Icons */}
+              <motion.div
+                initial={{opacity: 0, x: 24}}
+                animate={{opacity: 1, x: 0}}
+                transition={{
+                  duration: 0.8,
+                  ease: [0.16, 1, 0.3, 1],
+                  delay: 0.3,
+                }}
+                style={{display: "flex", alignItems: "center", gap: 10}}
+              >
+                <AppleSearchAnimation />
+                <IconButton to="/cart-page">
+                  <ShoppingCart size={17} strokeWidth={1.8} />
+                </IconButton>
+                <IconButton>
+                  <SquareUserRound size={17} strokeWidth={1.8} />
+                </IconButton>
+
+                {/* CTA button */}
+                <motion.button
+                  whileHover={{scale: 1.04}}
+                  whileTap={{scale: 0.96}}
+                  transition={{type: "spring", stiffness: 400, damping: 18}}
+                  style={{
+                    marginLeft: 8,
+                    padding: "9px 22px",
+                    borderRadius: 100,
+                    border: "none",
+                    background: `linear-gradient(135deg, ${GREEN} 0%, ${GREEN_LIGHT} 100%)`,
+                    color: "#fff",
+                    fontSize: 12,
+                    fontWeight: 600,
+                    letterSpacing: "0.12em",
+                    textTransform: "uppercase",
+                    cursor: "pointer",
+                    boxShadow: `0 4px 20px ${GREEN}45`,
+                    position: "relative",
+                    overflow: "hidden",
+                  }}
+                >
+                  {/* Shimmer sweep on the button */}
+                  <motion.span
+                    animate={{x: ["-100%", "200%"]}}
+                    transition={{
+                      duration: 2.2,
+                      repeat: Infinity,
+                      repeatDelay: 1.5,
+                      ease: "easeInOut",
+                    }}
+                    style={{
+                      position: "absolute",
+                      inset: 0,
+                      background:
+                        "linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.28) 50%, transparent 100%)",
+                      pointerEvents: "none",
+                    }}
+                  />
+                  Shop Now
+                </motion.button>
+              </motion.div>
+            </nav>
+
+            {/* ── Mobile nav ── */}
+            <nav
+              style={{
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+                height: 64,
+              }}
+              className="mobile-nav"
+            >
+              <LogoMark />
+              <HamburgerMenu
+                links={navLinks}
+                onNav={(href) => console.log(href)}
+              />
+            </nav>
+          </section>
+
+          <style>{`
+            @media (min-width: 1024px) {
+              .lg-nav   { display: flex !important; }
+              .mobile-nav { display: none !important; }
+            }
+            @keyframes shimmer-bar {
+              0%   { background-position: 0%   center }
+              100% { background-position: 200% center }
+            }
+          `}</style>
+        </motion.div>
+      )}
+    </AnimatePresence>
   );
 };
 

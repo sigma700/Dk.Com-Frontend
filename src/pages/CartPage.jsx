@@ -5,41 +5,225 @@ import {useAddToCartStore} from "../stores/addToCartStore.js";
 import {bufferToDataURL} from "../utils/displayImage";
 import {Link, useNavigate} from "react-router-dom";
 
-const GOLD = "#C9A84C";
-const GOLD_LIGHT = "#E8C97A";
-const DARK = "#1A1410";
-const MUTED = "#8A7560";
-const CREAM = "#FDFAF5";
+// ── Mindful Living KE — Brand Palette ──────────────────────────────────────
+const GREEN = "#4A8C2A";
+const GREEN_LIGHT = "#72B84A";
+const GREEN_DARK = "#14280F";
+const GREEN_PALE = "#E8F5E0";
+const MUTED = "#5A7A4A";
+const CREAM = "#F7FBF4";
+const DARK = "#1A1A1A";
 
+// ── Animation variants ──────────────────────────────────────────────────────
 const containerVariants = {
   hidden: {},
-  visible: {transition: {staggerChildren: 0.1, delayChildren: 0.15}},
+  visible: {transition: {staggerChildren: 0.09, delayChildren: 0.12}},
 };
 
 const itemVariants = {
-  hidden: {opacity: 0, y: 28, filter: "blur(4px)"},
+  hidden: {opacity: 0, y: 32, filter: "blur(5px)"},
   visible: {
     opacity: 1,
     y: 0,
     filter: "blur(0px)",
-    transition: {duration: 0.7, ease: [0.16, 1, 0.3, 1]},
+    transition: {duration: 0.75, ease: [0.16, 1, 0.3, 1]},
   },
 };
 
 const slideIn = {
-  hidden: {opacity: 0, x: 40},
+  hidden: {opacity: 0, x: 48},
   visible: {
     opacity: 1,
     x: 0,
-    transition: {duration: 0.8, ease: [0.16, 1, 0.3, 1], delay: 0.3},
+    transition: {duration: 0.85, ease: [0.16, 1, 0.3, 1], delay: 0.25},
   },
 };
 
+// ── Floating leaf SVG ───────────────────────────────────────────────────────
+const LeafIcon = ({size = 16, color = GREEN, opacity = 1}) => (
+  <svg
+    width={size}
+    height={size}
+    viewBox="0 0 24 24"
+    fill={color}
+    style={{opacity}}
+  >
+    <path d="M17 8C8 10 5.9 16.17 3.82 21.34L5.71 22l1-2.3A4.49 4.49 0 008 20C19 20 22 3 22 3c-1 2-8 1.5-9.5 2.5A4 4 0 0013 9c1 0 2.5.5 2.5.5S15.5 7 17 8z" />
+  </svg>
+);
+
+// ── Animated background orb ─────────────────────────────────────────────────
+const FloatingOrb = ({style, animX, animY, duration, delay = 0}) => (
+  <motion.div
+    animate={{x: animX, y: animY}}
+    transition={{duration, repeat: Infinity, ease: "easeInOut", delay}}
+    style={{
+      position: "fixed",
+      borderRadius: "50%",
+      pointerEvents: "none",
+      zIndex: 0,
+      ...style,
+    }}
+  />
+);
+
+// ── Qty stepper ─────────────────────────────────────────────────────────────
+const QtyControl = ({qty, onInc, onDec}) => (
+  <div
+    style={{
+      display: "flex",
+      alignItems: "center",
+      border: `1px solid ${GREEN}35`,
+      borderRadius: 50,
+      overflow: "hidden",
+      background: `${GREEN}08`,
+    }}
+  >
+    {[{label: "−", action: onDec}, null, {label: "+", action: onInc}].map(
+      (btn, i) =>
+        btn === null ? (
+          <span
+            key="qty"
+            style={{
+              width: 32,
+              textAlign: "center",
+              fontSize: 13,
+              fontWeight: 600,
+              color: DARK,
+              userSelect: "none",
+            }}
+          >
+            {qty}
+          </span>
+        ) : (
+          <motion.button
+            key={btn.label}
+            whileTap={{scale: 0.85}}
+            onClick={btn.action}
+            style={{
+              width: 34,
+              height: 34,
+              background: "none",
+              border: "none",
+              cursor: "pointer",
+              color: MUTED,
+              fontSize: 18,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              transition: "color 0.2s, background 0.2s",
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.color = GREEN;
+              e.currentTarget.style.background = `${GREEN}14`;
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.color = MUTED;
+              e.currentTarget.style.background = "none";
+            }}
+          >
+            {btn.label}
+          </motion.button>
+        ),
+    )}
+  </div>
+);
+
+// ── Icon circle button ──────────────────────────────────────────────────────
+const CircleBtn = ({
+  onClick,
+  title,
+  borderColor,
+  hoverBorder,
+  hoverBg,
+  children,
+}) => (
+  <motion.button
+    whileHover={{scale: 1.08}}
+    whileTap={{scale: 0.92}}
+    title={title}
+    onClick={onClick}
+    style={{
+      width: 36,
+      height: 36,
+      borderRadius: "50%",
+      border: `1px solid ${borderColor}`,
+      background: "none",
+      cursor: "pointer",
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+      transition: "border-color 0.2s, background 0.2s",
+    }}
+    onMouseEnter={(e) => {
+      e.currentTarget.style.borderColor = hoverBorder;
+      e.currentTarget.style.background = hoverBg;
+    }}
+    onMouseLeave={(e) => {
+      e.currentTarget.style.borderColor = borderColor;
+      e.currentTarget.style.background = "none";
+    }}
+  >
+    {children}
+  </motion.button>
+);
+
+// ── Trust badge ─────────────────────────────────────────────────────────────
+const TrustBadge = ({icon, label}) => (
+  <div
+    style={{
+      display: "flex",
+      flexDirection: "column",
+      alignItems: "center",
+      gap: 6,
+    }}
+  >
+    <div
+      style={{
+        width: 36,
+        height: 36,
+        borderRadius: "50%",
+        background: `${GREEN}14`,
+        border: `1px solid ${GREEN}30`,
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+      }}
+    >
+      <svg
+        width="15"
+        height="15"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke={GREEN}
+        strokeWidth="1.6"
+      >
+        <path d={icon} />
+      </svg>
+    </div>
+    <span
+      style={{
+        fontSize: 9,
+        letterSpacing: "0.22em",
+        textTransform: "uppercase",
+        color: MUTED,
+      }}
+    >
+      {label}
+    </span>
+  </div>
+);
+
+// ══════════════════════════════════════════════════════════════════════════════
+// CartPage
+// ══════════════════════════════════════════════════════════════════════════════
 const CartPage = () => {
   const {addedProduct, fetchCart, isLoading} = useAddToCartStore();
   const navigate = useNavigate();
   const sectionRef = useRef(null);
   const isInView = useInView(sectionRef, {once: true, margin: "-80px"});
+  const [promoCode, setPromoCode] = useState("");
+  const [promoApplied, setPromoApplied] = useState(false);
 
   useEffect(() => {
     fetchCart();
@@ -47,10 +231,7 @@ const CartPage = () => {
 
   const [quantities, setQuantities] = useState(() =>
     Object.fromEntries(
-      (addedProduct || []).map((item) => [
-        item._id || item.product,
-        item.quantity || 1,
-      ]),
+      (addedProduct || []).map((i) => [i._id || i.product, i.quantity || 1]),
     ),
   );
   const [removedIds, setRemovedIds] = useState([]);
@@ -58,10 +239,7 @@ const CartPage = () => {
   useEffect(() => {
     setQuantities(
       Object.fromEntries(
-        (addedProduct || []).map((item) => [
-          item._id || item.product,
-          item.quantity || 1,
-        ]),
+        (addedProduct || []).map((i) => [i._id || i.product, i.quantity || 1]),
       ),
     );
   }, [addedProduct]);
@@ -70,29 +248,31 @@ const CartPage = () => {
     (item) => !removedIds.includes(item._id || item.product),
   );
 
-  const handleQtyChange = (id, delta) => {
+  const handleQtyChange = (id, delta) =>
     setQuantities((prev) => ({
       ...prev,
       [id]: Math.max(1, (prev[id] || 1) + delta),
     }));
-  };
 
   const handleRemove = (id) => setRemovedIds((prev) => [...prev, id]);
 
   const DELIVERY = 12.99;
+  const DISCOUNT = promoApplied ? 0.1 : 0; // 10% off on valid promo
   const subtotal = visibleItems.reduce((sum, item) => {
     const id = item._id || item.product;
     const price = item.priceAtAdd || item.price || 0;
     return sum + price * (quantities[id] || 1);
   }, 0);
-  const total = subtotal + (visibleItems.length > 0 ? DELIVERY : 0);
+  const discount = subtotal * DISCOUNT;
+  const total = subtotal - discount + (visibleItems.length > 0 ? DELIVERY : 0);
 
+  // ── Loading state ──────────────────────────────────────────────────────────
   if (isLoading && visibleItems.length === 0) {
     return (
       <main
         style={{
           minHeight: "100vh",
-          background: `linear-gradient(135deg, ${CREAM} 0%, #F5ECD7 50%, #EDD9B8 100%)`,
+          background: `linear-gradient(135deg, ${CREAM} 0%, ${GREEN_PALE} 50%, #C8E8A8 100%)`,
         }}
       >
         <NavBar />
@@ -102,11 +282,26 @@ const CartPage = () => {
             justifyContent: "center",
             alignItems: "center",
             height: "60vh",
+            flexDirection: "column",
+            gap: 20,
           }}
         >
-          <div style={{color: GOLD, fontSize: 14, letterSpacing: "0.2em"}}>
-            Loading cart...
-          </div>
+          <motion.div
+            animate={{rotate: 360}}
+            transition={{duration: 2, repeat: Infinity, ease: "linear"}}
+          >
+            <LeafIcon size={32} color={GREEN} />
+          </motion.div>
+          <span
+            style={{
+              color: MUTED,
+              fontSize: 11,
+              letterSpacing: "0.35em",
+              textTransform: "uppercase",
+            }}
+          >
+            Loading your cart…
+          </span>
         </div>
       </main>
     );
@@ -116,84 +311,113 @@ const CartPage = () => {
     <main
       style={{
         minHeight: "100vh",
-        background: `linear-gradient(135deg, ${CREAM} 0%, #F5ECD7 50%, #EDD9B8 100%)`,
+        // Updated: green-tinted gradient matching the brand
+        background: `linear-gradient(135deg, ${CREAM} 0%, ${GREEN_PALE} 45%, #C5E4AC 100%)`,
+        position: "relative",
       }}
     >
       <NavBar />
 
-      <motion.div
-        animate={{x: [0, 25, 0], y: [0, -15, 0]}}
-        transition={{duration: 14, repeat: Infinity, ease: "easeInOut"}}
+      {/* ── Floating background orbs ── */}
+      <FloatingOrb
         style={{
-          position: "fixed",
-          width: 500,
-          height: 500,
-          borderRadius: "50%",
-          background: `radial-gradient(circle, ${GOLD}18 0%, transparent 70%)`,
+          width: 520,
+          height: 520,
+          background: `radial-gradient(circle, ${GREEN}16 0%, transparent 70%)`,
           top: "-8%",
-          right: "10%",
-          pointerEvents: "none",
-          zIndex: 0,
+          right: "8%",
         }}
+        animX={[0, 28, 0]}
+        animY={[0, -18, 0]}
+        duration={14}
       />
-      <motion.div
-        animate={{x: [0, -20, 0], y: [0, 25, 0]}}
-        transition={{
-          duration: 18,
-          repeat: Infinity,
-          ease: "easeInOut",
-          delay: 3,
-        }}
+      <FloatingOrb
         style={{
-          position: "fixed",
           width: 380,
           height: 380,
-          borderRadius: "50%",
-          background: `radial-gradient(circle, ${GOLD}14 0%, transparent 70%)`,
+          background: `radial-gradient(circle, ${GREEN_LIGHT}12 0%, transparent 70%)`,
           bottom: "5%",
-          left: "3%",
+          left: "2%",
+        }}
+        animX={[0, -22, 0]}
+        animY={[0, 26, 0]}
+        duration={18}
+        delay={3}
+      />
+      <FloatingOrb
+        style={{
+          width: 260,
+          height: 260,
+          background: `radial-gradient(circle, ${GREEN}10 0%, transparent 70%)`,
+          top: "40%",
+          left: "35%",
+        }}
+        animX={[0, 15, 0]}
+        animY={[0, -20, 0]}
+        duration={22}
+        delay={6}
+      />
+
+      {/* ── Decorative leaf watermarks ── */}
+      <div
+        style={{
+          position: "fixed",
+          top: "15%",
+          right: "3%",
+          opacity: 0.06,
           pointerEvents: "none",
           zIndex: 0,
         }}
-      />
+      >
+        <LeafIcon size={180} color={GREEN} />
+      </div>
+      <div
+        style={{
+          position: "fixed",
+          bottom: "12%",
+          left: "1%",
+          opacity: 0.05,
+          pointerEvents: "none",
+          zIndex: 0,
+          transform: "rotate(140deg)",
+        }}
+      >
+        <LeafIcon size={140} color={GREEN} />
+      </div>
 
       <section
         ref={sectionRef}
-        style={{position: "relative", zIndex: 1, padding: "60px 0 100px"}}
+        style={{position: "relative", zIndex: 1, padding: "60px 0 110px"}}
       >
-        <div
-          style={{
-            maxWidth: 1300,
-            margin: "0 auto",
-            padding: "0 24px",
-          }}
-        >
+        <div style={{maxWidth: 1320, margin: "0 auto", padding: "0 24px"}}>
+          {/* ── Page header ── */}
           <motion.div
-            initial={{opacity: 0, y: 30}}
+            initial={{opacity: 0, y: 32}}
             animate={isInView ? {opacity: 1, y: 0} : {}}
-            transition={{duration: 0.8, ease: [0.16, 1, 0.3, 1]}}
-            style={{marginBottom: 48}}
+            transition={{duration: 0.85, ease: [0.16, 1, 0.3, 1]}}
+            style={{marginBottom: 52}}
           >
+            {/* Eyebrow pill */}
             <div
               style={{
                 display: "inline-flex",
                 alignItems: "center",
                 gap: 10,
-                padding: "6px 16px",
-                border: `1px solid ${GOLD}50`,
-                background: `${GOLD}14`,
+                padding: "6px 18px",
+                border: `1px solid ${GREEN}45`,
+                background: `${GREEN}12`,
                 borderRadius: 100,
-                marginBottom: 16,
+                marginBottom: 18,
               }}
             >
               <motion.div
-                animate={{scale: [1, 1.4, 1], opacity: [1, 0.5, 1]}}
+                animate={{scale: [1, 1.5, 1], opacity: [1, 0.4, 1]}}
                 transition={{duration: 2, repeat: Infinity}}
                 style={{
                   width: 5,
                   height: 5,
                   borderRadius: "50%",
-                  background: GOLD,
+                  background: GREEN,
                 }}
               />
               <span
@@ -202,27 +426,29 @@ const CartPage = () => {
                   fontWeight: 500,
                   letterSpacing: "0.38em",
                   textTransform: "uppercase",
-                  color: GOLD,
+                  color: GREEN,
                 }}
               >
                 Your Selection
               </span>
             </div>
+
             <h1
               style={{
                 fontFamily: "'Playfair Display', 'Georgia', serif",
-                fontSize: "clamp(36px, 4vw, 64px)",
+                fontSize: "clamp(38px, 4.5vw, 68px)",
                 fontWeight: 300,
                 color: DARK,
                 margin: 0,
                 letterSpacing: "-0.01em",
+                lineHeight: 1.08,
               }}
             >
               Shopping{" "}
               <em
                 style={{
                   fontStyle: "italic",
-                  background: `linear-gradient(90deg, ${GOLD} 0%, ${GOLD_LIGHT} 50%, ${GOLD} 100%)`,
+                  background: `linear-gradient(90deg, ${GREEN} 0%, ${GREEN_LIGHT} 50%, ${GREEN} 100%)`,
                   backgroundSize: "200% auto",
                   WebkitBackgroundClip: "text",
                   WebkitTextFillColor: "transparent",
@@ -233,165 +459,213 @@ const CartPage = () => {
                 Cart
               </em>
             </h1>
+
             <div
               style={{
                 display: "flex",
                 alignItems: "center",
                 gap: 12,
-                marginTop: 12,
+                marginTop: 14,
               }}
             >
-              <div style={{width: 32, height: 1, background: GOLD}} />
+              <div
+                style={{
+                  width: 32,
+                  height: 1.5,
+                  background: `linear-gradient(90deg, ${GREEN}, ${GREEN_LIGHT})`,
+                }}
+              />
               <span
                 style={{
                   fontSize: 9,
                   fontWeight: 500,
-                  letterSpacing: "0.4em",
+                  letterSpacing: "0.42em",
                   textTransform: "uppercase",
                   color: MUTED,
                 }}
               >
                 {visibleItems.length}{" "}
-                {visibleItems.length === 1 ? "Item" : "Items"}
+                {visibleItems.length === 1 ? "Item" : "Items"} · The Natural Way
               </span>
             </div>
           </motion.div>
 
+          {/* ── Two-column grid ── */}
           <div
             className="cart-grid"
             style={{
               display: "grid",
-              gridTemplateColumns: "1fr 380px",
-              gap: 32,
+              gridTemplateColumns: "1fr 390px",
+              gap: 36,
               alignItems: "start",
             }}
           >
+            {/* ════ LEFT — Cart items ════ */}
             <motion.div
               variants={containerVariants}
               initial="hidden"
               animate={isInView ? "visible" : "hidden"}
             >
               {visibleItems.length === 0 ? (
+                /* ── Empty state ── */
                 <motion.div
                   variants={itemVariants}
                   style={{
-                    background: "rgba(253,250,245,0.7)",
-                    backdropFilter: "blur(16px)",
-                    border: `1px solid ${GOLD}30`,
-                    borderRadius: 20,
-                    padding: "80px 40px",
+                    background: "rgba(247,251,244,0.75)",
+                    backdropFilter: "blur(20px)",
+                    border: `1px solid ${GREEN}25`,
+                    borderRadius: 24,
+                    padding: "96px 48px",
                     textAlign: "center",
                   }}
                 >
-                  <div
+                  <motion.div
+                    animate={{y: [0, -10, 0], rotate: [-5, 5, -5]}}
+                    transition={{
+                      duration: 4,
+                      repeat: Infinity,
+                      ease: "easeInOut",
+                    }}
                     style={{
-                      width: 72,
-                      height: 72,
+                      width: 80,
+                      height: 80,
                       borderRadius: "50%",
-                      background: `${GOLD}18`,
-                      border: `1px solid ${GOLD}40`,
+                      background: `${GREEN}14`,
+                      border: `1px solid ${GREEN}35`,
                       display: "flex",
                       alignItems: "center",
                       justifyContent: "center",
-                      margin: "0 auto 24px",
+                      margin: "0 auto 28px",
                     }}
                   >
-                    <svg
-                      width="28"
-                      height="28"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke={GOLD}
-                      strokeWidth="1.5"
-                    >
-                      <path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z" />
-                      <line x1="3" y1="6" x2="21" y2="6" />
-                      <path d="M16 10a4 4 0 01-8 0" />
-                    </svg>
-                  </div>
+                    <LeafIcon size={32} color={GREEN} />
+                  </motion.div>
                   <p
                     style={{
                       fontFamily: "'Playfair Display', serif",
-                      fontSize: 22,
+                      fontSize: 24,
                       fontWeight: 300,
                       color: DARK,
-                      margin: "0 0 8px",
+                      margin: "0 0 10px",
                     }}
                   >
                     Your cart is empty
                   </p>
-                  <p style={{fontSize: 13, color: MUTED, margin: "0 0 32px"}}>
-                    Discover our curated botanical collection
+                  <p
+                    style={{
+                      fontSize: 13,
+                      color: MUTED,
+                      margin: "0 0 36px",
+                      lineHeight: 1.8,
+                    }}
+                  >
+                    Discover our curated botanical collection — <br />
+                    nature's finest, thoughtfully formulated.
                   </p>
-                  <button
+                  <motion.button
+                    whileHover={{scale: 1.04}}
+                    whileTap={{scale: 0.96}}
                     onClick={() => navigate("/")}
                     style={{
-                      background: DARK,
+                      background: `linear-gradient(135deg, ${GREEN} 0%, ${GREEN_LIGHT} 100%)`,
                       color: "#fff",
                       border: "none",
-                      borderRadius: 10,
-                      padding: "12px 32px",
+                      borderRadius: 12,
+                      padding: "13px 36px",
                       fontSize: 11,
-                      fontWeight: 500,
-                      letterSpacing: "0.22em",
+                      fontWeight: 600,
+                      letterSpacing: "0.28em",
                       textTransform: "uppercase",
                       cursor: "pointer",
-                      transition: "background 0.3s",
+                      boxShadow: `0 6px 24px ${GREEN}40`,
+                      position: "relative",
+                      overflow: "hidden",
                     }}
-                    onMouseEnter={(e) =>
-                      (e.currentTarget.style.background = `${GOLD}`)
-                    }
-                    onMouseLeave={(e) =>
-                      (e.currentTarget.style.background = DARK)
-                    }
                   >
+                    <motion.span
+                      animate={{x: ["-100%", "200%"]}}
+                      transition={{
+                        duration: 2,
+                        repeat: Infinity,
+                        repeatDelay: 1.2,
+                      }}
+                      style={{
+                        position: "absolute",
+                        inset: 0,
+                        background:
+                          "linear-gradient(90deg, transparent, rgba(255,255,255,0.25), transparent)",
+                        pointerEvents: "none",
+                      }}
+                    />
                     Shop Now
-                  </button>
+                  </motion.button>
                 </motion.div>
               ) : (
                 <div
-                  style={{display: "flex", flexDirection: "column", gap: 16}}
+                  style={{display: "flex", flexDirection: "column", gap: 18}}
                 >
                   <AnimatePresence>
                     {visibleItems.map((item) => {
                       const id = item._id || item.product;
                       const qty = quantities[id] || 1;
                       const price = item.priceAtAdd || item.price || 0;
+
                       return (
                         <motion.div
                           key={id}
                           variants={itemVariants}
                           exit={{
                             opacity: 0,
-                            x: -40,
+                            x: -60,
+                            scale: 0.96,
                             transition: {duration: 0.4},
                           }}
+                          layout
                           style={{
-                            background: "rgba(253,250,245,0.75)",
-                            backdropFilter: "blur(16px)",
-                            border: `1px solid ${GOLD}25`,
-                            borderRadius: 20,
-                            padding: "24px",
+                            background: "rgba(247,251,244,0.72)",
+                            backdropFilter: "blur(18px)",
+                            WebkitBackdropFilter: "blur(18px)",
+                            border: `1px solid ${GREEN}22`,
+                            borderRadius: 22,
+                            padding: "22px 24px",
                             display: "flex",
                             alignItems: "center",
-                            gap: 20,
+                            gap: 22,
+                            // Subtle left accent stripe
+                            borderLeft: `3px solid ${GREEN}55`,
+                            position: "relative",
+                            overflow: "hidden",
                           }}
                         >
+                          {/* Micro shimmer on card hover */}
+                          <motion.div
+                            initial={{opacity: 0}}
+                            whileHover={{opacity: 1}}
+                            style={{
+                              position: "absolute",
+                              inset: 0,
+                              background: `linear-gradient(135deg, ${GREEN}06 0%, transparent 60%)`,
+                              pointerEvents: "none",
+                            }}
+                          />
+
+                          {/* Product image */}
                           <div
                             style={{
-                              width: 100,
-                              height: 100,
-                              borderRadius: 14,
+                              width: 106,
+                              height: 106,
+                              borderRadius: 16,
                               overflow: "hidden",
                               flexShrink: 0,
-                              background: `${GOLD}14`,
-                              border: `1px solid ${GOLD}30`,
+                              background: `${GREEN}12`,
+                              border: `1px solid ${GREEN}25`,
+                              boxShadow: `0 8px 24px ${GREEN}18`,
                             }}
                           >
                             {item.product?.image ? (
                               <img
                                 src={bufferToDataURL(item.product.image)}
-                                alt={item.product.name}
+                                alt={item.product?.name}
                                 style={{
                                   width: "100%",
                                   height: "100%",
@@ -408,37 +682,25 @@ const CartPage = () => {
                                   justifyContent: "center",
                                 }}
                               >
-                                <svg
-                                  width="28"
-                                  height="28"
-                                  viewBox="0 0 24 24"
-                                  fill="none"
-                                  stroke={GOLD}
-                                  strokeWidth="1.2"
-                                >
-                                  <rect
-                                    x="3"
-                                    y="3"
-                                    width="18"
-                                    height="18"
-                                    rx="3"
-                                  />
-                                  <circle cx="8.5" cy="8.5" r="1.5" />
-                                  <path d="M21 15l-5-5L5 21" />
-                                </svg>
+                                <LeafIcon
+                                  size={32}
+                                  color={GREEN}
+                                  opacity={0.5}
+                                />
                               </div>
                             )}
                           </div>
 
+                          {/* Product info */}
                           <div style={{flex: 1, minWidth: 0}}>
                             <p
                               style={{
                                 fontSize: 9,
-                                fontWeight: 500,
-                                letterSpacing: "0.35em",
+                                fontWeight: 600,
+                                letterSpacing: "0.38em",
                                 textTransform: "uppercase",
-                                color: GOLD,
-                                margin: "0 0 4px",
+                                color: GREEN,
+                                margin: "0 0 5px",
                               }}
                             >
                               {item.product?.category || "Botanical"}
@@ -446,10 +708,10 @@ const CartPage = () => {
                             <p
                               style={{
                                 fontFamily: "'Playfair Display', serif",
-                                fontSize: 17,
+                                fontSize: 18,
                                 fontWeight: 400,
                                 color: DARK,
-                                margin: "0 0 8px",
+                                margin: "0 0 10px",
                                 whiteSpace: "nowrap",
                                 overflow: "hidden",
                                 textOverflow: "ellipsis",
@@ -457,10 +719,36 @@ const CartPage = () => {
                             >
                               {item.product?.name || "Product"}
                             </p>
+
+                            {/* Per-unit price chip */}
+                            <div
+                              style={{
+                                display: "inline-flex",
+                                alignItems: "center",
+                                gap: 6,
+                                padding: "3px 10px",
+                                background: `${GREEN}12`,
+                                borderRadius: 100,
+                                border: `1px solid ${GREEN}25`,
+                                marginBottom: 10,
+                              }}
+                            >
+                              <span
+                                style={{
+                                  fontSize: 11,
+                                  color: MUTED,
+                                  letterSpacing: "0.05em",
+                                }}
+                              >
+                                ${price.toFixed(2)} / unit
+                              </span>
+                            </div>
+
+                            {/* Line total */}
                             <p
                               style={{
                                 fontFamily: "'Playfair Display', serif",
-                                fontSize: 20,
+                                fontSize: 22,
                                 fontWeight: 300,
                                 color: DARK,
                                 margin: 0,
@@ -470,146 +758,46 @@ const CartPage = () => {
                             </p>
                           </div>
 
+                          {/* Controls */}
                           <div
                             style={{
                               display: "flex",
                               flexDirection: "column",
                               alignItems: "flex-end",
-                              gap: 16,
+                              gap: 18,
                             }}
                           >
-                            <div
-                              style={{
-                                display: "flex",
-                                alignItems: "center",
-                                gap: 0,
-                                border: `1px solid ${GOLD}40`,
-                                borderRadius: 50,
-                                overflow: "hidden",
-                                background: "rgba(253,250,245,0.6)",
-                              }}
-                            >
-                              <button
-                                onClick={() => handleQtyChange(id, -1)}
-                                style={{
-                                  width: 34,
-                                  height: 34,
-                                  background: "none",
-                                  border: "none",
-                                  cursor: "pointer",
-                                  color: MUTED,
-                                  fontSize: 18,
-                                  display: "flex",
-                                  alignItems: "center",
-                                  justifyContent: "center",
-                                  transition: "color 0.2s",
-                                }}
-                                onMouseEnter={(e) =>
-                                  (e.currentTarget.style.color = GOLD)
-                                }
-                                onMouseLeave={(e) =>
-                                  (e.currentTarget.style.color = MUTED)
-                                }
-                              >
-                                −
-                              </button>
-                              <span
-                                style={{
-                                  width: 28,
-                                  textAlign: "center",
-                                  fontSize: 13,
-                                  fontWeight: 500,
-                                  color: DARK,
-                                }}
-                              >
-                                {qty}
-                              </span>
-                              <button
-                                onClick={() => handleQtyChange(id, 1)}
-                                style={{
-                                  width: 34,
-                                  height: 34,
-                                  background: "none",
-                                  border: "none",
-                                  cursor: "pointer",
-                                  color: MUTED,
-                                  fontSize: 18,
-                                  display: "flex",
-                                  alignItems: "center",
-                                  justifyContent: "center",
-                                  transition: "color 0.2s",
-                                }}
-                                onMouseEnter={(e) =>
-                                  (e.currentTarget.style.color = GOLD)
-                                }
-                                onMouseLeave={(e) =>
-                                  (e.currentTarget.style.color = MUTED)
-                                }
-                              >
-                                +
-                              </button>
-                            </div>
-
-                            <div style={{display: "flex", gap: 12}}>
-                              <button
+                            <QtyControl
+                              qty={qty}
+                              onInc={() => handleQtyChange(id, 1)}
+                              onDec={() => handleQtyChange(id, -1)}
+                            />
+                            <div style={{display: "flex", gap: 10}}>
+                              {/* Wishlist */}
+                              <CircleBtn
                                 title="Save for later"
-                                style={{
-                                  width: 34,
-                                  height: 34,
-                                  borderRadius: "50%",
-                                  border: `1px solid ${GOLD}35`,
-                                  background: "none",
-                                  cursor: "pointer",
-                                  display: "flex",
-                                  alignItems: "center",
-                                  justifyContent: "center",
-                                  transition:
-                                    "border-color 0.2s, background 0.2s",
-                                }}
-                                onMouseEnter={(e) => {
-                                  e.currentTarget.style.borderColor = GOLD;
-                                  e.currentTarget.style.background = `${GOLD}14`;
-                                }}
-                                onMouseLeave={(e) => {
-                                  e.currentTarget.style.borderColor = `${GOLD}35`;
-                                  e.currentTarget.style.background = "none";
-                                }}
+                                borderColor={`${GREEN}30`}
+                                hoverBorder={GREEN}
+                                hoverBg={`${GREEN}14`}
                               >
                                 <svg
                                   width="14"
                                   height="14"
                                   viewBox="0 0 24 24"
                                   fill="none"
-                                  stroke={GOLD}
+                                  stroke={GREEN}
                                   strokeWidth="1.8"
                                 >
                                   <path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z" />
                                 </svg>
-                              </button>
-                              <button
+                              </CircleBtn>
+                              {/* Remove */}
+                              <CircleBtn
                                 title="Remove item"
                                 onClick={() => handleRemove(id)}
-                                style={{
-                                  width: 34,
-                                  height: 34,
-                                  borderRadius: "50%",
-                                  border: `1px solid #e5c5c5`,
-                                  background: "none",
-                                  cursor: "pointer",
-                                  display: "flex",
-                                  alignItems: "center",
-                                  justifyContent: "center",
-                                  transition:
-                                    "border-color 0.2s, background 0.2s",
-                                }}
-                                onMouseEnter={(e) => {
-                                  e.currentTarget.style.borderColor = "#c0392b";
-                                  e.currentTarget.style.background = "#fdf2f2";
-                                }}
-                                onMouseLeave={(e) => {
-                                  e.currentTarget.style.borderColor = "#e5c5c5";
-                                  e.currentTarget.style.background = "none";
-                                }}
+                                borderColor="#e0c8c8"
+                                hoverBorder="#c0392b"
+                                hoverBg="#fdf2f2"
                               >
                                 <svg
                                   width="14"
@@ -624,7 +812,7 @@ const CartPage = () => {
                                   <path d="M10 11v6M14 11v6" />
                                   <path d="M9 6V4h6v2" />
                                 </svg>
-                              </button>
+                              </CircleBtn>
                             </div>
                           </div>
                         </motion.div>
@@ -632,8 +820,11 @@ const CartPage = () => {
                     })}
                   </AnimatePresence>
 
+                  {/* Continue shopping */}
                   <motion.div variants={itemVariants}>
-                    <button
+                    <motion.button
+                      whileHover={{x: -4}}
+                      whileTap={{scale: 0.97}}
                       onClick={() => navigate("/")}
                       style={{
                         display: "flex",
@@ -644,13 +835,15 @@ const CartPage = () => {
                         cursor: "pointer",
                         color: MUTED,
                         fontSize: 11,
-                        fontWeight: 400,
+                        fontWeight: 500,
                         letterSpacing: "0.22em",
                         textTransform: "uppercase",
                         padding: "8px 0",
                         transition: "color 0.3s",
                       }}
-                      onMouseEnter={(e) => (e.currentTarget.style.color = GOLD)}
+                      onMouseEnter={(e) =>
+                        (e.currentTarget.style.color = GREEN)
+                      }
                       onMouseLeave={(e) =>
                         (e.currentTarget.style.color = MUTED)
                       }
@@ -661,17 +854,18 @@ const CartPage = () => {
                         viewBox="0 0 24 24"
                         fill="none"
                         stroke="currentColor"
-                        strokeWidth="1.5"
+                        strokeWidth="1.6"
                       >
                         <path d="M19 12H5M12 5l-7 7 7 7" />
                       </svg>
                       Continue Shopping
-                    </button>
+                    </motion.button>
                   </motion.div>
                 </div>
               )}
             </motion.div>
 
+            {/* ════ RIGHT — Order summary panel ════ */}
             <motion.div
               variants={slideIn}
               initial="hidden"
@@ -680,35 +874,58 @@ const CartPage = () => {
             >
               <div
                 style={{
-                  background: "rgba(26,20,16,0.92)",
+                  // Dark forest green panel — luxury contrast against the light page
+                  background: `linear-gradient(160deg, ${GREEN_DARK} 0%, #1C3A10 60%, #0D2208 100%)`,
                   backdropFilter: "blur(20px)",
-                  borderRadius: 20,
-                  border: `1px solid ${GOLD}30`,
+                  borderRadius: 24,
+                  border: `1px solid ${GREEN}35`,
                   overflow: "hidden",
+                  boxShadow: `0 32px 80px rgba(20,40,15,0.32), 0 8px 24px rgba(20,40,15,0.18)`,
                 }}
               >
+                {/* Panel header */}
                 <div
                   style={{
-                    padding: "28px 28px 20px",
-                    borderBottom: `1px solid ${GOLD}20`,
+                    padding: "28px 30px 22px",
+                    borderBottom: `1px solid ${GREEN}22`,
+                    position: "relative",
+                    overflow: "hidden",
                   }}
                 >
+                  {/* Background leaf watermark inside panel */}
+                  <div
+                    style={{
+                      position: "absolute",
+                      right: -20,
+                      top: -20,
+                      opacity: 0.07,
+                      pointerEvents: "none",
+                    }}
+                  >
+                    <LeafIcon size={120} color={GREEN_LIGHT} />
+                  </div>
                   <div
                     style={{
                       display: "flex",
                       alignItems: "center",
                       gap: 10,
-                      marginBottom: 4,
+                      marginBottom: 6,
                     }}
                   >
-                    <div style={{width: 24, height: 1, background: GOLD}} />
+                    <div
+                      style={{
+                        width: 22,
+                        height: 1.5,
+                        background: `linear-gradient(90deg, ${GREEN}, ${GREEN_LIGHT})`,
+                      }}
+                    />
                     <span
                       style={{
                         fontSize: 9,
-                        fontWeight: 500,
-                        letterSpacing: "0.38em",
+                        fontWeight: 600,
+                        letterSpacing: "0.4em",
                         textTransform: "uppercase",
-                        color: GOLD,
+                        color: GREEN_LIGHT,
                       }}
                     >
                       Summary
@@ -717,81 +934,89 @@ const CartPage = () => {
                   <p
                     style={{
                       fontFamily: "'Playfair Display', serif",
-                      fontSize: 22,
+                      fontSize: 24,
                       fontWeight: 300,
-                      color: GOLD_LIGHT,
+                      color: GREEN_LIGHT,
                       margin: 0,
+                      letterSpacing: "-0.01em",
                     }}
                   >
                     Order Summary
                   </p>
                 </div>
 
+                {/* Line items */}
                 <div
                   style={{
-                    padding: "24px 28px",
+                    padding: "24px 30px",
                     display: "flex",
                     flexDirection: "column",
-                    gap: 14,
+                    gap: 16,
                   }}
                 >
-                  <div
-                    style={{
-                      display: "flex",
-                      justifyContent: "space-between",
-                      alignItems: "center",
-                    }}
-                  >
-                    <span style={{fontSize: 13, color: MUTED}}>Subtotal</span>
-                    <span
+                  {[
+                    {
+                      label: "Subtotal",
+                      value: `$${subtotal.toFixed(2)}`,
+                      valueColor: "#fff",
+                    },
+                    {
+                      label: "Delivery",
+                      value:
+                        visibleItems.length > 0
+                          ? `$${DELIVERY.toFixed(2)}`
+                          : "—",
+                      valueColor: visibleItems.length > 0 ? "#fff" : MUTED,
+                    },
+                    {
+                      label: "Discount",
+                      value: promoApplied ? `-$${discount.toFixed(2)}` : "—",
+                      valueColor: promoApplied ? GREEN_LIGHT : MUTED,
+                    },
+                  ].map(({label, value, valueColor}) => (
+                    <div
+                      key={label}
                       style={{
-                        fontFamily: "'Playfair Display', serif",
-                        fontSize: 16,
-                        fontWeight: 300,
-                        color: "#fff",
+                        display: "flex",
+                        justifyContent: "space-between",
+                        alignItems: "center",
                       }}
                     >
-                      ${subtotal.toFixed(2)}
-                    </span>
-                  </div>
-                  <div
-                    style={{
-                      display: "flex",
-                      justifyContent: "space-between",
-                      alignItems: "center",
-                    }}
-                  >
-                    <span style={{fontSize: 13, color: MUTED}}>Delivery</span>
-                    <span
-                      style={{
-                        fontSize: 14,
-                        color: visibleItems.length > 0 ? "#fff" : MUTED,
-                      }}
-                    >
-                      {visibleItems.length > 0
-                        ? `$${DELIVERY.toFixed(2)}`
-                        : "—"}
-                    </span>
-                  </div>
-                  <div
-                    style={{
-                      display: "flex",
-                      justifyContent: "space-between",
-                      alignItems: "center",
-                    }}
-                  >
-                    <span style={{fontSize: 13, color: MUTED}}>Discount</span>
-                    <span style={{fontSize: 13, color: MUTED}}>—</span>
-                  </div>
+                      <span
+                        style={{
+                          fontSize: 13,
+                          color: MUTED,
+                          letterSpacing: "0.04em",
+                        }}
+                      >
+                        {label}
+                      </span>
+                      <span
+                        style={{
+                          fontFamily:
+                            label === "Subtotal"
+                              ? "'Playfair Display', serif"
+                              : "inherit",
+                          fontSize: label === "Subtotal" ? 16 : 14,
+                          fontWeight: 300,
+                          color: valueColor,
+                        }}
+                      >
+                        {value}
+                      </span>
+                    </div>
+                  ))}
 
+                  {/* Divider */}
                   <div
                     style={{
                       height: 1,
-                      background: `${GOLD}20`,
+                      background: `linear-gradient(90deg, transparent, ${GREEN}35, transparent)`,
                       margin: "4px 0",
                     }}
                   />
 
+                  {/* Total */}
                   <div
                     style={{
                       display: "flex",
@@ -802,34 +1027,40 @@ const CartPage = () => {
                     <span
                       style={{
                         fontSize: 10,
-                        fontWeight: 500,
-                        letterSpacing: "0.3em",
+                        fontWeight: 600,
+                        letterSpacing: "0.35em",
                         textTransform: "uppercase",
-                        color: GOLD,
+                        color: GREEN_LIGHT,
                       }}
                     >
                       Total
                     </span>
-                    <span
+                    <motion.span
+                      key={total}
+                      initial={{scale: 1.12, opacity: 0.7}}
+                      animate={{scale: 1, opacity: 1}}
+                      transition={{duration: 0.4}}
                       style={{
                         fontFamily: "'Playfair Display', serif",
-                        fontSize: 28,
+                        fontSize: 32,
                         fontWeight: 300,
-                        color: GOLD_LIGHT,
+                        color: GREEN_LIGHT,
+                        letterSpacing: "-0.01em",
                       }}
                     >
                       ${total.toFixed(2)}
-                    </span>
+                    </motion.span>
                   </div>
                 </div>
 
-                <div style={{padding: "0 28px 24px"}}>
+                {/* Promo code */}
+                <div style={{padding: "0 30px 24px"}}>
                   <div
                     style={{
                       display: "flex",
-                      gap: 8,
-                      border: `1px solid ${GOLD}25`,
-                      borderRadius: 10,
+                      gap: 0,
+                      border: `1px solid ${GREEN}28`,
+                      borderRadius: 12,
                       overflow: "hidden",
                       background: "rgba(255,255,255,0.04)",
                     }}
@@ -837,124 +1068,195 @@ const CartPage = () => {
                     <input
                       type="text"
                       placeholder="Promo code"
+                      value={promoCode}
+                      onChange={(e) => setPromoCode(e.target.value)}
                       style={{
                         flex: 1,
                         background: "none",
                         border: "none",
                         outline: "none",
-                        padding: "11px 14px",
+                        padding: "12px 16px",
                         fontSize: 12,
                         color: "#fff",
-                        letterSpacing: "0.05em",
+                        letterSpacing: "0.06em",
                       }}
                     />
-                    <button
+                    <motion.button
+                      whileTap={{scale: 0.96}}
+                      onClick={() => {
+                        if (promoCode.trim()) setPromoApplied(true);
+                      }}
                       style={{
-                        background: `${GOLD}22`,
+                        background: `${GREEN}28`,
                         border: "none",
-                        padding: "10px 16px",
+                        padding: "10px 18px",
                         cursor: "pointer",
                         fontSize: 10,
-                        fontWeight: 500,
-                        letterSpacing: "0.25em",
+                        fontWeight: 600,
+                        letterSpacing: "0.28em",
                         textTransform: "uppercase",
-                        color: GOLD,
+                        color: promoApplied ? GREEN_LIGHT : GREEN_LIGHT,
                         transition: "background 0.2s",
                       }}
                       onMouseEnter={(e) =>
-                        (e.currentTarget.style.background = `${GOLD}40`)
+                        (e.currentTarget.style.background = `${GREEN}50`)
                       }
                       onMouseLeave={(e) =>
-                        (e.currentTarget.style.background = `${GOLD}22`)
+                        (e.currentTarget.style.background = `${GREEN}28`)
                       }
                     >
-                      Apply
-                    </button>
+                      {promoApplied ? "✓ Applied" : "Apply"}
+                    </motion.button>
                   </div>
+                  {promoApplied && (
+                    <motion.p
+                      initial={{opacity: 0, y: -6}}
+                      animate={{opacity: 1, y: 0}}
+                      style={{
+                        margin: "8px 0 0",
+                        fontSize: 11,
+                        color: GREEN_LIGHT,
+                        letterSpacing: "0.05em",
+                      }}
+                    >
+                      10% discount applied successfully
+                    </motion.p>
+                  )}
                 </div>
 
-                <div style={{padding: "0 28px 28px"}}>
-                  <Link to={"/cart-page/shipping-info"}>
+                {/* Checkout CTA */}
+                <div style={{padding: "0 30px 30px"}}>
+                  <Link
+                    to={
+                      visibleItems.length > 0 ? "/cart-page/shipping-info" : "#"
+                    }
+                  >
                     <motion.button
-                      whileHover={{scale: 1.02}}
-                      whileTap={{scale: 0.98}}
-                      onClick={() => navigate("/checkout")}
+                      whileHover={visibleItems.length > 0 ? {scale: 1.02} : {}}
+                      whileTap={visibleItems.length > 0 ? {scale: 0.98} : {}}
                       disabled={visibleItems.length === 0}
                       style={{
                         width: "100%",
-                        padding: "16px",
+                        padding: "17px",
                         background:
                           visibleItems.length === 0
-                            ? "rgba(255,255,255,0.08)"
-                            : `linear-gradient(135deg, ${GOLD} 0%, ${GOLD_LIGHT} 100%)`,
+                            ? "rgba(255,255,255,0.07)"
+                            : `linear-gradient(135deg, ${GREEN} 0%, ${GREEN_LIGHT} 100%)`,
                         border: "none",
-                        borderRadius: 12,
+                        borderRadius: 14,
                         cursor:
                           visibleItems.length === 0 ? "not-allowed" : "pointer",
                         fontSize: 11,
-                        fontWeight: 500,
-                        letterSpacing: "0.3em",
+                        fontWeight: 700,
+                        letterSpacing: "0.32em",
                         textTransform: "uppercase",
-                        color: visibleItems.length === 0 ? MUTED : DARK,
+                        color: visibleItems.length === 0 ? MUTED : "#fff",
+                        boxShadow:
+                          visibleItems.length > 0
+                            ? `0 8px 28px ${GREEN}55`
+                            : "none",
                         transition: "opacity 0.3s",
+                        position: "relative",
+                        overflow: "hidden",
                       }}
                     >
-                      Proceed to Checkout
+                      {visibleItems.length > 0 && (
+                        <motion.span
+                          animate={{x: ["-100%", "200%"]}}
+                          transition={{
+                            duration: 2.5,
+                            repeat: Infinity,
+                            repeatDelay: 1.5,
+                          }}
+                          style={{
+                            position: "absolute",
+                            inset: 0,
+                            background:
+                              "linear-gradient(90deg, transparent, rgba(255,255,255,0.22), transparent)",
+                            pointerEvents: "none",
+                          }}
+                        />
+                      )}
+                      Proceed to Checkout →
                     </motion.button>
                   </Link>
+
+                  {/* Trust badges */}
+                  <div
+                    style={{
+                      display: "flex",
+                      justifyContent: "space-around",
+                      marginTop: 24,
+                    }}
+                  >
+                    <TrustBadge
+                      icon="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"
+                      label="Secure"
+                    />
+                    <TrustBadge
+                      icon="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"
+                      label="Free Returns"
+                    />
+                    <TrustBadge
+                      icon="M5 12h14M12 5l7 7-7 7"
+                      label="Fast Delivery"
+                    />
+                  </div>
+
+                  {/* Payment icons row */}
                   <div
                     style={{
                       display: "flex",
                       justifyContent: "center",
-                      gap: 20,
-                      marginTop: 20,
+                      gap: 10,
+                      marginTop: 22,
+                      paddingTop: 18,
+                      borderTop: `1px solid ${GREEN}18`,
                     }}
                   >
-                    {[
-                      {
-                        icon: "M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z",
-                        label: "Secure",
-                      },
-                      {
-                        icon: "M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z",
-                        label: "Free Returns",
-                      },
-                      {icon: "M5 12h14M12 5l7 7-7 7", label: "Fast Delivery"},
-                    ].map(({icon, label}) => (
+                    {["VISA", "M/C", "AMEX", "PayPal"].map((brand) => (
                       <div
-                        key={label}
+                        key={brand}
                         style={{
-                          display: "flex",
-                          flexDirection: "column",
-                          alignItems: "center",
-                          gap: 5,
+                          padding: "4px 8px",
+                          borderRadius: 6,
+                          border: `1px solid ${GREEN}22`,
+                          background: "rgba(255,255,255,0.05)",
+                          fontSize: 9,
+                          fontWeight: 700,
+                          letterSpacing: "0.06em",
+                          color: MUTED,
                         }}
                       >
-                        <svg
-                          width="16"
-                          height="16"
-                          viewBox="0 0 24 24"
-                          fill="none"
-                          stroke={GOLD}
-                          strokeWidth="1.5"
-                        >
-                          <path d={icon} />
-                        </svg>
-                        <span
-                          style={{
-                            fontSize: 9,
-                            letterSpacing: "0.2em",
-                            textTransform: "uppercase",
-                            color: MUTED,
-                          }}
-                        >
-                          {label}
-                        </span>
+                        {brand}
                       </div>
                     ))}
                   </div>
                 </div>
               </div>
+
+              {/* Eco promise below panel */}
+              <motion.div
+                initial={{opacity: 0, y: 14}}
+                animate={isInView ? {opacity: 1, y: 0} : {}}
+                transition={{delay: 0.7, duration: 0.6}}
+                style={{
+                  marginTop: 16,
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 10,
+                  padding: "12px 18px",
+                  background: `${GREEN}12`,
+                  border: `1px solid ${GREEN}25`,
+                  borderRadius: 12,
+                }}
+              >
+                <LeafIcon size={15} color={GREEN} />
+                <span style={{fontSize: 11, color: MUTED, lineHeight: 1.6}}>
+                  100% natural ingredients · Eco-friendly packaging ·
+                  Carbon-neutral shipping
+                </span>
+              </motion.div>
             </motion.div>
           </div>
         </div>
@@ -967,11 +1269,9 @@ const CartPage = () => {
           100% { background-position: 0%   center }
         }
         @media (max-width: 900px) {
-          .cart-grid {
-            grid-template-columns: 1fr !important;
-          }
+          .cart-grid { grid-template-columns: 1fr !important; }
         }
-        input::placeholder { color: #8A7560; }
+        input::placeholder { color: ${MUTED}; font-size: 12px; }
       `}</style>
     </main>
   );
