@@ -1,17 +1,14 @@
-// stores/useCheckoutStore.js
 import {create} from "zustand";
 import {persist} from "zustand/middleware";
 
 const API_URL = import.meta.env.VITE_BACKEND_URL;
 
-// Kenyan phone validation (no dependencies)
 const isValidKenyanPhone = (phone) => {
   if (!phone) return false;
   const cleaned = phone.replace(/\s/g, "");
   return /^(?:\+254|0)?([7-9][0-9]{8})$/.test(cleaned);
 };
 
-// Kenyan counties list
 const KENYAN_COUNTIES = [
   "Mombasa",
   "Kwale",
@@ -65,7 +62,6 @@ const KENYAN_COUNTIES = [
 export const useCheckoutStore = create(
   persist(
     (set, get) => ({
-      // ========== FORM DATA ==========
       formData: {
         firstName: "",
         lastName: "",
@@ -82,36 +78,28 @@ export const useCheckoutStore = create(
         paymentMethod: "CASH_ON_DELIVERY",
       },
 
-      // ========== UI STATE ==========
-      fieldErrors: {}, // validation errors per field
+      fieldErrors: {},
       isSubmitting: false,
       submitSuccess: false,
       serverError: null,
 
-      // ========== SHIPPING RATES ==========
       shippingRates: null,
       ratesLoading: false,
 
-      // ========== ACTIONS ==========
-
-      // Update a single field
       setField: (field, value) => {
         set((state) => ({
           formData: {...state.formData, [field]: value},
-          fieldErrors: {...state.fieldErrors, [field]: undefined}, // clear error for this field
+          fieldErrors: {...state.fieldErrors, [field]: undefined},
         }));
-        // If county or shipping method changes, re‑fetch rates
         if (field === "county" || field === "shippingMethod") {
           get().fetchShippingRates();
         }
       },
 
-      // Update multiple fields (e.g., from react‑hook‑form sync)
       setFormData: (newData) => {
         set((state) => ({
           formData: {...state.formData, ...newData},
         }));
-        // Check if county or method changed
         if (
           newData.county !== undefined ||
           newData.shippingMethod !== undefined
@@ -120,7 +108,6 @@ export const useCheckoutStore = create(
         }
       },
 
-      // Reset entire form to default values
       resetForm: () => {
         set({
           formData: {
@@ -147,7 +134,6 @@ export const useCheckoutStore = create(
         });
       },
 
-      // Validate a specific step (0: contact, 1: address, 2: delivery, 3: payment)
       validateStep: (step) => {
         const data = get().formData;
         const errors = {};
@@ -184,7 +170,6 @@ export const useCheckoutStore = create(
         return Object.keys(errors).length === 0;
       },
 
-      // Validate the entire form (all steps)
       validateFullForm: () => {
         const step0Valid = get().validateStep(0);
         const step1Valid = get().validateStep(1);
@@ -193,7 +178,6 @@ export const useCheckoutStore = create(
         return step0Valid && step1Valid && step2Valid && step3Valid;
       },
 
-      // Fetch shipping rates from backend
       fetchShippingRates: async () => {
         const {county, shippingMethod} = get().formData;
         if (!county) {
@@ -218,7 +202,6 @@ export const useCheckoutStore = create(
         }
       },
 
-      // Submit the order to backend
       submitOrder: async (cartTotal) => {
         if (!get().validateFullForm()) {
           return {success: false, errors: get().fieldErrors};
@@ -247,18 +230,49 @@ export const useCheckoutStore = create(
                 : "MobilePay",
           };
 
-          const res = await fetch(`${API_URL}/store/order/create`, {
+          const res = await fetch(`${API_URL}/store/cart/order`, {
             method: "POST",
             credentials: "include",
             headers: {"Content-Type": "application/json"},
             body: JSON.stringify(payload),
           });
 
+          if (!res.ok) {
+            const errorData = await res.json();
+            throw new Error(errorData.message || "Order creation failed");
+          }
+
           const data = await res.json();
-          if (!res.ok) throw new Error(data.message || "Order creation failed");
+          console.log("Backend response:", data);
+          const order = data.data;
+          const orderId = order._id;
+
+          if (formData.paymentMethod !== "CASH_ON_DELIVERY") {
+            const paymentRes = await fetch(
+              `${API_URL}/payments/makePayment/${orderId}`,
+              {
+                method: "POST",
+                credentials: "include",
+              },
+            );
+            const paymentData = await paymentRes.json();
+
+            if (!paymentData.success) {
+              console.error("Payment initiation failed:", paymentData.message);
+              set({
+                isSubmitting: false,
+                serverError:
+                  paymentData.message || "Failed to send payment prompt",
+                submitSuccess: false,
+              });
+              return {success: false, error: paymentData.message};
+            }
+
+            console.log(paymentData.message);
+          }
 
           set({isSubmitting: false, submitSuccess: true, serverError: null});
-          return {success: true, order: data.data};
+          return {success: true, order};
         } catch (error) {
           set({
             isSubmitting: false,
@@ -269,13 +283,11 @@ export const useCheckoutStore = create(
         }
       },
 
-      // Clear server error manually
       clearServerError: () => set({serverError: null}),
     }),
     {
       name: "checkout-storage",
       partialize: (state) => ({
-        // Only persist form data, not UI states (optional)
         formData: state.formData,
       }),
     },
