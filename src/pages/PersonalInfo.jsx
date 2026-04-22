@@ -11,6 +11,7 @@ import {SiEasyeda} from "react-icons/si";
 import {FaBoltLightning} from "react-icons/fa6";
 import {IoCashOutline} from "react-icons/io5";
 import {CiMobile1} from "react-icons/ci";
+import {useCheckoutStore} from "../stores/fillCheckoutInfo"; // ✅ fixed import
 
 /* ─── Brand Palette (green – matches LandingPage & Order) ─── */
 const GREEN = "#4A8C2A";
@@ -456,51 +457,39 @@ const Checkout = () => {
       errors.shippingMethod = "Please select a shipping method";
     if (!data.paymentMethod)
       errors.paymentMethod = "Please select a payment method";
+    console.log("🔍 validateForm errors:", errors);
     return errors;
   };
 
   const onSubmit = async (data) => {
+    console.log("👉 onSubmit triggered with data:", data);
     const errors = validateForm(data);
     if (Object.keys(errors).length > 0) {
       setFieldErrors(errors);
+      console.log("❌ Form has errors, not submitting");
       return;
     }
     setFieldErrors({});
     setIsSubmitting(true);
     setServerError("");
-    try {
-      const payload = {
-        ...data,
-        paymentMethod:
-          data.paymentMethod === "CASH_ON_DELIVERY"
-            ? "CASH ON DELIVERY"
-            : "MobilePay",
-      };
-      const response = await fetch(
-        `${import.meta.env.VITE_BACKEND_URL}/store/order/create`,
-        {
-          method: "POST",
-          credentials: "include",
-          headers: {"Content-Type": "application/json"},
-          body: JSON.stringify(payload),
-        },
-      );
-      const result = await response.json();
-      if (result.success) {
-        await fetchCart();
-        navigate(`/order-confirmation/${result.data._id}`);
-      } else {
-        setServerError(
-          result.message || "Order creation failed. Please try again.",
-        );
-      }
-    } catch {
+
+    // ✅ Sync react-hook-form data to the store
+    useCheckoutStore.getState().setFormData(data);
+
+    console.log("👉 Calling submitOrder from store...");
+    const {submitOrder} = useCheckoutStore.getState();
+    const result = await submitOrder(subtotal + shippingCost);
+    console.log("👉 result from store:", result);
+
+    if (result.success) {
+      await fetchCart();
+      navigate(`/order-confirmation/${result.order._id}`);
+    } else {
       setServerError(
-        "Network error. Please check your connection and try again.",
+        result.error || "Order creation failed. Please try again.",
       );
-    } finally {
-      setIsSubmitting(false);
     }
+    setIsSubmitting(false);
   };
 
   const inputProps = (name) => ({
