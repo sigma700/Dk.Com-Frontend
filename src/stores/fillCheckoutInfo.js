@@ -203,7 +203,10 @@ export const useCheckoutStore = create(
       },
 
       submitOrder: async (cartTotal) => {
+        console.log("🔵 submitOrder started, cartTotal:", cartTotal);
+
         if (!get().validateFullForm()) {
+          console.log("🔴 Validation failed", get().fieldErrors);
           return {success: false, errors: get().fieldErrors};
         }
 
@@ -230,6 +233,10 @@ export const useCheckoutStore = create(
                 : "MobilePay",
           };
 
+          console.log("🟢 Sending payload to backend:", payload);
+          console.log("🟢 API_URL:", API_URL);
+          console.log("🟢 Full URL:", `${API_URL}/store/cart/order`);
+
           const res = await fetch(`${API_URL}/store/cart/order`, {
             method: "POST",
             credentials: "include",
@@ -237,17 +244,23 @@ export const useCheckoutStore = create(
             body: JSON.stringify(payload),
           });
 
+          console.log("🟡 Response status:", res.status);
+          console.log("🟡 Response headers:", res.headers);
+
           if (!res.ok) {
             const errorData = await res.json();
+            console.error("🔴 Backend error response:", errorData);
             throw new Error(errorData.message || "Order creation failed");
           }
 
           const data = await res.json();
-          console.log("Backend response:", data);
+          console.log("🟢 Order creation success:", data);
+
           const order = data.data;
           const orderId = order._id;
 
           if (formData.paymentMethod !== "CASH_ON_DELIVERY") {
+            console.log("🟣 Initiating M-Pesa for order:", orderId);
             const paymentRes = await fetch(
               `${API_URL}/payments/makePayment/${orderId}`,
               {
@@ -256,9 +269,13 @@ export const useCheckoutStore = create(
               },
             );
             const paymentData = await paymentRes.json();
+            console.log("🟣 Payment response:", paymentData);
 
             if (!paymentData.success) {
-              console.error("Payment initiation failed:", paymentData.message);
+              console.error(
+                "🔴 Payment initiation failed:",
+                paymentData.message,
+              );
               set({
                 isSubmitting: false,
                 serverError:
@@ -267,13 +284,13 @@ export const useCheckoutStore = create(
               });
               return {success: false, error: paymentData.message};
             }
-
-            console.log(paymentData.message);
+            console.log("🟢 STK push sent successfully");
           }
 
           set({isSubmitting: false, submitSuccess: true, serverError: null});
           return {success: true, order};
         } catch (error) {
+          console.error("🔴 Catch block error:", error);
           set({
             isSubmitting: false,
             serverError: error.message,
