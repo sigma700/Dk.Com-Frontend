@@ -4,6 +4,7 @@ import LandingPage from "./pages/LandingPage";
 import CartPage from "./pages/CartPage";
 import Order from "./pages/Order";
 import PersonalInfo from "./pages/PersonalInfo";
+import OrderConfirmation from "./pages/OrderConfirmation";
 
 const router = createBrowserRouter([
   {
@@ -21,6 +22,10 @@ const router = createBrowserRouter([
   {
     path: "/cart-page/shipping-info",
     element: <PersonalInfo />,
+  },
+  {
+    path: "/order-confirmation/:result.order._id",
+    element: <OrderConfirmation />,
   },
 ]);
 

@@ -777,7 +777,7 @@ const Order = () => {
                         animation: "shimmer-text 3s ease-in-out infinite",
                       }}
                     >
-                      ${price.toFixed(2)}
+                      Ksh{price.toFixed(2)}
                     </span>
                     {oldPrice && (
                       <span
@@ -788,7 +788,7 @@ const Order = () => {
                           textDecoration: "line-through",
                         }}
                       >
-                        ${oldPrice.toFixed(2)}
+                        Ksh{oldPrice.toFixed(2)}
                       </span>
                     )}
                     {oldPrice && (

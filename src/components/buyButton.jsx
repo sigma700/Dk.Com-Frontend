@@ -7,20 +7,6 @@ import {
   useTransform,
 } from "framer-motion";
 
-// ─────────────────────────────────────────────────────────────────────────────
-// BuyNowButton — Mindful Living KE · Overengineered Premium CTA
-//
-// USAGE:
-//   import BuyNowButton from "./components/buyButton";
-//   <BuyNowButton onClick={() => console.log("purchased!")} />
-//
-// PROPS:
-//   label   — button text            (default: "Buy Now")
-//   onClick — click handler
-//   accent  — primary color override (default: Mindful Living green)
-// ─────────────────────────────────────────────────────────────────────────────
-
-// ── Brand palette ──
 const GREEN = "#4A8C2A";
 const GREEN_LIGHT = "#72B84A";
 const GREEN_DARK = "#14280F";

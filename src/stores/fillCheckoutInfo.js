@@ -1,5 +1,6 @@
 import {create} from "zustand";
 import {persist} from "zustand/middleware";
+import {useAddToCartStore} from "./addToCartStore"; // ✅ import cart store
 
 const API_URL = import.meta.env.VITE_BACKEND_URL;
 
@@ -77,12 +78,10 @@ export const useCheckoutStore = create(
         shippingMethod: "standard",
         paymentMethod: "CASH_ON_DELIVERY",
       },
-
       fieldErrors: {},
       isSubmitting: false,
       submitSuccess: false,
       serverError: null,
-
       shippingRates: null,
       ratesLoading: false,
 
@@ -214,6 +213,15 @@ export const useCheckoutStore = create(
 
         try {
           const formData = get().formData;
+
+          // ✅ Get cart items from the cart store
+          const {addedProduct} = useAddToCartStore.getState();
+          const cartItems = (addedProduct || []).map((item) => ({
+            productId: item.product._id,
+            quantity: item.quantity,
+            price: item.priceAtAdd,
+          }));
+
           const payload = {
             firstName: formData.firstName,
             lastName: formData.lastName,
@@ -231,6 +239,7 @@ export const useCheckoutStore = create(
               formData.paymentMethod === "CASH_ON_DELIVERY"
                 ? "CASH ON DELIVERY"
                 : "MobilePay",
+            items: cartItems, // ✅ include cart items
           };
 
           console.log("🟢 Sending payload to backend:", payload);
@@ -245,7 +254,6 @@ export const useCheckoutStore = create(
           });
 
           console.log("🟡 Response status:", res.status);
-          console.log("🟡 Response headers:", res.headers);
 
           if (!res.ok) {
             const errorData = await res.json();
@@ -262,7 +270,7 @@ export const useCheckoutStore = create(
           if (formData.paymentMethod !== "CASH_ON_DELIVERY") {
             console.log("🟣 Initiating M-Pesa for order:", orderId);
             const paymentRes = await fetch(
-              `${API_URL}/payments/makePayment/${orderId}`,
+              `${API_URL}/store/makePayment/${orderId}`,
               {
                 method: "POST",
                 credentials: "include",
@@ -304,9 +312,7 @@ export const useCheckoutStore = create(
     }),
     {
       name: "checkout-storage",
-      partialize: (state) => ({
-        formData: state.formData,
-      }),
+      partialize: (state) => ({formData: state.formData}),
     },
   ),
 );

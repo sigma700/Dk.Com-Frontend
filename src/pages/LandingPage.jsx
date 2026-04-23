@@ -558,41 +558,7 @@ const LandingPage = () => {
                     />
                   </svg>
                 </motion.div>
-                <div style={{textAlign: "center", zIndex: 1}}>
-                  <div
-                    style={{
-                      fontSize: 7,
-                      fontWeight: 500,
-                      letterSpacing: "0.3em",
-                      textTransform: "uppercase",
-                      color: GOLD,
-                    }}
-                  >
-                    Est.
-                  </div>
-                  <div
-                    style={{
-                      fontFamily: "'Playfair Display', serif",
-                      fontSize: 22,
-                      fontWeight: 300,
-                      color: GOLD_LIGHT,
-                      lineHeight: 1,
-                    }}
-                  >
-                    2019
-                  </div>
-                  <div
-                    style={{
-                      fontSize: 7,
-                      fontWeight: 300,
-                      letterSpacing: "0.25em",
-                      textTransform: "uppercase",
-                      color: GOLD,
-                    }}
-                  >
-                    Luxe
-                  </div>
-                </div>
+                <div style={{textAlign: "center", zIndex: 1}}></div>
               </motion.div>
 
               {/* Price tag */}
@@ -613,41 +579,7 @@ const LandingPage = () => {
                   backdropFilter: "blur(14px)",
                   padding: "16px 22px",
                 }}
-              >
-                <div
-                  style={{
-                    fontSize: 8,
-                    fontWeight: 400,
-                    letterSpacing: "0.3em",
-                    textTransform: "uppercase",
-                    color: MUTED,
-                  }}
-                >
-                  Full Size · 120g
-                </div>
-                <div
-                  style={{
-                    fontFamily: "'Playfair Display', serif",
-                    fontSize: 26,
-                    fontWeight: 300,
-                    color: GOLD_LIGHT,
-                    marginTop: 4,
-                  }}
-                >
-                  $48.00
-                </div>
-                <div
-                  style={{
-                    fontSize: 8,
-                    fontWeight: 300,
-                    letterSpacing: "0.2em",
-                    color: GOLD + "80",
-                    marginTop: 2,
-                  }}
-                >
-                  Free shipping over $85
-                </div>
-              </motion.div>
+              ></motion.div>
 
               {/* Product image */}
               <motion.div
@@ -904,7 +836,7 @@ const LandingPage = () => {
                         color: DARK,
                       }}
                     >
-                      ${product.price?.toFixed(2)}
+                      Ksh{product.price?.toFixed(2)}
                     </span>
                     <span
                       style={{

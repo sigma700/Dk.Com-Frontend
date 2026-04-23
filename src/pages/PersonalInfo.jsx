@@ -1,4 +1,3 @@
-// pages/Checkout.jsx
 import React, {useState, useEffect, useRef} from "react";
 import {useForm} from "react-hook-form";
 import {useNavigate} from "react-router-dom";
@@ -11,16 +10,16 @@ import {SiEasyeda} from "react-icons/si";
 import {FaBoltLightning} from "react-icons/fa6";
 import {IoCashOutline} from "react-icons/io5";
 import {CiMobile1} from "react-icons/ci";
-import {useCheckoutStore} from "../stores/fillCheckoutInfo"; // ✅ fixed import
+import {useCheckoutStore} from "../stores/fillCheckoutInfo";
 
-/* ─── Brand Palette (green – matches LandingPage & Order) ─── */
-const GREEN = "#4A8C2A";
-const GREEN_LIGHT = "#72B84A";
-const GREEN_PALE = "#E8F5E0";
-const DARK = "#1A1A1A";
-const MUTED = "#5A7A4A";
-const CREAM = "#F7FBF4";
-const BORDER = "#D4E2C8";
+const GREEN = "#3D7A20";
+const GREEN_LIGHT = "#62A83A";
+const GREEN_PALE = "#EAF5E1";
+const DARK = "#141414";
+const MUTED = "#526847";
+const CREAM = "#F6FAF3";
+const BORDER = "#D0DEC4";
+const GOLD = "#B8963E";
 
 const KENYAN_COUNTIES = [
   "Mombasa",
@@ -80,7 +79,6 @@ const isValidKenyanPhone = (phone) => {
 
 const STEPS = ["Contact", "Address", "Delivery", "Payment"];
 
-/* ─── Motion variants ────────────────────────────────────────────── */
 const fadeInUp = (delay = 0) => ({
   hidden: {opacity: 0, y: 20, filter: "blur(4px)"},
   visible: {
@@ -105,7 +103,6 @@ const slideIn = (direction = "right") => ({
   },
 });
 
-/* ─── Helper Components ──────────────────────────────────────────── */
 const FieldWrapper = ({label, error, children, optional}) => (
   <motion.div variants={fadeInUp()} style={{marginBottom: "1.5rem"}}>
     <label style={styles.label}>
@@ -292,7 +289,6 @@ const NavButtons = ({onNext, onBack, isFirst, isLast}) => (
   </div>
 );
 
-/* ─── Icons (SVG) ───────────────────────────────────────────────── */
 const iconPerson = (
   <svg
     width="18"
@@ -348,7 +344,6 @@ const iconCard = (
   </svg>
 );
 
-/* ─── Main Checkout Component ────────────────────────────────────── */
 const Checkout = () => {
   const navigate = useNavigate();
   const {addedProduct, fetchCart} = useAddToCartStore();
@@ -403,7 +398,7 @@ const Checkout = () => {
         const data = await res.json();
         if (data.success) setShippingRates(data.methods);
       } catch (err) {
-        console.error("Shipping rates error:", err);
+        console.error("Shipping rates fetch failed:", err);
       } finally {
         setLoadingRates(false);
       }
@@ -439,8 +434,7 @@ const Checkout = () => {
     const errors = validateStep(activeStep);
     if (Object.keys(errors).length > 0) {
       setFieldErrors(errors);
-      const firstKey = Object.keys(errors)[0];
-      const el = document.querySelector(`[name="${firstKey}"]`);
+      const el = document.querySelector(`[name="${Object.keys(errors)[0]}"]`);
       if (el) el.scrollIntoView({behavior: "smooth", block: "center"});
       return;
     }
@@ -450,36 +444,28 @@ const Checkout = () => {
   };
 
   const validateForm = (data) => {
-    const e0 = validateStep(0);
-    const e1 = validateStep(1);
-    const errors = {...e0, ...e1};
+    const errors = {...validateStep(0), ...validateStep(1)};
     if (!data.shippingMethod)
       errors.shippingMethod = "Please select a shipping method";
     if (!data.paymentMethod)
       errors.paymentMethod = "Please select a payment method";
-    console.log("🔍 validateForm errors:", errors);
     return errors;
   };
 
   const onSubmit = async (data) => {
-    console.log("👉 onSubmit triggered with data:", data);
     const errors = validateForm(data);
     if (Object.keys(errors).length > 0) {
       setFieldErrors(errors);
-      console.log("❌ Form has errors, not submitting");
       return;
     }
     setFieldErrors({});
     setIsSubmitting(true);
     setServerError("");
 
-    // ✅ Sync react-hook-form data to the store
     useCheckoutStore.getState().setFormData(data);
 
-    console.log("👉 Calling submitOrder from store...");
     const {submitOrder} = useCheckoutStore.getState();
     const result = await submitOrder(subtotal + shippingCost);
-    console.log("👉 result from store:", result);
 
     if (result.success) {
       await fetchCart();
@@ -504,7 +490,6 @@ const Checkout = () => {
   });
 
   const stepContent = [
-    // Step 0: Contact
     <motion.div
       key="step0"
       variants={slideIn("right")}
@@ -542,7 +527,6 @@ const Checkout = () => {
       <NavButtons onNext={nextStep} isFirst />
     </motion.div>,
 
-    // Step 1: Address
     <motion.div
       key="step1"
       variants={slideIn("right")}
@@ -600,7 +584,6 @@ const Checkout = () => {
       <NavButtons onNext={nextStep} onBack={() => setActiveStep(0)} />
     </motion.div>,
 
-    // Step 2: Delivery
     <motion.div
       key="step2"
       variants={slideIn("right")}
@@ -655,7 +638,6 @@ const Checkout = () => {
       <NavButtons onNext={nextStep} onBack={() => setActiveStep(1)} />
     </motion.div>,
 
-    // Step 3: Payment
     <motion.div
       key="step3"
       variants={slideIn("right")}
@@ -784,7 +766,6 @@ const Checkout = () => {
       <main style={styles.page}>
         <NavBar />
 
-        {/* Hero Header with motion */}
         <motion.div
           initial={{opacity: 0, y: -20}}
           animate={{opacity: 1, y: 0}}
@@ -811,7 +792,6 @@ const Checkout = () => {
           </div>
         </motion.div>
 
-        {/* Step Bar with animated indicators */}
         <div style={styles.stepBar}>
           <div style={styles.stepBarInner}>
             {STEPS.map((label, i) => (
@@ -847,14 +827,14 @@ const Checkout = () => {
                     color: i === activeStep ? DARK : MUTED,
                     fontWeight: i === activeStep ? 600 : 400,
                   }}
-                  style={{...styles.stepLabel}}
+                  style={styles.stepLabel}
                 >
                   {label}
                 </motion.span>
                 {i < STEPS.length - 1 && (
                   <motion.div
                     animate={{background: i < activeStep ? GREEN : BORDER}}
-                    style={{...styles.connector}}
+                    style={styles.connector}
                   />
                 )}
               </div>
@@ -862,7 +842,6 @@ const Checkout = () => {
           </div>
         </div>
 
-        {/* Main Grid */}
         <div style={styles.grid}>
           <form
             ref={formRef}
@@ -875,7 +854,6 @@ const Checkout = () => {
             </AnimatePresence>
           </form>
 
-          {/* Order Summary Sidebar */}
           <motion.aside
             initial={{opacity: 0, x: 30}}
             animate={{opacity: 1, x: 0}}
@@ -968,7 +946,6 @@ const Checkout = () => {
                 ← Edit Cart
               </motion.button>
 
-              {/* Trust badges */}
               <div style={styles.trustRow}>
                 {[
                   {icon: <GiPadlock />, label: "Secure Payment"},
@@ -993,7 +970,6 @@ const Checkout = () => {
   );
 };
 
-/* ─── Styles (green palette + refined shadows) ─── */
 const styles = {
   page: {
     minHeight: "100vh",
@@ -1002,16 +978,23 @@ const styles = {
     color: DARK,
   },
   header: {
-    background: `linear-gradient(135deg, #1A1A1A 0%, #2D2A24 50%, #1A1A1A 100%)`,
+    background: `linear-gradient(135deg, #0E1A09 0%, #1C2E12 50%, #0E1A09 100%)`,
     padding: "3.5rem 1.5rem 3rem",
     textAlign: "center",
+    position: "relative",
+    overflow: "hidden",
   },
-  headerInner: {maxWidth: 700, margin: "0 auto"},
+  headerInner: {
+    maxWidth: 700,
+    margin: "0 auto",
+    position: "relative",
+    zIndex: 1,
+  },
   headerEyebrow: {
     fontFamily: "'Montserrat', 'Helvetica Neue', sans-serif",
     fontSize: "0.65rem",
-    letterSpacing: "0.25em",
-    color: GREEN_LIGHT,
+    letterSpacing: "0.28em",
+    color: GOLD,
     textTransform: "uppercase",
     marginBottom: "0.75rem",
     fontWeight: 500,
@@ -1019,8 +1002,8 @@ const styles = {
   headerTitle: {
     fontSize: "clamp(2rem, 5vw, 3rem)",
     fontWeight: 300,
-    color: "#F5EDD8",
-    letterSpacing: "0.02em",
+    color: "#F0EAD6",
+    letterSpacing: "0.04em",
     margin: "0 0 1rem",
     lineHeight: 1.15,
   },
@@ -1028,11 +1011,11 @@ const styles = {
     display: "inline-flex",
     alignItems: "center",
     gap: 8,
-    background: "rgba(74,140,42,0.15)",
-    border: `1px solid rgba(74,140,42,0.3)`,
+    background: "rgba(184,150,62,0.12)",
+    border: `1px solid rgba(184,150,62,0.25)`,
     borderRadius: 999,
     padding: "0.4rem 1.1rem",
-    color: GREEN_LIGHT,
+    color: GOLD,
     fontFamily: "'Montserrat', sans-serif",
     fontSize: "0.7rem",
     letterSpacing: "0.08em",
@@ -1114,7 +1097,7 @@ const styles = {
     border: `1px solid ${BORDER}`,
     marginBottom: "1.5rem",
     overflow: "hidden",
-    boxShadow: "0 4px 24px rgba(26,20,16,0.04)",
+    boxShadow: "0 4px 24px rgba(14,26,9,0.06)",
   },
   sectionHeader: {
     display: "flex",
@@ -1167,7 +1150,7 @@ const styles = {
   },
   inputFocused: {
     borderColor: GREEN,
-    boxShadow: `0 0 0 3px rgba(74,140,42,0.12)`,
+    boxShadow: `0 0 0 3px rgba(61,122,32,0.12)`,
     background: "#fff",
   },
   inputError: {
@@ -1175,7 +1158,7 @@ const styles = {
     boxShadow: `0 0 0 3px rgba(192,57,43,0.08)`,
   },
   select: {
-    backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%235A7A4A' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E")`,
+    backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23526847' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E")`,
     backgroundRepeat: "no-repeat",
     backgroundPosition: "right 1rem center",
     paddingRight: "2.5rem",
@@ -1229,8 +1212,8 @@ const styles = {
   },
   radioCardActive: {
     borderColor: GREEN,
-    background: "#FEFCF6",
-    boxShadow: `0 0 0 3px rgba(74,140,42,0.1)`,
+    background: "#F5FAF2",
+    boxShadow: `0 0 0 3px rgba(61,122,32,0.1)`,
   },
   radioCircle: {
     width: 20,
@@ -1296,7 +1279,7 @@ const styles = {
   submitBtn: {
     width: "100%",
     padding: "1.05rem",
-    background: `linear-gradient(135deg, ${DARK} 0%, #2D2A24 100%)`,
+    background: `linear-gradient(135deg, #0E1A09 0%, #1C2E12 100%)`,
     border: "none",
     borderRadius: 12,
     fontSize: "0.85rem",
@@ -1304,7 +1287,7 @@ const styles = {
     fontWeight: 600,
     letterSpacing: "0.1em",
     textTransform: "uppercase",
-    color: "#F5EDD8",
+    color: "#F0EAD6",
     cursor: "pointer",
     transition: "all 0.25s ease",
     marginBottom: "1rem",
@@ -1357,7 +1340,7 @@ const styles = {
     borderRadius: 16,
     border: `1px solid ${BORDER}`,
     padding: "2rem",
-    boxShadow: "0 4px 32px rgba(26,20,16,0.06)",
+    boxShadow: "0 4px 32px rgba(14,26,9,0.08)",
   },
   sidebarTitle: {
     fontFamily: "'Cormorant Garamond', Georgia, serif",
@@ -1508,8 +1491,8 @@ const injectCSS = `
   .spinner {
     display: inline-block;
     width: 16px; height: 16px;
-    border: 2px solid rgba(245,237,216,0.35);
-    border-top-color: #F5EDD8;
+    border: 2px solid rgba(240,234,214,0.35);
+    border-top-color: #F0EAD6;
     border-radius: 50%;
     animation: spin 0.7s linear infinite;
   }
@@ -1521,7 +1504,7 @@ const injectCSS = `
     .two-col { grid-template-columns: 1fr !important; }
   }
   input::placeholder, textarea::placeholder { color: #C8BBAA; }
-  select option { color: #1A1410; }
+  select option { color: #141414; }
 `;
 
 export default Checkout;
