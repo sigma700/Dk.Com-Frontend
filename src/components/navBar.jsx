@@ -17,16 +17,17 @@ const GREEN_DARK = "#14280F";
 const MUTED = "#5A7A4A";
 const CREAM = "#F7FBF4";
 
+// Realistic navigation paths – update as needed
 const navLinks = [
-  {label: "Home", href: "#"},
-  {label: "Category", href: "#"},
-  {label: "About Us", href: "#"},
-  {label: "FAQs", href: "#"},
-  {label: "Blog", href: "#"},
+  {label: "Home", href: "/"},
+  {label: "Category", href: "/category"},
+  {label: "About Us", href: "/about"},
+  {label: "FAQs", href: "/faqs"},
+  {label: "Blog", href: "/blog"},
 ];
 
-/* ── Magnetic hover helper ── */
-const MagneticLink = ({label, index}) => {
+/* ── Magnetic hover helper with navigation ── */
+const MagneticLink = ({label, href}) => {
   const ref = useRef(null);
   const [pos, setPos] = useState({x: 0, y: 0});
   const [hovered, setHovered] = useState(false);
@@ -56,37 +57,38 @@ const MagneticLink = ({label, index}) => {
       whileInView={{opacity: 1, y: 0}}
       viewport={{once: true}}
     >
-      {/* Animated underline */}
-      <span
-        style={{
-          position: "relative",
-          fontSize: 13,
-          fontWeight: 500,
-          letterSpacing: "0.12em",
-          textTransform: "uppercase",
-          color: hovered ? GREEN : "#2a2a2a",
-          transition: "color 0.3s ease",
-          paddingBottom: 4,
-        }}
-      >
-        {label}
-        <motion.span
-          layoutId={`underline-${label}`}
+      <Link to={href} style={{textDecoration: "none"}}>
+        <span
           style={{
-            position: "absolute",
-            bottom: 0,
-            left: 0,
-            right: 0,
-            height: 1.5,
-            background: `linear-gradient(90deg, ${GREEN}, ${GREEN_LIGHT})`,
-            borderRadius: 2,
-            originX: 0,
+            position: "relative",
+            fontSize: 13,
+            fontWeight: 500,
+            letterSpacing: "0.12em",
+            textTransform: "uppercase",
+            color: hovered ? GREEN : "#2a2a2a",
+            transition: "color 0.3s ease",
+            paddingBottom: 4,
           }}
-          initial={{scaleX: 0}}
-          animate={{scaleX: hovered ? 1 : 0}}
-          transition={{duration: 0.35, ease: [0.16, 1, 0.3, 1]}}
-        />
-      </span>
+        >
+          {label}
+          <motion.span
+            layoutId={`underline-${label}`}
+            style={{
+              position: "absolute",
+              bottom: 0,
+              left: 0,
+              right: 0,
+              height: 1.5,
+              background: `linear-gradient(90deg, ${GREEN}, ${GREEN_LIGHT})`,
+              borderRadius: 2,
+              originX: 0,
+            }}
+            initial={{scaleX: 0}}
+            animate={{scaleX: hovered ? 1 : 0}}
+            transition={{duration: 0.35, ease: [0.16, 1, 0.3, 1]}}
+          />
+        </span>
+      </Link>
 
       {/* Pollen dot that appears on hover */}
       <AnimatePresence>
@@ -185,7 +187,6 @@ const LogoMark = () => (
     transition={{duration: 0.8, ease: [0.16, 1, 0.3, 1]}}
     style={{display: "flex", alignItems: "center", gap: 10, cursor: "pointer"}}
   >
-    {/* Leaf icon that rotates subtly on hover */}
     <motion.div
       whileHover={{rotate: [0, -15, 10, 0], scale: 1.1}}
       transition={{duration: 0.6}}
@@ -238,7 +239,6 @@ const NavBar = () => {
   const [visible, setVisible] = useState(true);
   const lastY = useRef(0);
 
-  // Hide on scroll down, show on scroll up
   useMotionValueEvent(scrollY, "change", (y) => {
     setScrolled(y > 40);
     setVisible(y < lastY.current || y < 80);
@@ -258,7 +258,6 @@ const NavBar = () => {
             position: "sticky",
             top: 0,
             zIndex: 100,
-            // Glass morphism background that transitions in on scroll
             background: scrolled ? "rgba(247, 251, 244, 0.82)" : "transparent",
             backdropFilter: scrolled ? "blur(20px) saturate(1.6)" : "none",
             WebkitBackdropFilter: scrolled
@@ -271,7 +270,6 @@ const NavBar = () => {
               "background 0.4s ease, border-color 0.4s ease, backdrop-filter 0.4s ease",
           }}
         >
-          {/* Animated top progress bar */}
           <motion.div
             style={{
               position: "absolute",
@@ -287,8 +285,8 @@ const NavBar = () => {
             }}
           />
 
-          {/* ── Desktop nav ── */}
           <section style={{padding: "0 32px"}}>
+            {/* Desktop nav */}
             <nav
               style={{
                 display: "none",
@@ -300,7 +298,6 @@ const NavBar = () => {
             >
               <LogoMark />
 
-              {/* Nav links with stagger */}
               <motion.ul
                 style={{
                   display: "flex",
@@ -318,16 +315,15 @@ const NavBar = () => {
                   },
                 }}
               >
-                {navLinks.map((link, idx) => (
+                {navLinks.map((link) => (
                   <MagneticLink
                     key={link.label}
                     label={link.label}
-                    index={idx}
+                    href={link.href}
                   />
                 ))}
               </motion.ul>
 
-              {/* Icons */}
               <motion.div
                 initial={{opacity: 0, x: 24}}
                 animate={{opacity: 1, x: 0}}
@@ -346,7 +342,6 @@ const NavBar = () => {
                   <SquareUserRound size={17} strokeWidth={1.8} />
                 </IconButton>
 
-                {/* CTA button */}
                 <motion.button
                   whileHover={{scale: 1.04}}
                   whileTap={{scale: 0.96}}
@@ -368,7 +363,6 @@ const NavBar = () => {
                     overflow: "hidden",
                   }}
                 >
-                  {/* Shimmer sweep on the button */}
                   <motion.span
                     animate={{x: ["-100%", "200%"]}}
                     transition={{
@@ -390,7 +384,7 @@ const NavBar = () => {
               </motion.div>
             </nav>
 
-            {/* ── Mobile nav ── */}
+            {/* Mobile nav */}
             <nav
               style={{
                 display: "flex",

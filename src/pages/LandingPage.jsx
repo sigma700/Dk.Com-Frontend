@@ -6,16 +6,16 @@ import {useAddToCartStore} from "../stores/addToCartStore";
 import {bufferToDataURL} from "../utils/displayImage";
 import {Link, useNavigate} from "react-router-dom";
 import NavBar from "../components/navBar";
+import Footer from "../components/Footer";
 
 // ── Mindful Living KE — Brand Palette ──
-const GOLD = "#4A8C2A"; // primary green
-const GOLD_LIGHT = "#72B84A"; // lighter green
-const GOLD_PALE = "#E8F5E0"; // pale green tint
-const CREAM = "#F7FBF4"; // off‑white with green tint
-const DARK = "#1A1A1A"; // near‑black
-const MUTED = "#5A7A4A"; // muted green‑grey
+const GOLD = "#4A8C2A";
+const GOLD_LIGHT = "#72B84A";
+const GOLD_PALE = "#E8F5E0";
+const CREAM = "#F7FBF4";
+const DARK = "#1A1A1A";
+const MUTED = "#5A7A4A";
 
-// Hero section animation variants (unchanged)
 const containerVariants = {
   hidden: {},
   visible: {transition: {staggerChildren: 0.13, delayChildren: 0.2}},
@@ -66,7 +66,6 @@ const stats = [
   {num: "4.9★", label: "Rating"},
 ];
 
-// New product‑section animation variants
 const productsContainerVariants = {
   hidden: {opacity: 0},
   visible: {
@@ -104,7 +103,6 @@ const LandingPage = () => {
   const sectionRef = useRef(null);
   const isInView = useInView(sectionRef, {once: true, margin: "-100px"});
 
-  // Parallax for hero image (unchanged)
   const {scrollYProgress} = useScroll({
     target: sectionRef,
     offset: ["start start", "end start"],
@@ -132,7 +130,7 @@ const LandingPage = () => {
       <div className="main-container w-full h-full flex flex-col">
         <NavBar />
 
-        {/* ── Hero Section (exactly as original) ── */}
+        {/* Hero Section */}
         <section
           ref={sectionRef}
           style={{
@@ -144,7 +142,7 @@ const LandingPage = () => {
             background: `linear-gradient(135deg, ${CREAM} 0%, ${GOLD_PALE} 45%, #C5E4AC 100%)`,
           }}
         >
-          {/* Floating orb — top right */}
+          {/* Floating orbs, borders, etc. (unchanged) */}
           <motion.div
             animate={{x: [0, 30, 0], y: [0, -20, 0]}}
             transition={{duration: 12, repeat: Infinity, ease: "easeInOut"}}
@@ -159,8 +157,6 @@ const LandingPage = () => {
               pointerEvents: "none",
             }}
           />
-
-          {/* Floating orb — bottom left */}
           <motion.div
             animate={{x: [0, -25, 0], y: [0, 30, 0]}}
             transition={{
@@ -180,8 +176,6 @@ const LandingPage = () => {
               pointerEvents: "none",
             }}
           />
-
-          {/* Top border line */}
           <motion.div
             initial={{scaleX: 0}}
             animate={isInView ? {scaleX: 1} : {scaleX: 0}}
@@ -197,8 +191,6 @@ const LandingPage = () => {
               pointerEvents: "none",
             }}
           />
-
-          {/* Bottom border line */}
           <motion.div
             initial={{scaleX: 0}}
             animate={isInView ? {scaleX: 1} : {scaleX: 0}}
@@ -215,7 +207,6 @@ const LandingPage = () => {
             }}
           />
 
-          {/* Main grid */}
           <div
             style={{
               display: "grid",
@@ -229,7 +220,7 @@ const LandingPage = () => {
             }}
             className="hero-grid"
           >
-            {/* LEFT — Text */}
+            {/* Left column */}
             <motion.div
               style={{
                 y: textY,
@@ -242,7 +233,6 @@ const LandingPage = () => {
               initial="hidden"
               animate={isInView ? "visible" : "hidden"}
             >
-              {/* Badge pill */}
               <motion.div variants={itemVariants} style={{marginBottom: 28}}>
                 <div
                   style={{
@@ -338,7 +328,6 @@ const LandingPage = () => {
                 </h2>
               </motion.div>
 
-              {/* Divider + label */}
               <motion.div variants={itemVariants} style={{marginBottom: 28}}>
                 <div style={{display: "flex", alignItems: "center", gap: 14}}>
                   <div style={{width: 36, height: 1, background: GOLD}} />
@@ -356,7 +345,6 @@ const LandingPage = () => {
                 </div>
               </motion.div>
 
-              {/* Body copy */}
               <motion.p
                 variants={itemVariants}
                 style={{
@@ -374,7 +362,6 @@ const LandingPage = () => {
                 profoundly pampers your complexion from the very first use.
               </motion.p>
 
-              {/* CTA row */}
               <motion.div
                 variants={itemVariants}
                 style={{
@@ -417,7 +404,6 @@ const LandingPage = () => {
                 </button>
               </motion.div>
 
-              {/* Stats row */}
               <motion.div
                 variants={itemVariants}
                 style={{
@@ -467,7 +453,7 @@ const LandingPage = () => {
               </motion.div>
             </motion.div>
 
-            {/* RIGHT — Image stage */}
+            {/* Right column (image) */}
             <motion.div
               style={{
                 y: imageY,
@@ -479,7 +465,6 @@ const LandingPage = () => {
                 minHeight: 560,
               }}
             >
-              {/* Radial glow behind image */}
               <div
                 style={{
                   position: "absolute",
@@ -494,7 +479,6 @@ const LandingPage = () => {
                 }}
               />
 
-              {/* Pulsing rings */}
               {[260, 360, 460].map((size, i) => (
                 <motion.div
                   key={size}
@@ -519,7 +503,6 @@ const LandingPage = () => {
                 />
               ))}
 
-              {/* Est. badge */}
               <motion.div
                 variants={badgeVariants}
                 initial="hidden"
@@ -561,7 +544,6 @@ const LandingPage = () => {
                 <div style={{textAlign: "center", zIndex: 1}}></div>
               </motion.div>
 
-              {/* Price tag */}
               <motion.div
                 initial={{opacity: 0, y: 20}}
                 animate={isInView ? {opacity: 1, y: 0} : {opacity: 0, y: 20}}
@@ -581,7 +563,6 @@ const LandingPage = () => {
                 }}
               ></motion.div>
 
-              {/* Product image */}
               <motion.div
                 variants={imageVariants}
                 initial="hidden"
@@ -619,7 +600,7 @@ const LandingPage = () => {
           `}</style>
         </section>
 
-        {/* ── REFINED PRODUCTS SECTION ── */}
+        {/* Products Section */}
         <section
           style={{
             padding: "100px 80px",
@@ -628,7 +609,6 @@ const LandingPage = () => {
             overflow: "hidden",
           }}
         >
-          {/* Subtle decorative top border */}
           <motion.div
             initial={{scaleX: 0}}
             whileInView={{scaleX: 1}}
@@ -644,7 +624,6 @@ const LandingPage = () => {
             }}
           />
 
-          {/* Section header */}
           <div style={{textAlign: "center", marginBottom: 64}}>
             <motion.div
               initial={{opacity: 0, y: 20}}
@@ -707,7 +686,6 @@ const LandingPage = () => {
             </motion.p>
           </div>
 
-          {/* Products Grid */}
           <motion.div
             variants={productsContainerVariants}
             initial="hidden"
@@ -742,7 +720,6 @@ const LandingPage = () => {
                       : "translateY(0)",
                 }}
               >
-                {/* Image Container */}
                 <div style={{position: "relative", overflow: "hidden"}}>
                   <Link to={`/order/${product._id}`}>
                     <motion.img
@@ -758,8 +735,6 @@ const LandingPage = () => {
                       whileHover={{scale: 1.05}}
                     />
                   </Link>
-
-                  {/* Overlay on hover */}
                   <motion.div
                     initial={{opacity: 0}}
                     animate={{opacity: hoveredCard === product._id ? 1 : 0}}
@@ -790,7 +765,6 @@ const LandingPage = () => {
                   </motion.div>
                 </div>
 
-                {/* Card Content */}
                 <div style={{padding: "24px 20px 28px"}}>
                   <div
                     style={{
@@ -804,7 +778,6 @@ const LandingPage = () => {
                   >
                     {product.category}
                   </div>
-
                   <h3
                     style={{
                       fontFamily: "'Playfair Display', 'Georgia', serif",
@@ -817,7 +790,6 @@ const LandingPage = () => {
                   >
                     {product.name}
                   </h3>
-
                   <div
                     style={{
                       display: "flex",
@@ -897,7 +869,6 @@ const LandingPage = () => {
             ))}
           </motion.div>
 
-          {/* Subtle background leaf decoration */}
           <div
             style={{
               position: "absolute",
@@ -913,6 +884,9 @@ const LandingPage = () => {
             ✿
           </div>
         </section>
+
+        {/* Footer */}
+        <Footer />
       </div>
     </main>
   );

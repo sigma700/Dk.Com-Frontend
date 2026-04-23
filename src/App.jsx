@@ -5,6 +5,8 @@ import CartPage from "./pages/CartPage";
 import Order from "./pages/Order";
 import PersonalInfo from "./pages/PersonalInfo";
 import OrderConfirmation from "./pages/OrderConfirmation";
+import CategoryPage from "./pages/Category";
+import AboutPage from "./pages/About";
 
 const router = createBrowserRouter([
   {
@@ -26,6 +28,14 @@ const router = createBrowserRouter([
   {
     path: "/order-confirmation/:orderId",
     element: <OrderConfirmation />,
+  },
+  {
+    path: "/category",
+    element: <CategoryPage />,
+  },
+  {
+    path: "/about",
+    element: <AboutPage />,
   },
 ]);
 
