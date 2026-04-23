@@ -24,7 +24,7 @@ const router = createBrowserRouter([
     element: <PersonalInfo />,
   },
   {
-    path: "/order-confirmation/:result.order._id",
+    path: "/order-confirmation/:orderId",
     element: <OrderConfirmation />,
   },
 ]);

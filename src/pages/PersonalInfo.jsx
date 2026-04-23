@@ -466,10 +466,11 @@ const Checkout = () => {
 
     const {submitOrder} = useCheckoutStore.getState();
     const result = await submitOrder(subtotal + shippingCost);
+    const orderId = result.order._id;
 
     if (result.success) {
       await fetchCart();
-      navigate(`/order-confirmation/${result.order._id}`);
+      navigate(`/order-confirmation/${orderId}`);
     } else {
       setServerError(
         result.error || "Order creation failed. Please try again.",
