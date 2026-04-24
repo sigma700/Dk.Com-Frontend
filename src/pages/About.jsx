@@ -1,17 +1,116 @@
-import React, {useRef} from "react";
-import {motion, useInView, useScroll, useTransform} from "framer-motion";
+import React, {useRef, useState, useEffect} from "react";
+import {
+  motion,
+  useInView,
+  useScroll,
+  useTransform,
+  AnimatePresence,
+} from "framer-motion";
 import NavBar from "../components/navBar";
 import Footer from "../components/footer";
+import {RiPlantLine, RiRecycleFill} from "react-icons/ri";
+import {FaPeopleLine} from "react-icons/fa6";
+import {MdScience} from "react-icons/md";
 
+// ── Palette ──
 const GOLD = "#4A8C2A";
 const GOLD_LIGHT = "#72B84A";
 const GOLD_PALE = "#E8F5E0";
 const CREAM = "#F7FBF4";
 const DARK = "#1A1A1A";
 const MUTED = "#5A7A4A";
-const DARK_GREEN = "#14280F";
+const FOREST = "#14280F";
 
-const SectionLabel = ({text}) => (
+// ── Data ──
+const values = [
+  {
+    icon: <RiPlantLine />,
+    title: "100% Natural",
+    body: "Every ingredient is sourced from certified organic Kenyan farms, free from synthetics and harsh chemicals that strip your skin's natural intelligence.",
+  },
+  {
+    icon: <FaPeopleLine />,
+    title: "Community First",
+    body: "We partner directly with 40+ smallholder farmers across the Rift Valley, ensuring fair wages, fair trade pricing, and sustainable livelihoods for generations.",
+  },
+  {
+    icon: <MdScience />,
+    title: "Science-Backed",
+    body: "Our formulations are developed with ethnobotanists and dermatologists who understand African skin flora and the unique climate conditions of the equator.",
+  },
+  {
+    icon: <RiRecycleFill />,
+    title: "Earth-Kind",
+    body: "All packaging is biodegradable or refillable. Our factory runs on 80% solar energy. We give 2% of revenue to reforestation across Kenya.",
+  },
+];
+
+const milestones = [
+  {
+    year: "2020",
+    event:
+      "Founded in Nairobi's Westlands district with a single botanical soap recipe and a dream too big for the kitchen it was born in.",
+  },
+  {
+    year: "2021",
+    event:
+      "Partnered with 12 Rift Valley farms. Launched 8 products. Crossed our first 1,000 loyal customers who became our community.",
+  },
+  {
+    year: "2022",
+    event:
+      "Won the Kenya Beauty Awards – Best Natural Brand. Expanded operations to Mombasa & Kisumu. Hired our first dermatologist.",
+  },
+  {
+    year: "2023",
+    event:
+      "Crossed 10,000 loyal customers. Launched the Wellness Tea Collection. Featured in Vogue Africa and Business Daily.",
+  },
+  {
+    year: "2024",
+    event:
+      "Entered Uganda & Tanzania markets. 40+ farm partnerships. 30+ products. Named East Africa's Fastest-Growing Wellness Brand.",
+  },
+  {
+    year: "2025",
+    event:
+      "Launched online store. Crossed 50,000 orders. Certified carbon-neutral. East Africa's #1 natural skincare brand.",
+  },
+];
+
+const team = [
+  {
+    name: "Amina Wanjiru",
+    role: "Co-Founder & Chief Botanist",
+    bio: "Ethnobotanist with 12 years studying Kenyan medicinal plants. Amina has catalogued over 300 native botanical actives and holds two patents in plant extraction.",
+    initial: "AW",
+    quote: "The land already knows. We just have to learn to listen.",
+  },
+  {
+    name: "David Omondi",
+    role: "Co-Founder & CEO",
+    bio: "Sustainable business advocate, former director at Kenya Climate Fund. David has spent 15 years building ethical supply chains across East Africa.",
+    initial: "DO",
+    quote: "Profit and purpose are not opposites. They're partners.",
+  },
+  {
+    name: "Grace Muthoni",
+    role: "Head of Formulation",
+    bio: "Cosmetic chemist trained in Nairobi and Cape Town. 8 years in natural skincare with a deep focus on melanin-rich skin across the African spectrum.",
+    initial: "GM",
+    quote: "African skin deserves African science. Nothing less.",
+  },
+];
+
+const stats = [
+  ["50K+", "Happy Customers"],
+  ["40+", "Farm Partners"],
+  ["30+", "Products"],
+  ["5", "Years"],
+];
+
+// ── Reusable: Section Label ──
+const SectionLabel = ({text, light = false}) => (
   <div
     style={{
       display: "inline-flex",
@@ -20,157 +119,589 @@ const SectionLabel = ({text}) => (
       marginBottom: 24,
     }}
   >
-    <div style={{width: 36, height: 1, background: GOLD}} />
+    <div
+      style={{
+        width: 36,
+        height: 1,
+        background: light ? `${GOLD_LIGHT}80` : GOLD,
+      }}
+    />
     <span
       style={{
         fontSize: 9,
         fontWeight: 500,
-        letterSpacing: "0.4em",
+        letterSpacing: "0.44em",
         textTransform: "uppercase",
-        color: MUTED,
+        color: light ? `${GOLD_LIGHT}cc` : MUTED,
       }}
     >
       {text}
     </span>
-    <div style={{width: 36, height: 1, background: GOLD}} />
+    <div
+      style={{
+        width: 36,
+        height: 1,
+        background: light ? `${GOLD_LIGHT}80` : GOLD,
+      }}
+    />
   </div>
 );
 
-const values = [
-  {
-    icon: "🌿",
-    title: "100% Natural",
-    body: "Every ingredient is sourced from certified organic Kenyan farms, free from synthetics and harsh chemicals.",
-  },
-  {
-    icon: "🤝",
-    title: "Community First",
-    body: "We partner directly with 40+ smallholder farmers across the Rift Valley, ensuring fair wages and sustainable livelihoods.",
-  },
-  {
-    icon: "🔬",
-    title: "Science-Backed",
-    body: "Our formulations are developed with ethnobotanists and dermatologists who understand African skin and flora.",
-  },
-  {
-    icon: "♻️",
-    title: "Earth-Kind",
-    body: "All packaging is biodegradable or refillable. Our factory runs on 80% solar energy.",
-  },
-];
-
-const milestones = [
-  {
-    year: "2020",
-    event:
-      "Founded in Nairobi's Westlands district with a single botanical soap recipe.",
-  },
-  {
-    year: "2021",
-    event:
-      "Partnered with 12 Rift Valley farms. Launched 8 products. First 1,000 customers.",
-  },
-  {
-    year: "2022",
-    event:
-      "Won the Kenya Beauty Awards – Best Natural Brand. Expanded to Mombasa & Kisumu.",
-  },
-  {
-    year: "2023",
-    event:
-      "Crossed 10,000 loyal customers. Launched the Wellness Tea Collection.",
-  },
-  {
-    year: "2024",
-    event:
-      "Entered Uganda & Tanzania markets. 40+ farm partnerships. 30+ products.",
-  },
-  {
-    year: "2025",
-    event:
-      "Launched online store. Crossed 50,000 orders. East Africa's #1 natural brand.",
-  },
-];
-
-const team = [
-  {
-    name: "Amina Wanjiru",
-    role: "Co-Founder & Chief Botanist",
-    bio: "Ethnobotanist with 12 years studying Kenyan medicinal plants.",
-    initial: "AW",
-  },
-  {
-    name: "David Omondi",
-    role: "Co-Founder & CEO",
-    bio: "Sustainable business advocate, former director at Kenya Climate Fund.",
-    initial: "DO",
-  },
-  {
-    name: "Grace Muthoni",
-    role: "Head of Formulation",
-    bio: "Cosmetic chemist trained in Nairobi and Cape Town. 8 years in natural skincare.",
-    initial: "GM",
-  },
-];
-
-const ValueCard = ({icon, title, body, index}) => {
+// ── Reusable: Animated Section Wrapper ──
+const RevealSection = ({children, delay = 0, style = {}}) => {
   const ref = useRef(null);
-  const inView = useInView(ref, {once: true, margin: "-40px"});
-
+  const inView = useInView(ref, {once: true, margin: "-80px"});
   return (
     <motion.div
       ref={ref}
-      initial={{opacity: 0, y: 40}}
+      initial={{opacity: 0, y: 48}}
       animate={inView ? {opacity: 1, y: 0} : {}}
-      transition={{duration: 0.7, delay: index * 0.1, ease: [0.16, 1, 0.3, 1]}}
-      style={{
-        background: "white",
-        borderRadius: 24,
-        padding: "36px 32px",
-        border: `1px solid ${GOLD}15`,
-        boxShadow: "0 8px 32px -12px rgba(30,70,10,0.08)",
-        position: "relative",
-        overflow: "hidden",
-      }}
+      transition={{duration: 0.95, delay, ease: [0.16, 1, 0.3, 1]}}
+      style={style}
     >
-      <div
-        style={{
-          position: "absolute",
-          top: 0,
-          right: 0,
-          width: 120,
-          height: 120,
-          background: `radial-gradient(circle, ${GOLD}08 0%, transparent 70%)`,
-          pointerEvents: "none",
-        }}
-      />
-      <div style={{fontSize: 36, marginBottom: 16}}>{icon}</div>
-      <h3
-        style={{
-          fontFamily: "'Playfair Display', serif",
-          fontSize: 20,
-          fontWeight: 400,
-          color: DARK,
-          margin: "0 0 12px",
-        }}
-      >
-        {title}
-      </h3>
-      <p
-        style={{
-          fontSize: 13,
-          color: MUTED,
-          lineHeight: 1.8,
-          fontWeight: 300,
-          margin: 0,
-        }}
-      >
-        {body}
-      </p>
+      {children}
     </motion.div>
   );
 };
 
+// ── Value Card ──
+const ValueCard = ({icon, title, body, index}) => {
+  const ref = useRef(null);
+  const inView = useInView(ref, {once: true, margin: "-40px"});
+  const [hovered, setHovered] = useState(false);
+
+  return (
+    <motion.div
+      ref={ref}
+      initial={{opacity: 0, y: 56, filter: "blur(4px)"}}
+      animate={inView ? {opacity: 1, y: 0, filter: "blur(0px)"} : {}}
+      transition={{
+        duration: 0.85,
+        delay: index * 0.12,
+        ease: [0.16, 1, 0.3, 1],
+      }}
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+      style={{
+        background: hovered ? FOREST : "white",
+        borderRadius: 32,
+        padding: "48px 38px",
+        border: `1px solid ${hovered ? GOLD + "50" : GOLD + "14"}`,
+        boxShadow: hovered
+          ? `0 40px 80px -16px ${GOLD}35, 0 0 0 1px ${GOLD}20`
+          : "0 6px 28px -8px rgba(30,70,10,0.08)",
+        position: "relative",
+        overflow: "hidden",
+        transition: "all 0.55s cubic-bezier(0.16,1,0.3,1)",
+        cursor: "default",
+      }}
+    >
+      {/* Animated corner glow */}
+      <motion.div
+        animate={{opacity: hovered ? 1 : 0.4, scale: hovered ? 1.4 : 1}}
+        transition={{duration: 0.6}}
+        style={{
+          position: "absolute",
+          top: -40,
+          right: -40,
+          width: 180,
+          height: 180,
+          background: `radial-gradient(circle, ${GOLD}22 0%, transparent 70%)`,
+          pointerEvents: "none",
+        }}
+      />
+
+      {/* Number watermark */}
+      <div
+        style={{
+          position: "absolute",
+          bottom: -16,
+          right: 24,
+          fontFamily: "'Playfair Display', serif",
+          fontSize: 100,
+          fontWeight: 300,
+          lineHeight: 1,
+          color: hovered ? `${GOLD_LIGHT}12` : `${GOLD}08`,
+          pointerEvents: "none",
+          userSelect: "none",
+          transition: "color 0.5s",
+        }}
+      >
+        {String(index + 1).padStart(2, "0")}
+      </div>
+
+      {/* Icon */}
+      <motion.div
+        animate={{
+          background: hovered ? `${GOLD}22` : GOLD_PALE,
+          color: hovered ? GOLD_LIGHT : GOLD,
+        }}
+        transition={{duration: 0.4}}
+        style={{
+          width: 58,
+          height: 58,
+          borderRadius: 20,
+          marginBottom: 26,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          fontSize: 26,
+        }}
+      >
+        {icon}
+      </motion.div>
+
+      <h3
+        style={{
+          fontFamily: "'Playfair Display', serif",
+          fontSize: 21,
+          fontWeight: 500,
+          letterSpacing: "-0.01em",
+          color: hovered ? "#F0F7EC" : DARK,
+          margin: "0 0 12px",
+          transition: "color 0.4s",
+        }}
+      >
+        {title}
+      </h3>
+
+      <p
+        style={{
+          fontSize: 13.5,
+          color: hovered ? "rgba(240,247,236,0.65)" : MUTED,
+          lineHeight: 1.9,
+          fontWeight: 300,
+          margin: 0,
+          transition: "color 0.4s",
+        }}
+      >
+        {body}
+      </p>
+
+      {/* Bottom accent line */}
+      <motion.div
+        animate={{scaleX: hovered ? 1 : 0, opacity: hovered ? 1 : 0}}
+        transition={{duration: 0.5, ease: [0.16, 1, 0.3, 1]}}
+        style={{
+          position: "absolute",
+          bottom: 0,
+          left: 0,
+          right: 0,
+          height: 2,
+          background: `linear-gradient(90deg, transparent, ${GOLD_LIGHT}, transparent)`,
+          transformOrigin: "left",
+        }}
+      />
+    </motion.div>
+  );
+};
+
+// ── Timeline Item ──
+const TimelineItem = ({year, event, index, isLast}) => {
+  const ref = useRef(null);
+  const inView = useInView(ref, {once: true, margin: "-20px"});
+  const [hovered, setHovered] = useState(false);
+
+  return (
+    <motion.div
+      ref={ref}
+      initial={{opacity: 0, x: 32}}
+      animate={inView ? {opacity: 1, x: 0} : {}}
+      transition={{duration: 0.7, delay: index * 0.1, ease: [0.16, 1, 0.3, 1]}}
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+      style={{
+        display: "flex",
+        gap: 28,
+        marginBottom: isLast ? 0 : 36,
+        paddingLeft: 4,
+      }}
+    >
+      {/* Dot + line */}
+      <div
+        style={{
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          flexShrink: 0,
+        }}
+      >
+        <motion.div
+          animate={{
+            boxShadow: hovered
+              ? `0 0 0 6px ${GOLD}22, 0 0 0 12px ${GOLD}0c, 0 6px 20px ${GOLD}50`
+              : `0 0 0 4px ${GOLD}20, 0 4px 12px ${GOLD}30`,
+            scale: hovered ? 1.2 : 1,
+          }}
+          transition={{duration: 0.4}}
+          style={{
+            width: 20,
+            height: 20,
+            borderRadius: "50%",
+            flexShrink: 0,
+            background: `linear-gradient(135deg, ${GOLD}, ${GOLD_LIGHT})`,
+            border: `3px solid ${GOLD_PALE}`,
+          }}
+        />
+        {!isLast && (
+          <div
+            style={{
+              width: 1,
+              flex: 1,
+              marginTop: 6,
+              background: `linear-gradient(to bottom, ${GOLD}60, ${GOLD}15)`,
+              minHeight: 28,
+            }}
+          />
+        )}
+      </div>
+
+      <div style={{paddingBottom: isLast ? 0 : 8, paddingTop: 1}}>
+        <motion.div
+          animate={{color: hovered ? GOLD_LIGHT : GOLD}}
+          transition={{duration: 0.3}}
+          style={{
+            fontSize: 10,
+            fontWeight: 700,
+            letterSpacing: "0.35em",
+            textTransform: "uppercase",
+            marginBottom: 7,
+          }}
+        >
+          {year}
+        </motion.div>
+        <p
+          style={{
+            fontSize: 13.5,
+            color: DARK,
+            lineHeight: 1.8,
+            margin: 0,
+            fontWeight: 300,
+          }}
+        >
+          {event}
+        </p>
+      </div>
+    </motion.div>
+  );
+};
+
+// ── Team Card ──
+const TeamMember = ({name, role, bio, initial, quote, index}) => {
+  const ref = useRef(null);
+  const inView = useInView(ref, {once: true});
+  const [hovered, setHovered] = useState(false);
+
+  return (
+    <motion.div
+      ref={ref}
+      initial={{opacity: 0, y: 56, filter: "blur(5px)"}}
+      animate={inView ? {opacity: 1, y: 0, filter: "blur(0px)"} : {}}
+      transition={{duration: 0.9, delay: index * 0.14, ease: [0.16, 1, 0.3, 1]}}
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+      style={{
+        background: "white",
+        borderRadius: 36,
+        overflow: "hidden",
+        border: `1px solid ${GOLD}14`,
+        boxShadow: hovered
+          ? `0 40px 80px -16px rgba(30,70,10,0.22)`
+          : "0 6px 28px -10px rgba(30,70,10,0.09)",
+        transition: "all 0.55s cubic-bezier(0.16,1,0.3,1)",
+        transform: hovered ? "translateY(-8px)" : "translateY(0)",
+        cursor: "default",
+      }}
+    >
+      {/* Top band */}
+      <div
+        style={{
+          height: 8,
+          background: `linear-gradient(90deg, ${GOLD}, ${GOLD_LIGHT}, ${GOLD})`,
+          backgroundSize: "200% auto",
+          animation: hovered ? "shimmer-bg 2s linear infinite" : "none",
+        }}
+      />
+
+      <div style={{padding: "44px 36px 40px", textAlign: "center"}}>
+        {/* Avatar */}
+        <div
+          style={{
+            position: "relative",
+            width: 96,
+            height: 96,
+            margin: "0 auto 28px",
+          }}
+        >
+          <motion.div
+            animate={{opacity: hovered ? 1 : 0.4, scale: hovered ? 1.3 : 1}}
+            transition={{duration: 0.5}}
+            style={{
+              position: "absolute",
+              inset: -8,
+              borderRadius: "50%",
+              background: `radial-gradient(circle, ${GOLD}30 0%, transparent 70%)`,
+            }}
+          />
+          {/* Rotating dashed ring */}
+          <motion.svg
+            animate={{rotate: hovered ? 360 : 0}}
+            transition={{
+              duration: 12,
+              repeat: hovered ? Infinity : 0,
+              ease: "linear",
+            }}
+            viewBox="0 0 96 96"
+            style={{position: "absolute", inset: 0, width: 96, height: 96}}
+          >
+            <circle
+              cx="48"
+              cy="48"
+              r="44"
+              fill="none"
+              stroke={GOLD}
+              strokeWidth="0.8"
+              strokeDasharray="4 6"
+              opacity={hovered ? 0.6 : 0.2}
+            />
+          </motion.svg>
+          <div
+            style={{
+              width: 96,
+              height: 96,
+              borderRadius: "50%",
+              background: `linear-gradient(135deg, ${GOLD}, ${GOLD_LIGHT})`,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              fontSize: 26,
+              fontWeight: 400,
+              color: "white",
+              fontFamily: "'Playfair Display', serif",
+              boxShadow: `0 16px 40px ${GOLD}45`,
+              position: "relative",
+              zIndex: 1,
+            }}
+          >
+            {initial}
+          </div>
+        </div>
+
+        <h3
+          style={{
+            fontFamily: "'Playfair Display', serif",
+            fontSize: 21,
+            fontWeight: 500,
+            color: DARK,
+            margin: "0 0 6px",
+            letterSpacing: "-0.01em",
+          }}
+        >
+          {name}
+        </h3>
+
+        <p
+          style={{
+            fontSize: 9.5,
+            letterSpacing: "0.3em",
+            textTransform: "uppercase",
+            color: GOLD,
+            margin: "0 0 20px",
+            fontWeight: 600,
+          }}
+        >
+          {role}
+        </p>
+
+        <div
+          style={{
+            width: 32,
+            height: 1,
+            background: `${GOLD}40`,
+            margin: "0 auto 20px",
+          }}
+        />
+
+        <p
+          style={{
+            fontSize: 13,
+            color: MUTED,
+            lineHeight: 1.9,
+            margin: "0 0 24px",
+            fontWeight: 300,
+          }}
+        >
+          {bio}
+        </p>
+
+        {/* Quote */}
+        <AnimatePresence>
+          {hovered && (
+            <motion.div
+              initial={{opacity: 0, height: 0, marginTop: 0}}
+              animate={{opacity: 1, height: "auto", marginTop: 20}}
+              exit={{opacity: 0, height: 0, marginTop: 0}}
+              transition={{duration: 0.45, ease: [0.16, 1, 0.3, 1]}}
+              style={{
+                padding: "16px 20px",
+                background: GOLD_PALE,
+                borderRadius: 16,
+                borderLeft: `3px solid ${GOLD}`,
+                textAlign: "left",
+              }}
+            >
+              <p
+                style={{
+                  fontFamily: "'Playfair Display', serif",
+                  fontStyle: "italic",
+                  fontSize: 14,
+                  color: DARK,
+                  margin: 0,
+                  lineHeight: 1.7,
+                  fontWeight: 400,
+                }}
+              >
+                "{quote}"
+              </p>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
+    </motion.div>
+  );
+};
+
+// ── Floating Image ──
+const FloatingImage = ({inView}) => (
+  <motion.div
+    initial={{opacity: 0, x: 50, rotateY: -12}}
+    animate={inView ? {opacity: 1, x: 0, rotateY: 0} : {}}
+    transition={{duration: 1.2, delay: 0.35, ease: [0.16, 1, 0.3, 1]}}
+    style={{
+      flex: "1 1 480px",
+      minWidth: 280,
+      position: "relative",
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+      perspective: 900,
+    }}
+  >
+    <div
+      style={{
+        position: "absolute",
+        inset: "-10%",
+        background: `radial-gradient(ellipse 70% 65% at 52% 52%, ${GOLD}32 0%, transparent 72%)`,
+        pointerEvents: "none",
+        filter: "blur(28px)",
+      }}
+    />
+
+    {[360, 480, 620].map((size, i) => (
+      <motion.div
+        key={size}
+        animate={{scale: [1, 1.04, 1], opacity: [0.12, 0.32, 0.12]}}
+        transition={{
+          duration: 3.5 + i * 0.9,
+          repeat: Infinity,
+          ease: "easeInOut",
+          delay: i * 0.6,
+        }}
+        style={{
+          position: "absolute",
+          width: size,
+          height: size,
+          borderRadius: "50%",
+          border: `1px solid ${GOLD_LIGHT}50`,
+          top: "50%",
+          left: "50%",
+          transform: "translate(-50%,-50%)",
+          pointerEvents: "none",
+        }}
+      />
+    ))}
+
+    <motion.div
+      animate={{y: [0, -18, 0], rotateX: [0, 2, 0], rotateZ: [-0.8, 0.8, -0.8]}}
+      transition={{duration: 6.5, repeat: Infinity, ease: "easeInOut"}}
+      whileHover={{scale: 1.035, rotateY: 4, rotateX: -3}}
+      style={{
+        position: "relative",
+        zIndex: 2,
+        transformStyle: "preserve-3d",
+        cursor: "default",
+        width: "100%",
+        maxWidth: "min(85vw, 700px)",
+        margin: "0 auto",
+      }}
+    >
+      <img
+        src="/src/assets/ABOUT-US.png"
+        alt="Mindful Living KE — botanical roots"
+        style={{
+          width: "100%",
+          height: "auto",
+          display: "block",
+          borderRadius: "50% 46% 54% 42% / 44% 52% 48% 56%",
+          objectFit: "cover",
+          aspectRatio: "1 / 1",
+          filter: `
+            drop-shadow(0 50px 80px rgba(20,60,8,0.42))
+            drop-shadow(0 16px 32px rgba(20,60,8,0.22))
+            drop-shadow(0  4px 10px rgba(20,60,8,0.14))
+          `,
+        }}
+      />
+      <div
+        style={{
+          position: "absolute",
+          inset: 0,
+          borderRadius: "50% 46% 54% 42% / 44% 52% 48% 56%",
+          background:
+            "linear-gradient(135deg, rgba(255,255,255,0.13) 0%, transparent 55%)",
+          pointerEvents: "none",
+        }}
+      />
+    </motion.div>
+  </motion.div>
+);
+
+// ── Manifesto counter ──
+const AnimatedNumber = ({target, suffix = ""}) => {
+  const ref = useRef(null);
+  const inView = useInView(ref, {once: true});
+  const [count, setCount] = useState(0);
+
+  useEffect(() => {
+    if (!inView) return;
+    const num = parseInt(target.replace(/\D/g, ""));
+    let start = 0;
+    const duration = 1800;
+    const step = (timestamp) => {
+      if (!start) start = timestamp;
+      const progress = Math.min((timestamp - start) / duration, 1);
+      const eased = 1 - Math.pow(1 - progress, 3);
+      setCount(Math.floor(eased * num));
+      if (progress < 1) requestAnimationFrame(step);
+    };
+    requestAnimationFrame(step);
+  }, [inView, target]);
+
+  const prefix = target.match(/^\D+/) ? target.match(/^\D+/)[0] : "";
+  const suf = target.match(/\D+$/) ? target.match(/\D+$/)[0] : suffix;
+
+  return (
+    <span ref={ref}>
+      {prefix}
+      {count}
+      {suf}
+    </span>
+  );
+};
+
+// ══════════════════════════════════════════
+// MAIN PAGE
+// ══════════════════════════════════════════
 const AboutPage = () => {
   const heroRef = useRef(null);
   const isHeroInView = useInView(heroRef, {once: true});
@@ -178,506 +709,1182 @@ const AboutPage = () => {
     target: heroRef,
     offset: ["start start", "end start"],
   });
-  const parallaxY = useTransform(scrollYProgress, [0, 1], ["0%", "20%"]);
+  const parallaxY = useTransform(scrollYProgress, [0, 1], ["0%", "18%"]);
+  const heroOpacity = useTransform(scrollYProgress, [0, 0.7], [1, 0]);
 
   return (
-    <main style={{background: CREAM, minHeight: "100vh"}}>
-      <NavBar />
+    <main style={{background: CREAM, minHeight: "100vh", overflowX: "hidden"}}>
+      <style>{`
+        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,300;0,400;0,500;1,300;1,400&family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=Jost:wght@200;300;400;500&display=swap');
 
-      {/* ── HERO ── */}
-      <section
-        ref={heroRef}
-        style={{
-          minHeight: "70vh",
-          display: "flex",
-          alignItems: "center",
-          background: `linear-gradient(135deg, ${DARK_GREEN} 0%, #1E4A10 50%, #2E6B1A 100%)`,
-          position: "relative",
-          overflow: "hidden",
-          padding: "100px 80px",
-        }}
-      >
-        {/* Orbs */}
-        {[
-          [500, "top", "-15%", "right", "15%"],
-          [350, "bottom", "-10%", "left", "8%"],
-        ].map(([size, vp, vv, hp, hv], i) => (
-          <motion.div
-            key={i}
-            animate={{
-              x: [0, i === 0 ? 25 : -20, 0],
-              y: [0, i === 0 ? -20 : 25, 0],
-            }}
-            transition={{duration: 12 + i * 3, repeat: Infinity, delay: i * 2}}
+        * { box-sizing: border-box; }
+
+        @keyframes shimmer-text {
+          0%   { background-position: 0%   center }
+          50%  { background-position: 100% center }
+          100% { background-position: 0%   center }
+        }
+        @keyframes shimmer-bg {
+          0%   { background-position: 0%   center }
+          100% { background-position: 200% center }
+        }
+        @keyframes fadeUp {
+          from { opacity:0; transform:translateY(24px) }
+          to   { opacity:1; transform:none }
+        }
+        @keyframes spin-slow {
+          from { transform: rotate(0deg) }
+          to   { transform: rotate(360deg) }
+        }
+        @keyframes grain {
+          0%,100% { transform: translate(0,0) }
+          10%     { transform: translate(-2%,-3%) }
+          30%     { transform: translate(3%,2%) }
+          50%     { transform: translate(-1%,4%) }
+          70%     { transform: translate(2%,-2%) }
+          90%     { transform: translate(-3%,1%) }
+        }
+
+        .about-page { font-family: 'Jost', sans-serif; }
+
+        .manifesto-char {
+          display: inline-block;
+          animation: fadeUp 0.6s cubic-bezier(0.16,1,0.3,1) both;
+        }
+
+        @media (max-width: 1024px) {
+          .hero-content    { flex-direction: column !important; }
+          .story-grid      { grid-template-columns: 1fr !important; gap: 60px !important; }
+          .values-grid     { grid-template-columns: 1fr 1fr !important; }
+        }
+        @media (max-width: 768px) {
+          .hero-section    { padding: 100px 24px 180px !important; }
+          .page-section    { padding: 72px 24px !important; }
+          .values-grid     { grid-template-columns: 1fr !important; }
+          .team-grid       { grid-template-columns: 1fr !important; }
+          .stats-bar > div { padding: 20px 24px !important; border-right: none !important; border-bottom: 1px solid rgba(74,140,42,0.15) !important; }
+          .cta-section     { padding: 60px 24px !important; }
+          .manifesto-section { padding: 80px 24px !important; }
+          .nl-section      { padding: 60px 24px !important; }
+        }
+        @media (max-width: 600px) {
+          .story-grid      { gap: 48px !important; }
+        }
+      `}</style>
+
+      <div className="about-page">
+        <NavBar />
+
+        {/* ══════════════════════════════════
+            HERO
+        ══════════════════════════════════ */}
+        <section
+          ref={heroRef}
+          className="hero-section"
+          style={{
+            minHeight: "92vh",
+            background: `linear-gradient(145deg, ${FOREST} 0%, #1A3E0C 45%, #2A5E16 100%)`,
+            position: "relative",
+            overflow: "hidden",
+            padding: "120px 80px 210px",
+          }}
+        >
+          {/* Grain texture overlay */}
+          <div
             style={{
               position: "absolute",
-              width: size,
-              height: size,
-              borderRadius: "50%",
-              background: `radial-gradient(circle, ${GOLD}20 0%, transparent 70%)`,
-              [vp]: vv,
-              [hp]: hv,
+              inset: "-50%",
+              width: "200%",
+              height: "200%",
+              backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E")`,
+              backgroundSize: "180px 180px",
+              opacity: 0.6,
+              pointerEvents: "none",
+              zIndex: 0,
+              animation: "grain 8s steps(2) infinite",
+            }}
+          />
+
+          {/* Animated ambient orbs */}
+          {[
+            {size: 600, top: "-20%", right: "8%", delay: 0, dur: 14},
+            {size: 400, bottom: "4%", left: "4%", delay: 2, dur: 17},
+            {size: 260, top: "35%", right: "30%", delay: 1, dur: 11},
+          ].map((o, i) => (
+            <motion.div
+              key={i}
+              animate={{
+                x: [0, i % 2 === 0 ? 26 : -24, 0],
+                y: [0, i % 2 === 0 ? -20 : 24, 0],
+              }}
+              transition={{
+                duration: o.dur,
+                repeat: Infinity,
+                delay: o.delay,
+                ease: "easeInOut",
+              }}
+              style={{
+                position: "absolute",
+                width: o.size,
+                height: o.size,
+                borderRadius: "50%",
+                background: `radial-gradient(circle, ${GOLD}1c 0%, transparent 68%)`,
+                top: o.top,
+                right: o.right,
+                bottom: o.bottom,
+                left: o.left,
+                pointerEvents: "none",
+                zIndex: 0,
+              }}
+            />
+          ))}
+
+          {/* Fine grid */}
+          <div
+            style={{
+              position: "absolute",
+              inset: 0,
+              zIndex: 0,
+              backgroundImage: `linear-gradient(${GOLD}07 1px, transparent 1px), linear-gradient(90deg, ${GOLD}07 1px, transparent 1px)`,
+              backgroundSize: "72px 72px",
               pointerEvents: "none",
             }}
           />
-        ))}
 
-        {/* Decorative grid lines */}
-        <div
-          style={{
-            position: "absolute",
-            inset: 0,
-            backgroundImage: `linear-gradient(${GOLD}08 1px, transparent 1px), linear-gradient(90deg, ${GOLD}08 1px, transparent 1px)`,
-            backgroundSize: "80px 80px",
-            pointerEvents: "none",
-          }}
-        />
+          {/* Diagonal streak */}
+          <div
+            style={{
+              position: "absolute",
+              top: "-10%",
+              left: "-5%",
+              width: "60%",
+              height: "130%",
+              background: `linear-gradient(120deg, transparent 0%, ${GOLD}06 40%, transparent 80%)`,
+              transform: "skewX(-12deg)",
+              pointerEvents: "none",
+              zIndex: 0,
+            }}
+          />
 
-        <motion.div
-          style={{y: parallaxY, position: "relative", zIndex: 2, maxWidth: 700}}
-        >
+          {/* Corner ornament — top left */}
+          <svg
+            width="120"
+            height="120"
+            viewBox="0 0 120 120"
+            style={{
+              position: "absolute",
+              top: 88,
+              left: 80,
+              opacity: 0.18,
+              zIndex: 1,
+            }}
+          >
+            <path
+              d="M0 0 L60 0 M0 0 L0 60"
+              stroke={GOLD_LIGHT}
+              strokeWidth="0.8"
+              fill="none"
+            />
+            <path
+              d="M10 0 L0 0 L0 10"
+              stroke={GOLD_LIGHT}
+              strokeWidth="0.5"
+              fill="none"
+              opacity="0.5"
+            />
+            <circle cx="60" cy="0" r="2" fill={GOLD_LIGHT} opacity="0.4" />
+            <circle cx="0" cy="60" r="2" fill={GOLD_LIGHT} opacity="0.4" />
+          </svg>
+
+          {/* Corner ornament — bottom right */}
+          <svg
+            width="120"
+            height="120"
+            viewBox="0 0 120 120"
+            style={{
+              position: "absolute",
+              bottom: 88,
+              right: 80,
+              opacity: 0.18,
+              zIndex: 1,
+              transform: "rotate(180deg)",
+            }}
+          >
+            <path
+              d="M0 0 L60 0 M0 0 L0 60"
+              stroke={GOLD_LIGHT}
+              strokeWidth="0.8"
+              fill="none"
+            />
+            <circle cx="60" cy="0" r="2" fill={GOLD_LIGHT} opacity="0.4" />
+            <circle cx="0" cy="60" r="2" fill={GOLD_LIGHT} opacity="0.4" />
+          </svg>
+
+          {/* Hero content */}
           <motion.div
-            initial={{opacity: 0, y: 20}}
+            style={{
+              y: parallaxY,
+              opacity: heroOpacity,
+              position: "relative",
+              zIndex: 2,
+              display: "flex",
+              flexWrap: "wrap",
+              alignItems: "center",
+              justifyContent: "space-between",
+              gap: 56,
+              maxWidth: 1360,
+              margin: "0 auto",
+            }}
+            className="hero-content"
+          >
+            {/* Left: text */}
+            <div style={{flex: "1 1 380px", minWidth: 0}}>
+              {/* Pill */}
+              <motion.div
+                initial={{opacity: 0, y: 20}}
+                animate={isHeroInView ? {opacity: 1, y: 0} : {}}
+                transition={{duration: 0.7}}
+                style={{marginBottom: 36}}
+              >
+                <div
+                  style={{
+                    display: "inline-flex",
+                    alignItems: "center",
+                    gap: 10,
+                    padding: "8px 20px",
+                    border: `1px solid ${GOLD}55`,
+                    background: `${GOLD}18`,
+                    borderRadius: 100,
+                  }}
+                >
+                  <motion.div
+                    animate={{scale: [1, 1.5, 1], opacity: [1, 0.45, 1]}}
+                    transition={{duration: 2, repeat: Infinity}}
+                    style={{
+                      width: 6,
+                      height: 6,
+                      borderRadius: "50%",
+                      background: GOLD_LIGHT,
+                    }}
+                  />
+                  <span
+                    style={{
+                      fontSize: 10,
+                      fontWeight: 500,
+                      letterSpacing: "0.4em",
+                      textTransform: "uppercase",
+                      color: GOLD_LIGHT,
+                    }}
+                  >
+                    Our Story
+                  </span>
+                </div>
+              </motion.div>
+
+              {/* Headline */}
+              <motion.h1
+                initial={{opacity: 0, y: 48, filter: "blur(8px)"}}
+                animate={
+                  isHeroInView ? {opacity: 1, y: 0, filter: "blur(0px)"} : {}
+                }
+                transition={{
+                  duration: 1.1,
+                  delay: 0.1,
+                  ease: [0.16, 1, 0.3, 1],
+                }}
+                style={{
+                  fontFamily: "'Playfair Display', 'Georgia', serif",
+                  fontSize: "clamp(44px, 5vw, 82px)",
+                  fontWeight: 300,
+                  color: "white",
+                  margin: "0 0 28px",
+                  lineHeight: 1.06,
+                  letterSpacing: "-0.02em",
+                }}
+              >
+                Born from the <br />
+                <em
+                  style={{
+                    fontStyle: "italic",
+                    background: `linear-gradient(90deg, ${GOLD_LIGHT} 0%, #A8D870 50%, ${GOLD_LIGHT} 100%)`,
+                    backgroundSize: "200% auto",
+                    WebkitBackgroundClip: "text",
+                    WebkitTextFillColor: "transparent",
+                    backgroundClip: "text",
+                    animation: "shimmer-text 3s ease-in-out infinite",
+                  }}
+                >
+                  Kenyan earth
+                </em>
+              </motion.h1>
+
+              {/* Divider */}
+              <motion.div
+                initial={{opacity: 0, scaleX: 0}}
+                animate={isHeroInView ? {opacity: 1, scaleX: 1} : {}}
+                transition={{
+                  duration: 0.9,
+                  delay: 0.35,
+                  ease: [0.16, 1, 0.3, 1],
+                }}
+                style={{
+                  width: 64,
+                  height: 1,
+                  transformOrigin: "left",
+                  background: `linear-gradient(90deg, ${GOLD_LIGHT}, transparent)`,
+                  marginBottom: 28,
+                }}
+              />
+
+              <motion.p
+                initial={{opacity: 0, y: 20}}
+                animate={isHeroInView ? {opacity: 1, y: 0} : {}}
+                transition={{duration: 0.85, delay: 0.3}}
+                style={{
+                  fontSize: 16,
+                  color: "rgba(255,255,255,0.68)",
+                  maxWidth: 480,
+                  lineHeight: 1.95,
+                  fontWeight: 300,
+                  margin: "0 0 44px",
+                  letterSpacing: "0.01em",
+                }}
+              >
+                Mindful Living KE was born from a simple belief — that Kenya's
+                abundant botanical landscape holds the most powerful skincare
+                solutions in the world. We just needed to listen to the land.
+              </motion.p>
+
+              {/* Two CTAs */}
+              <motion.div
+                initial={{opacity: 0, y: 20}}
+                animate={isHeroInView ? {opacity: 1, y: 0} : {}}
+                transition={{duration: 0.8, delay: 0.45}}
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 24,
+                  flexWrap: "wrap",
+                }}
+              >
+                <motion.button
+                  whileHover={{scale: 1.04, boxShadow: `0 20px 50px ${GOLD}55`}}
+                  whileTap={{scale: 0.97}}
+                  style={{
+                    background: `linear-gradient(135deg, ${GOLD}, ${GOLD_LIGHT})`,
+                    border: "none",
+                    borderRadius: 100,
+                    padding: "14px 36px",
+                    color: "white",
+                    fontSize: 11,
+                    fontWeight: 500,
+                    letterSpacing: "0.28em",
+                    textTransform: "uppercase",
+                    cursor: "pointer",
+                    boxShadow: `0 12px 36px ${GOLD}40`,
+                    fontFamily: "'Jost', sans-serif",
+                    position: "relative",
+                    overflow: "hidden",
+                  }}
+                >
+                  <motion.span
+                    animate={{x: ["-100%", "200%"]}}
+                    transition={{
+                      duration: 2.5,
+                      repeat: Infinity,
+                      repeatDelay: 1.5,
+                      ease: "easeInOut",
+                    }}
+                    style={{
+                      position: "absolute",
+                      inset: 0,
+                      background:
+                        "linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.22) 50%, transparent 100%)",
+                      pointerEvents: "none",
+                    }}
+                  />
+                  Shop the Collection
+                </motion.button>
+
+                <button
+                  style={{
+                    background: "none",
+                    border: "none",
+                    cursor: "pointer",
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 8,
+                    fontSize: 11,
+                    fontWeight: 400,
+                    letterSpacing: "0.22em",
+                    textTransform: "uppercase",
+                    color: "rgba(240,247,236,0.55)",
+                    fontFamily: "'Jost', sans-serif",
+                    transition: "color 0.3s",
+                  }}
+                  onMouseEnter={(e) =>
+                    (e.currentTarget.style.color = GOLD_LIGHT)
+                  }
+                  onMouseLeave={(e) =>
+                    (e.currentTarget.style.color = "rgba(240,247,236,0.55)")
+                  }
+                >
+                  Read Our Journal
+                  <svg
+                    width="14"
+                    height="14"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="1.5"
+                  >
+                    <path d="M5 12h14M12 5l7 7-7 7" />
+                  </svg>
+                </button>
+              </motion.div>
+            </div>
+
+            {/* Right: floating image */}
+            <FloatingImage inView={isHeroInView} />
+          </motion.div>
+
+          {/* Stats bar */}
+          <motion.div
+            className="stats-bar"
+            initial={{opacity: 0, y: 24}}
             animate={isHeroInView ? {opacity: 1, y: 0} : {}}
-            transition={{duration: 0.7}}
-            style={{marginBottom: 28}}
+            transition={{duration: 0.85, delay: 0.6}}
+            style={{
+              position: "absolute",
+              bottom: 0,
+              left: 0,
+              right: 0,
+              background: "rgba(8,22,4,0.6)",
+              backdropFilter: "blur(20px) saturate(1.4)",
+              WebkitBackdropFilter: "blur(20px) saturate(1.4)",
+              borderTop: `1px solid ${GOLD}28`,
+              display: "flex",
+              justifyContent: "center",
+              flexWrap: "wrap",
+              zIndex: 3,
+            }}
+          >
+            {stats.map(([n, l], i) => (
+              <div
+                key={l}
+                style={{
+                  padding: "28px 56px",
+                  textAlign: "center",
+                  borderRight:
+                    i < stats.length - 1 ? `1px solid ${GOLD}20` : "none",
+                }}
+              >
+                <div
+                  style={{
+                    fontFamily: "'Playfair Display', serif",
+                    fontSize: 36,
+                    fontWeight: 300,
+                    color: "white",
+                    letterSpacing: "-0.01em",
+                  }}
+                >
+                  <AnimatedNumber target={n} />
+                </div>
+                <div
+                  style={{
+                    fontSize: 9,
+                    letterSpacing: "0.35em",
+                    textTransform: "uppercase",
+                    color: `${GOLD_LIGHT}bb`,
+                    marginTop: 6,
+                  }}
+                >
+                  {l}
+                </div>
+              </div>
+            ))}
+          </motion.div>
+        </section>
+
+        {/* ══════════════════════════════════
+            MANIFESTO BAND
+        ══════════════════════════════════ */}
+        <RevealSection>
+          <div
+            className="manifesto-section"
+            style={{
+              background: GOLD_PALE,
+              padding: "96px 80px",
+              textAlign: "center",
+              position: "relative",
+              overflow: "hidden",
+            }}
           >
             <div
               style={{
-                display: "inline-flex",
-                alignItems: "center",
-                gap: 10,
-                padding: "8px 18px",
-                border: `1px solid ${GOLD}50`,
-                background: `${GOLD}18`,
-                borderRadius: 100,
+                position: "absolute",
+                top: -20,
+                left: 80,
+                fontFamily: "'Playfair Display', serif",
+                fontSize: 180,
+                fontWeight: 300,
+                lineHeight: 1,
+                color: `${GOLD}10`,
+                pointerEvents: "none",
+                userSelect: "none",
               }}
             >
-              <motion.div
-                animate={{scale: [1, 1.4, 1], opacity: [1, 0.5, 1]}}
-                transition={{duration: 2, repeat: Infinity}}
-                style={{
-                  width: 6,
-                  height: 6,
-                  borderRadius: "50%",
-                  background: GOLD_LIGHT,
-                }}
-              />
+              "
+            </div>
+
+            <SectionLabel text="Our Manifesto" />
+
+            <p
+              style={{
+                fontFamily: "'Cormorant Garamond', 'Playfair Display', serif",
+                fontStyle: "italic",
+                fontWeight: 300,
+                fontSize: "clamp(22px, 3vw, 42px)",
+                color: "#2C3A28",
+                lineHeight: 1.55,
+                maxWidth: 760,
+                margin: "0 auto 32px",
+                position: "relative",
+              }}
+            >
+              If it doesn't grow from the earth, it doesn't belong on your skin.
+              We have never wavered from this belief — and we never will.
+            </p>
+
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                gap: 16,
+              }}
+            >
+              <div style={{width: 40, height: 1, background: GOLD}} />
               <span
                 style={{
                   fontSize: 10,
                   fontWeight: 500,
-                  letterSpacing: "0.38em",
+                  letterSpacing: "0.35em",
                   textTransform: "uppercase",
-                  color: GOLD_LIGHT,
+                  color: MUTED,
                 }}
               >
-                Our Story
+                Amina Wanjiru, Co-Founder
               </span>
+              <div style={{width: 40, height: 1, background: GOLD}} />
             </div>
-          </motion.div>
+          </div>
+        </RevealSection>
 
-          <motion.h1
-            initial={{opacity: 0, y: 40, filter: "blur(6px)"}}
-            animate={
-              isHeroInView ? {opacity: 1, y: 0, filter: "blur(0px)"} : {}
-            }
-            transition={{duration: 1, delay: 0.1, ease: [0.16, 1, 0.3, 1]}}
-            style={{
-              fontFamily: "'Playfair Display', 'Georgia', serif",
-              fontSize: "clamp(40px, 5vw, 72px)",
-              fontWeight: 300,
-              color: "white",
-              margin: "0 0 24px",
-              lineHeight: 1.1,
-              letterSpacing: "-0.01em",
-            }}
-          >
-            Born from the{" "}
-            <em
-              style={{
-                fontStyle: "italic",
-                background: `linear-gradient(90deg, ${GOLD_LIGHT} 0%, #A8D870 50%, ${GOLD_LIGHT} 100%)`,
-                backgroundSize: "200% auto",
-                WebkitBackgroundClip: "text",
-                WebkitTextFillColor: "transparent",
-                backgroundClip: "text",
-                animation: "shimmer-text 3s ease-in-out infinite",
-              }}
-            >
-              Kenyan earth
-            </em>
-          </motion.h1>
-
-          <motion.p
-            initial={{opacity: 0, y: 20}}
-            animate={isHeroInView ? {opacity: 1, y: 0} : {}}
-            transition={{duration: 0.8, delay: 0.3}}
-            style={{
-              fontSize: 16,
-              color: "rgba(255,255,255,0.7)",
-              maxWidth: 540,
-              lineHeight: 1.9,
-              fontWeight: 300,
-              margin: 0,
-            }}
-          >
-            Mindful Living KE was born from a simple belief — that Kenya's
-            abundant botanical landscape holds the most powerful skincare
-            solutions in the world. We just needed to listen to the land.
-          </motion.p>
-        </motion.div>
-
-        {/* Stats row */}
-        <motion.div
-          initial={{opacity: 0, y: 30}}
-          animate={isHeroInView ? {opacity: 1, y: 0} : {}}
-          transition={{duration: 0.8, delay: 0.5}}
-          style={{
-            position: "absolute",
-            bottom: 0,
-            left: 0,
-            right: 0,
-            background: "rgba(0,0,0,0.25)",
-            backdropFilter: "blur(12px)",
-            display: "flex",
-            justifyContent: "center",
-            borderTop: `1px solid ${GOLD}20`,
-          }}
-          className="about-stats"
+        {/* ══════════════════════════════════
+            VALUES
+        ══════════════════════════════════ */}
+        <section
+          className="page-section"
+          style={{padding: "108px 80px", maxWidth: 1400, margin: "0 auto"}}
         >
-          {[
-            ["50K+", "Happy Customers"],
-            ["40+", "Farm Partners"],
-            ["30+", "Products"],
-            ["5", "Years"],
-          ].map(([n, l]) => (
-            <div
-              key={l}
-              style={{
-                padding: "28px 48px",
-                textAlign: "center",
-                borderRight: `1px solid ${GOLD}20`,
-              }}
-            >
-              <div
+          <div style={{textAlign: "center", marginBottom: 72}}>
+            <RevealSection>
+              <SectionLabel text="What We Stand For" />
+              <h2
                 style={{
                   fontFamily: "'Playfair Display', serif",
-                  fontSize: 32,
+                  fontSize: "clamp(32px, 4vw, 56px)",
                   fontWeight: 300,
-                  color: "white",
+                  color: DARK,
+                  margin: "0 0 18px",
+                  letterSpacing: "-0.015em",
                 }}
               >
-                {n}
-              </div>
+                Our Core{" "}
+                <em style={{fontStyle: "italic", color: GOLD}}>Values</em>
+              </h2>
+              <p
+                style={{
+                  fontSize: 14.5,
+                  color: MUTED,
+                  maxWidth: 460,
+                  margin: "0 auto",
+                  fontWeight: 300,
+                  lineHeight: 1.9,
+                }}
+              >
+                The principles that guide every ingredient we choose, every
+                farmer we partner with, and every product we put our name on.
+              </p>
+            </RevealSection>
+          </div>
+
+          <div
+            className="values-grid"
+            style={{
+              display: "grid",
+              gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))",
+              gap: 24,
+            }}
+          >
+            {values.map((v, i) => (
+              <ValueCard
+                key={v.title}
+                icon={v.icon}
+                title={v.title}
+                body={v.body}
+                index={i}
+              />
+            ))}
+          </div>
+        </section>
+
+        {/* ══════════════════════════════════
+            STORY + TIMELINE
+        ══════════════════════════════════ */}
+        <section
+          style={{
+            background: `linear-gradient(155deg, ${GOLD_PALE} 0%, #ddf0c0 55%, #eef8e4 100%)`,
+            padding: "108px 80px",
+            position: "relative",
+            overflow: "hidden",
+          }}
+        >
+          {/* Decorative watermark */}
+          <div
+            style={{
+              position: "absolute",
+              right: -60,
+              top: "10%",
+              fontSize: 320,
+              opacity: 0.035,
+              pointerEvents: "none",
+              fontFamily: "serif",
+              transform: "rotate(20deg)",
+              lineHeight: 1,
+              color: GOLD,
+              userSelect: "none",
+            }}
+          >
+            ✿
+          </div>
+          {/* Second watermark */}
+          <div
+            style={{
+              position: "absolute",
+              left: -40,
+              bottom: "5%",
+              fontSize: 200,
+              opacity: 0.025,
+              pointerEvents: "none",
+              fontFamily: "serif",
+              transform: "rotate(-15deg)",
+              lineHeight: 1,
+              color: GOLD,
+              userSelect: "none",
+            }}
+          >
+            ✦
+          </div>
+
+          <div
+            className="story-grid"
+            style={{
+              maxWidth: 1200,
+              margin: "0 auto",
+              display: "grid",
+              gridTemplateColumns: "1fr 1fr",
+              gap: 100,
+              alignItems: "start",
+            }}
+          >
+            {/* Left: narrative */}
+            <RevealSection>
+              <SectionLabel text="Our Journey" />
+              <h2
+                style={{
+                  fontFamily: "'Playfair Display', serif",
+                  fontSize: "clamp(32px, 3.5vw, 52px)",
+                  fontWeight: 300,
+                  color: DARK,
+                  margin: "0 0 30px",
+                  lineHeight: 1.18,
+                  letterSpacing: "-0.01em",
+                }}
+              >
+                Five years of growing{" "}
+                <em style={{fontStyle: "italic", color: GOLD}}>with nature</em>
+              </h2>
+
+              <p
+                style={{
+                  fontSize: 14.5,
+                  color: MUTED,
+                  lineHeight: 2.05,
+                  fontWeight: 300,
+                  margin: "0 0 22px",
+                }}
+              >
+                What started as Amina's kitchen experiments with local herbs
+                became East Africa's most-loved natural wellness brand. We've
+                never strayed from our founding principle: if it doesn't grow
+                from the earth, it doesn't belong on your skin.
+              </p>
+              <p
+                style={{
+                  fontSize: 14.5,
+                  color: MUTED,
+                  lineHeight: 2.05,
+                  fontWeight: 300,
+                  margin: "0 0 40px",
+                }}
+              >
+                Every product we create is tested by real Kenyans, for Kenyan
+                skin — with the full spectrum of melanin in mind. We answer to
+                our farmers and our customers, not to shareholders.
+              </p>
+
+              {/* Pull quote */}
               <div
                 style={{
-                  fontSize: 9,
-                  letterSpacing: "0.3em",
-                  textTransform: "uppercase",
-                  color: GOLD_LIGHT,
-                  marginTop: 4,
+                  padding: "28px 32px",
+                  borderLeft: `3px solid ${GOLD}`,
+                  background: "rgba(255,255,255,0.65)",
+                  borderRadius: "0 20px 20px 0",
+                  backdropFilter: "blur(12px)",
+                  boxShadow: `0 8px 32px -8px ${GOLD}18`,
+                  position: "relative",
+                  overflow: "hidden",
                 }}
               >
-                {l}
-              </div>
-            </div>
-          ))}
-        </motion.div>
-      </section>
-
-      {/* ── VALUES ── */}
-      <section
-        style={{padding: "100px 80px", maxWidth: 1400, margin: "0 auto"}}
-        className="about-section"
-      >
-        <div style={{textAlign: "center", marginBottom: 64}}>
-          <SectionLabel text="What We Stand For" />
-          <h2
-            style={{
-              fontFamily: "'Playfair Display', serif",
-              fontSize: "clamp(32px, 4vw, 52px)",
-              fontWeight: 300,
-              color: DARK,
-              margin: 0,
-              letterSpacing: "-0.01em",
-            }}
-          >
-            Our Core Values
-          </h2>
-        </div>
-        <div
-          style={{
-            display: "grid",
-            gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))",
-            gap: 24,
-          }}
-        >
-          {values.map((v, i) => (
-            <ValueCard key={v.title} {...v} index={i} />
-          ))}
-        </div>
-      </section>
-
-      {/* ── STORY + TIMELINE ── */}
-      <section
-        style={{
-          background: `linear-gradient(135deg, ${GOLD_PALE} 0%, #D8F0C0 100%)`,
-          padding: "100px 80px",
-        }}
-        className="about-section"
-      >
-        <div
-          style={{
-            maxWidth: 1200,
-            margin: "0 auto",
-            display: "grid",
-            gridTemplateColumns: "1fr 1fr",
-            gap: 80,
-            alignItems: "start",
-          }}
-          className="story-grid"
-        >
-          {/* Left */}
-          <div>
-            <SectionLabel text="Our Journey" />
-            <h2
-              style={{
-                fontFamily: "'Playfair Display', serif",
-                fontSize: "clamp(32px, 3.5vw, 48px)",
-                fontWeight: 300,
-                color: DARK,
-                margin: "0 0 24px",
-                lineHeight: 1.2,
-              }}
-            >
-              Five years of growing{" "}
-              <em style={{fontStyle: "italic", color: GOLD}}>with nature</em>
-            </h2>
-            <p
-              style={{
-                fontSize: 14,
-                color: MUTED,
-                lineHeight: 1.95,
-                fontWeight: 300,
-                margin: "0 0 20px",
-              }}
-            >
-              What started as Amina's kitchen experiments with local herbs
-              became East Africa's most-loved natural wellness brand. We've
-              never strayed from our founding principle: if it doesn't grow from
-              the earth, it doesn't belong on your skin.
-            </p>
-            <p
-              style={{
-                fontSize: 14,
-                color: MUTED,
-                lineHeight: 1.95,
-                fontWeight: 300,
-                margin: 0,
-              }}
-            >
-              Every product we create is tested by real Kenyans, for Kenyan skin
-              — with the full spectrum of melanin in mind.
-            </p>
-          </div>
-
-          {/* Timeline */}
-          <div style={{position: "relative"}}>
-            <div
-              style={{
-                position: "absolute",
-                left: 18,
-                top: 0,
-                bottom: 0,
-                width: 1,
-                background: `linear-gradient(to bottom, ${GOLD}, ${GOLD}40, transparent)`,
-              }}
-            />
-            {milestones.map((m, i) => {
-              const ref = useRef(null);
-              const inView = useInView(ref, {once: true});
-              return (
-                <motion.div
-                  ref={ref}
-                  key={m.year}
-                  initial={{opacity: 0, x: 20}}
-                  animate={inView ? {opacity: 1, x: 0} : {}}
-                  transition={{
-                    duration: 0.6,
-                    delay: i * 0.1,
-                    ease: [0.16, 1, 0.3, 1],
-                  }}
-                  style={{
-                    display: "flex",
-                    gap: 24,
-                    marginBottom: 36,
-                    paddingLeft: 8,
-                  }}
-                >
-                  <div
-                    style={{
-                      width: 20,
-                      height: 20,
-                      borderRadius: "50%",
-                      flexShrink: 0,
-                      marginTop: 2,
-                      background: GOLD,
-                      border: `3px solid ${GOLD_PALE}`,
-                      boxShadow: `0 0 0 3px ${GOLD}30`,
-                    }}
-                  />
-                  <div>
-                    <div
-                      style={{
-                        fontSize: 10,
-                        fontWeight: 600,
-                        letterSpacing: "0.3em",
-                        color: GOLD,
-                        textTransform: "uppercase",
-                        marginBottom: 4,
-                      }}
-                    >
-                      {m.year}
-                    </div>
-                    <p
-                      style={{
-                        fontSize: 13,
-                        color: DARK,
-                        lineHeight: 1.7,
-                        margin: 0,
-                        fontWeight: 300,
-                      }}
-                    >
-                      {m.event}
-                    </p>
-                  </div>
-                </motion.div>
-              );
-            })}
-          </div>
-        </div>
-      </section>
-
-      {/* ── TEAM ── */}
-      <section
-        style={{padding: "100px 80px", maxWidth: 1400, margin: "0 auto"}}
-        className="about-section"
-      >
-        <div style={{textAlign: "center", marginBottom: 64}}>
-          <SectionLabel text="The Faces Behind the Brand" />
-          <h2
-            style={{
-              fontFamily: "'Playfair Display', serif",
-              fontSize: "clamp(32px, 4vw, 52px)",
-              fontWeight: 300,
-              color: DARK,
-              margin: 0,
-            }}
-          >
-            Meet the Team
-          </h2>
-        </div>
-        <div
-          style={{
-            display: "grid",
-            gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))",
-            gap: 28,
-          }}
-        >
-          {team.map((member, i) => {
-            const ref = useRef(null);
-            const inView = useInView(ref, {once: true});
-            return (
-              <motion.div
-                ref={ref}
-                key={member.name}
-                initial={{opacity: 0, y: 40}}
-                animate={inView ? {opacity: 1, y: 0} : {}}
-                transition={{duration: 0.7, delay: i * 0.12}}
-                style={{
-                  background: "white",
-                  borderRadius: 28,
-                  padding: "40px 32px",
-                  textAlign: "center",
-                  border: `1px solid ${GOLD}15`,
-                  boxShadow: "0 8px 32px -12px rgba(30,70,10,0.08)",
-                }}
-              >
-                {/* Avatar */}
                 <div
                   style={{
-                    width: 80,
-                    height: 80,
-                    borderRadius: "50%",
-                    margin: "0 auto 20px",
-                    background: `linear-gradient(135deg, ${GOLD}, ${GOLD_LIGHT})`,
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    fontSize: 22,
-                    fontWeight: 400,
-                    color: "white",
+                    position: "absolute",
+                    top: -20,
+                    right: -20,
+                    fontSize: 100,
                     fontFamily: "'Playfair Display', serif",
-                    boxShadow: `0 12px 32px ${GOLD}35`,
+                    color: `${GOLD}10`,
+                    lineHeight: 1,
+                    pointerEvents: "none",
                   }}
                 >
-                  {member.initial}
+                  "
                 </div>
-                <h3
+                <p
                   style={{
-                    fontFamily: "'Playfair Display', serif",
-                    fontSize: 20,
+                    fontFamily:
+                      "'Cormorant Garamond', 'Playfair Display', serif",
+                    fontStyle: "italic",
+                    fontSize: 18,
                     fontWeight: 400,
                     color: DARK,
-                    margin: "0 0 4px",
+                    margin: 0,
+                    lineHeight: 1.7,
                   }}
                 >
-                  {member.name}
-                </h3>
+                  "If it doesn't grow from the earth, it doesn't belong on your
+                  skin."
+                </p>
                 <p
                   style={{
                     fontSize: 10,
-                    letterSpacing: "0.25em",
-                    textTransform: "uppercase",
+                    letterSpacing: "0.28em",
                     color: GOLD,
-                    margin: "0 0 16px",
-                    fontWeight: 500,
+                    textTransform: "uppercase",
+                    margin: "12px 0 0",
+                    fontWeight: 600,
                   }}
                 >
-                  {member.role}
+                  — Amina Wanjiru, Co-Founder
                 </p>
+              </div>
+            </RevealSection>
+
+            {/* Right: timeline */}
+            <RevealSection delay={0.15}>
+              <div style={{position: "relative"}}>
+                <div
+                  style={{
+                    position: "absolute",
+                    left: 14,
+                    top: 4,
+                    bottom: 0,
+                    width: 1,
+                    background: `linear-gradient(to bottom, ${GOLD} 0%, ${GOLD}40 70%, transparent 100%)`,
+                  }}
+                />
+                {milestones.map((m, i) => (
+                  <TimelineItem
+                    key={m.year}
+                    year={m.year}
+                    event={m.event}
+                    index={i}
+                    isLast={i === milestones.length - 1}
+                  />
+                ))}
+              </div>
+            </RevealSection>
+          </div>
+        </section>
+
+        {/* ══════════════════════════════════
+            INGREDIENTS RIBBON
+        ══════════════════════════════════ */}
+        <RevealSection>
+          <div
+            style={{
+              background: FOREST,
+              padding: "52px 80px",
+              overflow: "hidden",
+              position: "relative",
+            }}
+          >
+            <div
+              style={{
+                position: "absolute",
+                inset: 0,
+                backgroundImage: `linear-gradient(${GOLD}06 1px, transparent 1px), linear-gradient(90deg, ${GOLD}06 1px, transparent 1px)`,
+                backgroundSize: "60px 60px",
+                pointerEvents: "none",
+              }}
+            />
+
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "space-between",
+                flexWrap: "wrap",
+                gap: 32,
+                maxWidth: 1200,
+                margin: "0 auto",
+                position: "relative",
+              }}
+            >
+              <div>
                 <p
                   style={{
-                    fontSize: 13,
-                    color: MUTED,
-                    lineHeight: 1.8,
-                    margin: 0,
-                    fontWeight: 300,
+                    fontSize: 9,
+                    fontWeight: 500,
+                    letterSpacing: "0.4em",
+                    textTransform: "uppercase",
+                    color: `${GOLD_LIGHT}80`,
+                    marginBottom: 10,
                   }}
                 >
-                  {member.bio}
+                  Key Botanicals
                 </p>
-              </motion.div>
-            );
-          })}
-        </div>
-      </section>
+                <h3
+                  style={{
+                    fontFamily: "'Playfair Display', serif",
+                    fontSize: "clamp(22px, 2.5vw, 34px)",
+                    fontWeight: 300,
+                    color: "white",
+                    margin: 0,
+                    lineHeight: 1.3,
+                  }}
+                >
+                  14 rare actives.{" "}
+                  <em style={{fontStyle: "italic", color: GOLD_LIGHT}}>
+                    One formula.
+                  </em>
+                </h3>
+              </div>
 
-      <Footer />
+              <div style={{display: "flex", flexWrap: "wrap", gap: 12}}>
+                {[
+                  "Moringa",
+                  "Neem",
+                  "Turmeric",
+                  "Baobab",
+                  "Shea",
+                  "Tea Tree",
+                  "Aloe",
+                  "Frankincense",
+                  "Rosehip",
+                  "Calendula",
+                  "Black Seed",
+                  "Hibiscus",
+                  "African Violet",
+                  "Marula",
+                ].map((herb, i) => (
+                  <motion.span
+                    key={herb}
+                    initial={{opacity: 0, y: 10}}
+                    whileInView={{opacity: 1, y: 0}}
+                    viewport={{once: true}}
+                    transition={{duration: 0.5, delay: i * 0.04}}
+                    style={{
+                      padding: "6px 16px",
+                      border: `1px solid ${GOLD}30`,
+                      background: `${GOLD}12`,
+                      borderRadius: 100,
+                      fontSize: 11,
+                      fontWeight: 300,
+                      letterSpacing: "0.1em",
+                      color: "rgba(240,247,236,0.7)",
+                    }}
+                  >
+                    {herb}
+                  </motion.span>
+                ))}
+              </div>
+            </div>
+          </div>
+        </RevealSection>
 
-      <style>{`
-        @keyframes shimmer-text {
-          0%   { background-position: 0% center }
-          50%  { background-position: 100% center }
-          100% { background-position: 0% center }
-        }
-        @media (max-width: 900px) {
-          .story-grid { grid-template-columns: 1fr !important; gap: 48px !important; }
-          .about-section { padding: 60px 24px !important; }
-          .about-stats > div { padding: 20px 24px !important; }
-        }
-      `}</style>
+        {/* ══════════════════════════════════
+            TEAM
+        ══════════════════════════════════ */}
+        <section
+          className="page-section"
+          style={{padding: "108px 80px", maxWidth: 1400, margin: "0 auto"}}
+        >
+          <div style={{textAlign: "center", marginBottom: 72}}>
+            <RevealSection>
+              <SectionLabel text="The Faces Behind the Brand" />
+              <h2
+                style={{
+                  fontFamily: "'Playfair Display', serif",
+                  fontSize: "clamp(32px, 4vw, 56px)",
+                  fontWeight: 300,
+                  color: DARK,
+                  margin: "0 0 18px",
+                  letterSpacing: "-0.015em",
+                }}
+              >
+                Meet the{" "}
+                <em style={{fontStyle: "italic", color: GOLD}}>Team</em>
+              </h2>
+              <p
+                style={{
+                  fontSize: 14.5,
+                  color: MUTED,
+                  maxWidth: 420,
+                  margin: "0 auto",
+                  fontWeight: 300,
+                  lineHeight: 1.9,
+                }}
+              >
+                The scientists, farmers, and dreamers behind every bottle. Hover
+                a card to hear them speak.
+              </p>
+            </RevealSection>
+          </div>
+
+          <div
+            className="team-grid"
+            style={{
+              display: "grid",
+              gridTemplateColumns: "repeat(auto-fill, minmax(300px, 1fr))",
+              gap: 28,
+            }}
+          >
+            {team.map((member, i) => (
+              <TeamMember
+                key={member.name}
+                name={member.name}
+                role={member.role}
+                bio={member.bio}
+                initial={member.initial}
+                quote={member.quote}
+                index={i}
+              />
+            ))}
+          </div>
+        </section>
+
+        {/* ══════════════════════════════════
+            CTA STRIP
+        ══════════════════════════════════ */}
+        <section
+          className="cta-section"
+          style={{
+            background: `linear-gradient(135deg, ${FOREST} 0%, #1E4A10 55%, #2E6B1A 100%)`,
+            padding: "96px 80px",
+            textAlign: "center",
+            position: "relative",
+            overflow: "hidden",
+          }}
+        >
+          {/* Grid */}
+          <div
+            style={{
+              position: "absolute",
+              inset: 0,
+              backgroundImage: `linear-gradient(${GOLD}06 1px, transparent 1px), linear-gradient(90deg, ${GOLD}06 1px, transparent 1px)`,
+              backgroundSize: "60px 60px",
+              pointerEvents: "none",
+            }}
+          />
+
+          {/* Corner ornaments */}
+          <svg
+            width="80"
+            height="80"
+            viewBox="0 0 80 80"
+            style={{position: "absolute", top: 40, left: 80, opacity: 0.15}}
+          >
+            <path
+              d="M0 0 L40 0 M0 0 L0 40"
+              stroke={GOLD_LIGHT}
+              strokeWidth="0.8"
+              fill="none"
+            />
+          </svg>
+          <svg
+            width="80"
+            height="80"
+            viewBox="0 0 80 80"
+            style={{
+              position: "absolute",
+              bottom: 40,
+              right: 80,
+              opacity: 0.15,
+              transform: "rotate(180deg)",
+            }}
+          >
+            <path
+              d="M0 0 L40 0 M0 0 L0 40"
+              stroke={GOLD_LIGHT}
+              strokeWidth="0.8"
+              fill="none"
+            />
+          </svg>
+
+          <motion.div
+            initial={{opacity: 0, y: 32}}
+            whileInView={{opacity: 1, y: 0}}
+            viewport={{once: true}}
+            transition={{duration: 0.9, ease: [0.16, 1, 0.3, 1]}}
+            style={{position: "relative", zIndex: 1}}
+          >
+            <SectionLabel text="Start Your Ritual" light />
+
+            <h2
+              style={{
+                fontFamily: "'Playfair Display', serif",
+                fontSize: "clamp(30px, 3.5vw, 52px)",
+                fontWeight: 300,
+                color: "white",
+                margin: "0 0 22px",
+                letterSpacing: "-0.01em",
+              }}
+            >
+              Ready to go{" "}
+              <em
+                style={{
+                  fontStyle: "italic",
+                  background: `linear-gradient(90deg, ${GOLD_LIGHT}, #A8D870, ${GOLD_LIGHT})`,
+                  backgroundSize: "200% auto",
+                  WebkitBackgroundClip: "text",
+                  WebkitTextFillColor: "transparent",
+                  backgroundClip: "text",
+                  animation: "shimmer-text 3s ease-in-out infinite",
+                }}
+              >
+                natural?
+              </em>
+            </h2>
+
+            <p
+              style={{
+                fontSize: 14.5,
+                color: "rgba(255,255,255,0.6)",
+                margin: "0 auto 48px",
+                maxWidth: 420,
+                lineHeight: 1.95,
+                fontWeight: 300,
+              }}
+            >
+              Explore our full range of botanical skincare crafted with purpose,
+              precision, and a deep love for Kenyan land.
+            </p>
+
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                gap: 24,
+                flexWrap: "wrap",
+              }}
+            >
+              <motion.button
+                whileHover={{scale: 1.05, boxShadow: `0 24px 56px ${GOLD}60`}}
+                whileTap={{scale: 0.97}}
+                style={{
+                  background: `linear-gradient(135deg, ${GOLD}, ${GOLD_LIGHT})`,
+                  border: "none",
+                  borderRadius: 100,
+                  padding: "16px 48px",
+                  color: "white",
+                  fontSize: 12,
+                  fontWeight: 500,
+                  letterSpacing: "0.3em",
+                  textTransform: "uppercase",
+                  cursor: "pointer",
+                  boxShadow: `0 12px 40px ${GOLD}45`,
+                  fontFamily: "'Jost', sans-serif",
+                  position: "relative",
+                  overflow: "hidden",
+                }}
+              >
+                <motion.span
+                  animate={{x: ["-100%", "200%"]}}
+                  transition={{
+                    duration: 2.5,
+                    repeat: Infinity,
+                    repeatDelay: 1.5,
+                    ease: "easeInOut",
+                  }}
+                  style={{
+                    position: "absolute",
+                    inset: 0,
+                    background:
+                      "linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.25) 50%, transparent 100%)",
+                    pointerEvents: "none",
+                  }}
+                />
+                Shop the Collection
+              </motion.button>
+
+              <button
+                style={{
+                  background: "none",
+                  border: `1px solid ${GOLD}40`,
+                  borderRadius: 100,
+                  padding: "16px 40px",
+                  color: "rgba(240,247,236,0.7)",
+                  fontSize: 12,
+                  fontWeight: 400,
+                  letterSpacing: "0.28em",
+                  textTransform: "uppercase",
+                  cursor: "pointer",
+                  fontFamily: "'Jost', sans-serif",
+                  transition: "all 0.3s",
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.background = `${GOLD}22`;
+                  e.currentTarget.style.borderColor = `${GOLD}80`;
+                  e.currentTarget.style.color = "rgba(240,247,236,0.95)";
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.background = "none";
+                  e.currentTarget.style.borderColor = `${GOLD}40`;
+                  e.currentTarget.style.color = "rgba(240,247,236,0.7)";
+                }}
+              >
+                Read Our Journal
+              </button>
+            </div>
+          </motion.div>
+        </section>
+
+        <Footer />
+      </div>
     </main>
   );
 };

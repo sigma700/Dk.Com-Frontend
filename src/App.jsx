@@ -7,6 +7,7 @@ import PersonalInfo from "./pages/PersonalInfo";
 import OrderConfirmation from "./pages/OrderConfirmation";
 import CategoryPage from "./pages/Category";
 import AboutPage from "./pages/About";
+import BlogPage from "./pages/Blog";
 
 const router = createBrowserRouter([
   {
@@ -36,6 +37,10 @@ const router = createBrowserRouter([
   {
     path: "/about",
     element: <AboutPage />,
+  },
+  {
+    path: "/blog",
+    element: <BlogPage />,
   },
 ]);
 
