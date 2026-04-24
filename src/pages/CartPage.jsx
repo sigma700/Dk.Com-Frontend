@@ -695,7 +695,7 @@ const CartPage = () => {
                               }}
                             >
                               <span style={{fontSize: 11, color: MUTED}}>
-                                ${price.toFixed(2)} / unit
+                                Ksh {price.toFixed(2)} / unit
                               </span>
                             </div>
                             <p
@@ -707,7 +707,7 @@ const CartPage = () => {
                                 margin: 0,
                               }}
                             >
-                              ${(price * qty).toFixed(2)}
+                              Ksh {(price * qty).toFixed(2)}
                             </p>
                           </div>
                           <div
@@ -884,20 +884,20 @@ const CartPage = () => {
                   {[
                     {
                       label: "Subtotal",
-                      value: `$${subtotal.toFixed(2)}`,
+                      value: `Ksh ${subtotal.toFixed(2)}`,
                       color: "#fff",
                     },
                     {
                       label: "Delivery",
                       value:
                         visibleItems.length > 0
-                          ? `$${DELIVERY.toFixed(2)}`
+                          ? `Ksh ${DELIVERY.toFixed(2)}`
                           : "—",
                       color: visibleItems.length > 0 ? "#fff" : MUTED,
                     },
                     {
                       label: "Discount",
-                      value: promoApplied ? `-$${discount.toFixed(2)}` : "—",
+                      value: promoApplied ? `-Ksh ${discount.toFixed(2)}` : "—",
                       color: promoApplied ? GREEN_LIGHT : MUTED,
                     },
                   ].map(({label, value, color}) => (
@@ -954,7 +954,7 @@ const CartPage = () => {
                         color: "#fff",
                       }}
                     >
-                      ${total.toFixed(2)}
+                      Ksh {total.toFixed(2)}
                     </span>
                   </div>
                 </div>
