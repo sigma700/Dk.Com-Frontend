@@ -225,23 +225,25 @@ const CartPage = () => {
   const [promoCode, setPromoCode] = useState("");
   const [promoApplied, setPromoApplied] = useState(false);
 
+  // Fetch cart once on mount
   useEffect(() => {
     fetchCart();
   }, []);
 
-  const [quantities, setQuantities] = useState(() =>
-    Object.fromEntries(
-      (addedProduct || []).map((i) => [i._id || i.product, i.quantity || 1]),
-    ),
-  );
+  const [quantities, setQuantities] = useState({});
   const [removedIds, setRemovedIds] = useState([]);
 
+  // Update quantities whenever the cart data changes
   useEffect(() => {
-    setQuantities(
-      Object.fromEntries(
-        (addedProduct || []).map((i) => [i._id || i.product, i.quantity || 1]),
-      ),
-    );
+    if (addedProduct && addedProduct.length) {
+      setQuantities(
+        Object.fromEntries(
+          addedProduct.map((i) => [i._id || i.product, i.quantity || 1]),
+        ),
+      );
+    } else {
+      setQuantities({});
+    }
   }, [addedProduct]);
 
   const visibleItems = (addedProduct || []).filter(
@@ -257,7 +259,7 @@ const CartPage = () => {
   const handleRemove = (id) => setRemovedIds((prev) => [...prev, id]);
 
   const DELIVERY = 12.99;
-  const DISCOUNT = promoApplied ? 0.1 : 0; // 10% off on valid promo
+  const DISCOUNT = promoApplied ? 0.1 : 0;
   const subtotal = visibleItems.reduce((sum, item) => {
     const id = item._id || item.product;
     const price = item.priceAtAdd || item.price || 0;
@@ -266,8 +268,9 @@ const CartPage = () => {
   const discount = subtotal * DISCOUNT;
   const total = subtotal - discount + (visibleItems.length > 0 ? DELIVERY : 0);
 
-  // ── Loading state ──────────────────────────────────────────────────────────
-  if (isLoading && visibleItems.length === 0) {
+  // ========= FIXED LOADING LOGIC =========
+  // Show loading spinner only while the store is still fetching
+  if (isLoading) {
     return (
       <main
         style={{
@@ -307,18 +310,18 @@ const CartPage = () => {
     );
   }
 
+  // After loading finishes, show actual content (empty state or cart items)
   return (
     <main
       style={{
         minHeight: "100vh",
-        // Updated: green-tinted gradient matching the brand
         background: `linear-gradient(135deg, ${CREAM} 0%, ${GREEN_PALE} 45%, #C5E4AC 100%)`,
         position: "relative",
       }}
     >
       <NavBar />
 
-      {/* ── Floating background orbs ── */}
+      {/* Floating background orbs – unchanged */}
       <FloatingOrb
         style={{
           width: 520,
@@ -358,7 +361,7 @@ const CartPage = () => {
         delay={6}
       />
 
-      {/* ── Decorative leaf watermarks ── */}
+      {/* Decorative leaf watermarks */}
       <div
         style={{
           position: "fixed",
@@ -390,14 +393,13 @@ const CartPage = () => {
         style={{position: "relative", zIndex: 1, padding: "60px 0 110px"}}
       >
         <div style={{maxWidth: 1320, margin: "0 auto", padding: "0 24px"}}>
-          {/* ── Page header ── */}
+          {/* Page header */}
           <motion.div
             initial={{opacity: 0, y: 32}}
             animate={isInView ? {opacity: 1, y: 0} : {}}
             transition={{duration: 0.85, ease: [0.16, 1, 0.3, 1]}}
             style={{marginBottom: 52}}
           >
-            {/* Eyebrow pill */}
             <div
               style={{
                 display: "inline-flex",
@@ -432,7 +434,6 @@ const CartPage = () => {
                 Your Selection
               </span>
             </div>
-
             <h1
               style={{
                 fontFamily: "'Playfair Display', 'Georgia', serif",
@@ -459,7 +460,6 @@ const CartPage = () => {
                 Cart
               </em>
             </h1>
-
             <div
               style={{
                 display: "flex",
@@ -490,7 +490,7 @@ const CartPage = () => {
             </div>
           </motion.div>
 
-          {/* ── Two-column grid ── */}
+          {/* Two‑column grid */}
           <div
             className="cart-grid"
             style={{
@@ -500,14 +500,14 @@ const CartPage = () => {
               alignItems: "start",
             }}
           >
-            {/* ════ LEFT — Cart items ════ */}
+            {/* LEFT – Cart items */}
             <motion.div
               variants={containerVariants}
               initial="hidden"
               animate={isInView ? "visible" : "hidden"}
             >
               {visibleItems.length === 0 ? (
-                /* ── Empty state ── */
+                /* Empty state */
                 <motion.div
                   variants={itemVariants}
                   style={{
@@ -631,13 +631,11 @@ const CartPage = () => {
                             display: "flex",
                             alignItems: "center",
                             gap: 22,
-                            // Subtle left accent stripe
                             borderLeft: `3px solid ${GREEN}55`,
                             position: "relative",
                             overflow: "hidden",
                           }}
                         >
-                          {/* Micro shimmer on card hover */}
                           <motion.div
                             initial={{opacity: 0}}
                             whileHover={{opacity: 1}}
@@ -648,8 +646,7 @@ const CartPage = () => {
                               pointerEvents: "none",
                             }}
                           />
-
-                          {/* Product image */}
+                          {/* Image */}
                           <div
                             style={{
                               width: 106,
@@ -690,8 +687,7 @@ const CartPage = () => {
                               </div>
                             )}
                           </div>
-
-                          {/* Product info */}
+                          {/* Info */}
                           <div style={{flex: 1, minWidth: 0}}>
                             <p
                               style={{
@@ -719,8 +715,6 @@ const CartPage = () => {
                             >
                               {item.product?.name || "Product"}
                             </p>
-
-                            {/* Per-unit price chip */}
                             <div
                               style={{
                                 display: "inline-flex",
@@ -743,8 +737,6 @@ const CartPage = () => {
                                 ${price.toFixed(2)} / unit
                               </span>
                             </div>
-
-                            {/* Line total */}
                             <p
                               style={{
                                 fontFamily: "'Playfair Display', serif",
@@ -757,7 +749,6 @@ const CartPage = () => {
                               ${(price * qty).toFixed(2)}
                             </p>
                           </div>
-
                           {/* Controls */}
                           <div
                             style={{
@@ -773,7 +764,6 @@ const CartPage = () => {
                               onDec={() => handleQtyChange(id, -1)}
                             />
                             <div style={{display: "flex", gap: 10}}>
-                              {/* Wishlist */}
                               <CircleBtn
                                 title="Save for later"
                                 borderColor={`${GREEN}30`}
@@ -791,7 +781,6 @@ const CartPage = () => {
                                   <path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z" />
                                 </svg>
                               </CircleBtn>
-                              {/* Remove */}
                               <CircleBtn
                                 title="Remove item"
                                 onClick={() => handleRemove(id)}
@@ -865,7 +854,7 @@ const CartPage = () => {
               )}
             </motion.div>
 
-            {/* ════ RIGHT — Order summary panel ════ */}
+            {/* RIGHT – Order summary (unchanged) */}
             <motion.div
               variants={slideIn}
               initial="hidden"
@@ -874,7 +863,6 @@ const CartPage = () => {
             >
               <div
                 style={{
-                  // Dark forest green panel — luxury contrast against the light page
                   background: `linear-gradient(160deg, ${GREEN_DARK} 0%, #1C3A10 60%, #0D2208 100%)`,
                   backdropFilter: "blur(20px)",
                   borderRadius: 24,
@@ -892,7 +880,6 @@ const CartPage = () => {
                     overflow: "hidden",
                   }}
                 >
-                  {/* Background leaf watermark inside panel */}
                   <div
                     style={{
                       position: "absolute",
@@ -1007,7 +994,6 @@ const CartPage = () => {
                     </div>
                   ))}
 
-                  {/* Divider */}
                   <div
                     style={{
                       height: 1,
@@ -1016,7 +1002,6 @@ const CartPage = () => {
                     }}
                   />
 
-                  {/* Total */}
                   <div
                     style={{
                       display: "flex",
@@ -1235,7 +1220,7 @@ const CartPage = () => {
                 </div>
               </div>
 
-              {/* Eco promise below panel */}
+              {/* Eco promise */}
               <motion.div
                 initial={{opacity: 0, y: 14}}
                 animate={isInView ? {opacity: 1, y: 0} : {}}
