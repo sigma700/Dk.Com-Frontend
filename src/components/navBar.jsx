@@ -185,49 +185,31 @@ const LogoMark = () => (
     initial={{opacity: 0, x: -24}}
     animate={{opacity: 1, x: 0}}
     transition={{duration: 0.8, ease: [0.16, 1, 0.3, 1]}}
-    style={{display: "flex", alignItems: "center", gap: 10, cursor: "pointer"}}
+    style={{display: "flex", alignItems: "center", cursor: "pointer"}}
   >
-    <motion.div
-      whileHover={{rotate: [0, -15, 10, 0], scale: 1.1}}
-      transition={{duration: 0.6}}
+    <div
       style={{
-        width: 36,
-        height: 36,
-        borderRadius: "50%",
-        background: `linear-gradient(135deg, ${GREEN} 0%, ${GREEN_LIGHT} 100%)`,
+        background: "#F7FBF4",
+        borderRadius: 60,
+        padding: 8,
+        boxShadow:
+          "0 8px 24px -8px rgba(74,140,42,0.25), inset 0 1px 0 rgba(255,255,255,0.8)",
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
-        boxShadow: `0 4px 18px ${GREEN}40`,
       }}
     >
-      <Leaf size={18} color="#fff" strokeWidth={2} />
-    </motion.div>
-
-    <div style={{lineHeight: 1}}>
-      <div
+      <img
+        src="/src/assets/logo.jpeg"
+        alt="Mindful Living KE"
         style={{
-          fontFamily: "'Playfair Display', 'Georgia', serif",
-          fontSize: 16,
-          fontWeight: 700,
-          color: "#1a1a1a",
-          letterSpacing: "-0.01em",
+          height: 64,
+          width: "auto",
+          display: "block",
+          borderRadius: 48,
+          objectFit: "cover",
         }}
-      >
-        Mindful Living <span style={{color: GREEN}}>KE</span>
-      </div>
-      <div
-        style={{
-          fontSize: 8,
-          fontWeight: 500,
-          letterSpacing: "0.35em",
-          textTransform: "uppercase",
-          color: MUTED,
-          marginTop: 2,
-        }}
-      >
-        The Natural Way
-      </div>
+      />
     </div>
   </motion.div>
 );
