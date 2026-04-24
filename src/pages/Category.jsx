@@ -6,6 +6,7 @@ import Footer from "../components/Footer";
 import {useProductsStore} from "../stores/productDisplayStore";
 import {useAddToCartStore} from "../stores/addToCartStore";
 import {bufferToDataURL} from "../utils/displayImage";
+import {PiPlantBold} from "react-icons/pi";
 
 // ── Brand Palette ──────────────────────────────────────────────
 const GOLD = "#4A8C2A";
@@ -241,12 +242,13 @@ const StarRating = ({rating}) => {
   );
 };
 
-// ── Featured Banner ────────────────────────────────────────────
+// ── Featured Banner (fixed image on side, responsive) ─────────
 const FeaturedBanner = () => (
   <motion.div
     initial={{opacity: 0, y: 40}}
     animate={{opacity: 1, y: 0}}
     transition={{duration: 0.9, ease: [0.16, 1, 0.3, 1]}}
+    className="featured-banner"
     style={{
       background: `linear-gradient(130deg, ${DARK_GREEN} 0%, #1E3A14 55%, #2C5218 100%)`,
       borderRadius: 32,
@@ -300,7 +302,6 @@ const FeaturedBanner = () => (
     />
 
     <div style={{position: "relative", zIndex: 2}}>
-      {/* Live badge */}
       <div
         style={{
           display: "inline-flex",
@@ -372,7 +373,7 @@ const FeaturedBanner = () => (
           margin: "0 0 28px",
         }}
       >
-        Face soap, botanical elixir & hand-carved gua sha stone — Kenya's finest
+        Face soap, botanical elixir & hand-carved gua sha stone, Kenya's finest
         botanicals curated into one seamless morning ritual.
       </p>
       <div style={{display: "flex", alignItems: "center", gap: 20}}>
@@ -421,17 +422,27 @@ const FeaturedBanner = () => (
       </div>
     </div>
 
+    {/* Image container — fixed size, proper image */}
     <div
+      className="banner-image"
       style={{
-        fontSize: 88,
-        lineHeight: 1,
-        userSelect: "none",
+        width: "auto",
+        maxWidth: 220,
         position: "relative",
         zIndex: 2,
         filter: "drop-shadow(0 12px 28px rgba(0,0,0,0.35))",
       }}
     >
-      ✨
+      <img
+        src="/src/assets/Men's sexual pack.jpeg"
+        alt="Men's Sexual Wellness Bundle"
+        style={{
+          width: "100%",
+          height: "auto",
+          display: "block",
+          borderRadius: 16,
+        }}
+      />
     </div>
   </motion.div>
 );
@@ -776,7 +787,6 @@ const DiscoveryPage = () => {
     }
   };
 
-  // Use real products if available, fallback to mock
   const source = allProducts.length > 0 ? allProducts : MOCK_PRODUCTS;
 
   let filtered = [...source];
@@ -818,12 +828,59 @@ const DiscoveryPage = () => {
           0%, 100% { transform: translate(0,0) }
           50%       { transform: translate(20px,-18px) }
         }
-        .discover-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(300px,1fr)); gap:24px; }
-        @media (max-width:768px) {
-          .hero-inner { padding:70px 24px 48px !important; }
-          .filters-inner { padding:0 20px !important; }
-          .grid-section { padding:40px 20px 72px !important; }
-          .discover-grid { grid-template-columns:1fr !important; }
+        .discover-grid { 
+          display: grid; 
+          grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); 
+          gap: 24px; 
+        }
+        
+        /* Mobile & Tablet Responsive */
+        @media (max-width: 900px) {
+          .hero-inner { 
+            padding: 70px 24px 48px !important; 
+          }
+          .filters-inner { 
+            padding: 0 20px !important; 
+          }
+          .grid-section { 
+            padding: 40px 20px 72px !important; 
+          }
+          .discover-grid { 
+            grid-template-columns: 1fr !important; 
+          }
+          /* Featured banner: stack and hide image on small screens */
+          .featured-banner {
+            grid-template-columns: 1fr !important;
+            text-align: center;
+            padding: 36px 28px !important;
+            gap: 32px !important;
+          }
+          .featured-banner .banner-image {
+            max-width: 180px !important;
+            margin: 0 auto !important;
+            display: block !important;
+          }
+          .stats-row {
+            flex-wrap: wrap !important;
+            gap: 24px !important;
+          }
+          .stats-row > div {
+            flex: 0 0 45% !important;
+            border-right: none !important;
+            padding: 0 !important;
+          }
+        }
+        
+        @media (max-width: 600px) {
+          .featured-banner .banner-image {
+            display: none !important;  /* hide image on very small phones */
+          }
+          .stats-row > div {
+            flex: 0 0 100% !important;
+          }
+          .hero-inner h1 {
+            font-size: clamp(32px, 8vw, 44px) !important;
+          }
         }
       `}</style>
 
@@ -836,7 +893,6 @@ const DiscoveryPage = () => {
           overflow: "hidden",
         }}
       >
-        {/* Animated orbs */}
         {[
           {w: 560, h: 560, top: "-25%", right: "2%", duration: 14, delay: 0},
           {w: 320, h: 320, bottom: "-15%", left: "4%", duration: 17, delay: 2},
@@ -866,7 +922,6 @@ const DiscoveryPage = () => {
           />
         ))}
 
-        {/* Top/bottom accent lines */}
         <motion.div
           initial={{scaleX: 0}}
           animate={isHeroInView ? {scaleX: 1} : {}}
@@ -944,11 +999,10 @@ const DiscoveryPage = () => {
               lineHeight: 1.95,
             }}
           >
-            Curated botanicals, trending rituals, and Kenya's finest wellness —
+            Curated botanicals, trending rituals, and Kenya's finest wellness ,
             all in one place. Find your perfect ritual.
           </motion.p>
 
-          {/* Search bar */}
           <motion.div
             initial={{opacity: 0, y: 20, scale: 0.97}}
             animate={isHeroInView ? {opacity: 1, y: 0, scale: 1} : {}}
@@ -1050,7 +1104,6 @@ const DiscoveryPage = () => {
               whiteSpace: "nowrap",
             }}
           >
-            {/* Category chips */}
             {CATEGORIES.map((cat) => (
               <button
                 key={cat}
@@ -1087,7 +1140,6 @@ const DiscoveryPage = () => {
               }}
             />
 
-            {/* Tag filters */}
             {TAG_FILTERS.map((tag) => (
               <button
                 key={tag}
@@ -1114,7 +1166,6 @@ const DiscoveryPage = () => {
               </button>
             ))}
 
-            {/* Sort */}
             <select
               value={sortMode}
               onChange={(e) => setSortMode(e.target.value)}
@@ -1150,13 +1201,14 @@ const DiscoveryPage = () => {
         className="grid-section"
         style={{padding: "56px 80px 96px", maxWidth: 1440, margin: "0 auto"}}
       >
-        {/* Header row */}
         <div
           style={{
             display: "flex",
             alignItems: "baseline",
             justifyContent: "space-between",
             marginBottom: 36,
+            flexWrap: "wrap",
+            gap: 16,
           }}
         >
           <div>
@@ -1215,13 +1267,11 @@ const DiscoveryPage = () => {
           )}
         </div>
 
-        {/* Featured banner — only when showing all */}
         {activeCategory === "All" &&
           !activeTag &&
           !searchQuery &&
           sortMode === "default" && <FeaturedBanner />}
 
-        {/* Product grid */}
         {filtered.length > 0 ? (
           <div className="discover-grid">
             <AnimatePresence>
@@ -1242,7 +1292,9 @@ const DiscoveryPage = () => {
             animate={{opacity: 1}}
             style={{textAlign: "center", padding: "80px 20px"}}
           >
-            <div style={{fontSize: 52, marginBottom: 16}}>🌿</div>
+            <div style={{fontSize: 52, marginBottom: 16}}>
+              <PiPlantBold />
+            </div>
             <h3
               style={{
                 fontFamily: "'Playfair Display',serif",
@@ -1260,12 +1312,12 @@ const DiscoveryPage = () => {
           </motion.div>
         )}
 
-        {/* Stats row */}
         <motion.div
           initial={{opacity: 0, y: 30}}
           whileInView={{opacity: 1, y: 0}}
           viewport={{once: true}}
           transition={{duration: 0.8}}
+          className="stats-row"
           style={{
             display: "flex",
             gap: 0,
