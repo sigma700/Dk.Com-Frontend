@@ -8,6 +8,7 @@ import OrderConfirmation from "./pages/OrderConfirmation";
 import CategoryPage from "./pages/Category";
 import AboutPage from "./pages/About";
 import BlogPage from "./pages/Blog";
+import DiscoveryPage from "./pages/Category";
 
 const router = createBrowserRouter([
   {
@@ -31,8 +32,8 @@ const router = createBrowserRouter([
     element: <OrderConfirmation />,
   },
   {
-    path: "/category",
-    element: <CategoryPage />,
+    path: "/discover-more",
+    element: <DiscoveryPage />,
   },
   {
     path: "/about",

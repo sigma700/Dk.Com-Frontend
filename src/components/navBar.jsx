@@ -20,7 +20,7 @@ const CREAM = "#F7FBF4";
 // Realistic navigation paths – update as needed
 const navLinks = [
   {label: "Home", href: "/"},
-  {label: "Categories", href: "/category"},
+  {label: "Discover", href: "/discover-more"},
   {label: "About Us", href: "/about"},
   {label: "FAQs", href: "/faqs"},
   {label: "Blog", href: "/blog"},
