@@ -562,15 +562,72 @@ const BlogPage = () => {
         .footer-link { transition: color 0.3s; }
         .footer-link:hover { color: ${GOLD_LIGHT} !important; }
 
+        /* ===== RESPONSIVE STYLES ===== */
         @media (max-width: 900px) {
-          .hero-grid { grid-template-columns: 1fr !important; }
+          /* Hero: hide image, fix text compression */
           .hero-right-col { display: none !important; }
-          .hero-left-col { padding: 100px 24px 60px !important; }
-          .articles-grid { grid-template-columns: 1fr !important; }
-          .wide-card-inner { grid-template-columns: 1fr !important; }
-          .newsletter-grid { grid-template-columns: 1fr !important; gap: 40px !important; }
-          .footer-grid { grid-template-columns: 1fr 1fr !important; }
+          .hero-left-col { 
+            padding: 100px 32px 60px !important;
+            max-width: 100%;
+          }
+          /* Remove max-width constraint on paragraph */
+          .hero-p { max-width: 100% !important; width: 100%; }
+          
+          /* Section dividers & containers */
           .section-pad { padding-left: 24px !important; padding-right: 24px !important; }
+          .section-pad[style*="padding: 64px 80px 0"] { padding-top: 48px !important; }
+          .section-pad[style*="padding: 56px 80px 100px"] { padding-bottom: 60px !important; padding-top: 32px !important; }
+          
+          /* Articles grid */
+          .articles-grid { display: flex !important; flex-direction: column !important; gap: 32px !important; }
+          .articles-grid > article { grid-row: auto !important; grid-column: auto !important; width: 100% !important; }
+          .wide-card-inner { grid-template-columns: 1fr !important; }
+          .wide-card-inner > div:first-child { height: 240px !important; }
+          
+          /* Feature card adjustments */
+          article[style*="gridRow: '1 / 3'"] { height: auto !important; margin-bottom: 0 !important; }
+          article[style*="gridRow: '1 / 3'"] > div:first-child { height: 300px !important; }
+          article[style*="gridRow: '1 / 3'"] > div:last-child { padding: 28px 24px 32px !important; }
+          
+          /* Standard & Wide cards on mobile */
+          .wide-card-inner { display: flex !important; flex-direction: column !important; }
+          .wide-card-inner > div:first-child { min-height: 240px; }
+          .wide-card-inner > div:last-child { padding: 28px 24px 32px !important; }
+          
+          /* Newsletter */
+          .newsletter-grid { grid-template-columns: 1fr !important; gap: 32px !important; margin-left: 24px !important; margin-right: 24px !important; padding: 48px 32px !important; text-align: center; }
+          .newsletter-grid button { align-self: center !important; }
+          
+          /* Footer */
+          .footer-grid { grid-template-columns: 1fr 1fr !important; gap: 40px !important; padding: 48px 24px 32px !important; }
+          .footer-grid > div:first-child { grid-column: span 2; text-align: center; margin-bottom: 8px; }
+          .footer-grid > div:first-child p { margin-left: auto; margin-right: auto; }
+          
+          /* Bottom bar */
+          footer + div { flex-direction: column; gap: 12px; text-align: center; padding: 20px 24px !important; }
+          
+          /* Pull quote spacing */
+          .pull-quote-section { padding: 48px 24px !important; }
+        }
+
+        @media (max-width: 600px) {
+          .hero-left-col { padding: 80px 20px 50px !important; }
+          .hero-left-col button { align-self: stretch !important; justify-content: center; }
+          .hero-meta { flex-direction: column; align-items: stretch !important; gap: 20px !important; }
+          .hero-meta button { margin-left: 0 !important; width: 100%; justify-content: center; }
+          /* Further reduce heading size if needed */
+          .hero-h1 { font-size: clamp(32px, 8vw, 48px) !important; }
+          
+          .category-list { gap: 10px !important; }
+          .cat-pill { padding: 8px 18px !important; font-size: 9px !important; }
+          
+          .footer-grid { grid-template-columns: 1fr !important; text-align: center; gap: 32px !important; }
+          .footer-grid > div:first-child { grid-column: 1; }
+          .footer-grid ul { align-items: center; }
+          
+          .newsletter-grid { padding: 40px 20px !important; margin-left: 16px !important; margin-right: 16px !important; }
+          .newsletter-grid input, .newsletter-grid button { width: 100% !important; text-align: left; }
+          .newsletter-grid button { justify-content: center !important; text-align: center; }
         }
       `}</style>
 
@@ -883,6 +940,8 @@ const BlogPage = () => {
               alignItems: "flex-end",
               justifyContent: "space-between",
               marginBottom: 64,
+              flexWrap: "wrap",
+              gap: 16,
             }}
           >
             <h2
@@ -949,7 +1008,10 @@ const BlogPage = () => {
           >
             Browse by topic
           </p>
-          <div style={{display: "flex", flexWrap: "wrap", gap: 12}}>
+          <div
+            className="category-list"
+            style={{display: "flex", flexWrap: "wrap", gap: 12}}
+          >
             {categories.map(({label, count}) => (
               <button
                 key={label}
@@ -978,6 +1040,7 @@ const BlogPage = () => {
 
         {/* ── PULL QUOTE ── */}
         <div
+          className="pull-quote-section"
           style={{
             padding: "80px",
             background: GOLD_PALE,
@@ -1103,7 +1166,7 @@ const BlogPage = () => {
                 marginBottom: 20,
               }}
             >
-              Skincare wisdom,{" "}
+              Health wisdom,{" "}
               <em style={{fontStyle: "italic", color: GOLD_LIGHT}}>
                 delivered monthly
               </em>

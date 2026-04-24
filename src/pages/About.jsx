@@ -8,9 +8,12 @@ import {
 } from "framer-motion";
 import NavBar from "../components/navBar";
 import Footer from "../components/footer";
-import {RiPlantLine, RiRecycleFill} from "react-icons/ri";
+import {RiPlantFill, RiPlantLine, RiRecycleFill} from "react-icons/ri";
 import {FaPeopleLine} from "react-icons/fa6";
 import {MdScience} from "react-icons/md";
+import {Link} from "react-router-dom";
+import {FaExchangeAlt} from "react-icons/fa";
+import {GiMicroscope} from "react-icons/gi";
 
 // ── Palette ──
 const GOLD = "#4A8C2A";
@@ -26,22 +29,22 @@ const values = [
   {
     icon: <RiPlantLine />,
     title: "100% Natural",
-    body: "Every ingredient is sourced from certified organic Kenyan farms, free from synthetics and harsh chemicals that strip your skin's natural intelligence.",
+    body: "Every ingredient is sourced from natural sources , free from harmful synthetics and harsh chemicals that may be hazardous to your body.",
   },
   {
     icon: <FaPeopleLine />,
     title: "Community First",
-    body: "We partner directly with 40+ smallholder farmers across the Rift Valley, ensuring fair wages, fair trade pricing, and sustainable livelihoods for generations.",
+    body: "We partner with other bf suma distributors to get informed insights about market trends and what consumers need at the moment to ensure maximum customer satisfaction.",
   },
   {
     icon: <MdScience />,
     title: "Science-Backed",
-    body: "Our formulations are developed with ethnobotanists and dermatologists who understand African skin flora and the unique climate conditions of the equator.",
+    body: "Our medical products , especially skin products are carefully analysed in the laboratory and tested thoroughly before sale to our trusty customers.",
   },
   {
     icon: <RiRecycleFill />,
     title: "Earth-Kind",
-    body: "All packaging is biodegradable or refillable. Our factory runs on 80% solar energy. We give 2% of revenue to reforestation across Kenya.",
+    body: "We highly campaign for recycling of used containers. We also give discounts for those with proof of recycling.",
   },
 ];
 
@@ -80,25 +83,18 @@ const milestones = [
 
 const team = [
   {
-    name: "Amina Wanjiru",
-    role: "Co-Founder & Chief Botanist",
+    name: "Dawn Kawiria",
+    role: "Founder & Professional Nutritionist",
     bio: "Ethnobotanist with 12 years studying Kenyan medicinal plants. Amina has catalogued over 300 native botanical actives and holds two patents in plant extraction.",
-    initial: "AW",
-    quote: "The land already knows. We just have to learn to listen.",
+    initial: "DK",
+    quote: "Health is wealth",
   },
   {
-    name: "David Omondi",
-    role: "Co-Founder & CEO",
-    bio: "Sustainable business advocate, former director at Kenya Climate Fund. David has spent 15 years building ethical supply chains across East Africa.",
-    initial: "DO",
-    quote: "Profit and purpose are not opposites. They're partners.",
-  },
-  {
-    name: "Grace Muthoni",
-    role: "Head of Formulation",
-    bio: "Cosmetic chemist trained in Nairobi and Cape Town. 8 years in natural skincare with a deep focus on melanin-rich skin across the African spectrum.",
-    initial: "GM",
-    quote: "African skin deserves African science. Nothing less.",
+    name: "Allan Muriithi",
+    role: "Lead Developer",
+    bio: "Experienced full stack engineer with more than a year of experience developing premium performant websites and a future mechanical engineer",
+    initial: "AM",
+    quote: "The mind is the only limit",
   },
 ];
 
@@ -752,6 +748,7 @@ const AboutPage = () => {
           animation: fadeUp 0.6s cubic-bezier(0.16,1,0.3,1) both;
         }
 
+        /* --- Existing responsive overrides (unchanged) --- */
         @media (max-width: 1024px) {
           .hero-content    { flex-direction: column !important; }
           .story-grid      { grid-template-columns: 1fr !important; gap: 60px !important; }
@@ -769,6 +766,41 @@ const AboutPage = () => {
         }
         @media (max-width: 600px) {
           .story-grid      { gap: 48px !important; }
+        }
+
+        /* ===== ADDITIONAL RESPONSIVE FIXES FOR HERO ===== */
+        @media (max-width: 900px) {
+          /* Hide image column on mobile */
+          .hero-image-col {
+            display: none !important;
+          }
+          /* Left text column takes full width */
+          .hero-text-col {
+            flex: 1 1 100% !important;
+            width: 100% !important;
+          }
+          /* Remove max‑width constraint on paragraph */
+          .hero-text-col p {
+            max-width: 100% !important;
+          }
+          /* Adjust heading size if needed */
+          .hero-text-col h1 {
+            font-size: clamp(36px, 6vw, 48px) !important;
+          }
+          /* Make buttons stack nicely */
+          .hero-buttons {
+            flex-direction: column !important;
+            align-items: stretch !important;
+          }
+          .hero-buttons a, .hero-buttons button {
+            width: 100% !important;
+            justify-content: center !important;
+            margin-left: 0 !important;
+          }
+          /* Reduce left column padding on mobile */
+          .hero-section {
+            padding: 80px 24px 180px !important;
+          }
         }
       `}</style>
 
@@ -937,8 +969,11 @@ const AboutPage = () => {
             }}
             className="hero-content"
           >
-            {/* Left: text */}
-            <div style={{flex: "1 1 380px", minWidth: 0}}>
+            {/* Left: text column (now with a class for responsive targeting) */}
+            <div
+              className="hero-text-col"
+              style={{flex: "1 1 380px", minWidth: 0}}
+            >
               {/* Pill */}
               <motion.div
                 initial={{opacity: 0, y: 20}}
@@ -1050,13 +1085,15 @@ const AboutPage = () => {
                   letterSpacing: "0.01em",
                 }}
               >
-                Mindful Living KE was born from a simple belief — that Kenya's
-                abundant botanical landscape holds the most powerful skincare
-                solutions in the world. We just needed to listen to the land.
+                Mindful Living KE was born from a simple belief, that Kenya's
+                abundant natural landscape holds the most powerful health
+                solutions in the world. All was needed was just needed to
+                utilise it.
               </motion.p>
 
               {/* Two CTAs */}
               <motion.div
+                className="hero-buttons"
                 initial={{opacity: 0, y: 20}}
                 animate={isHeroInView ? {opacity: 1, y: 0} : {}}
                 transition={{duration: 0.8, delay: 0.45}}
@@ -1067,85 +1104,93 @@ const AboutPage = () => {
                   flexWrap: "wrap",
                 }}
               >
-                <motion.button
-                  whileHover={{scale: 1.04, boxShadow: `0 20px 50px ${GOLD}55`}}
-                  whileTap={{scale: 0.97}}
-                  style={{
-                    background: `linear-gradient(135deg, ${GOLD}, ${GOLD_LIGHT})`,
-                    border: "none",
-                    borderRadius: 100,
-                    padding: "14px 36px",
-                    color: "white",
-                    fontSize: 11,
-                    fontWeight: 500,
-                    letterSpacing: "0.28em",
-                    textTransform: "uppercase",
-                    cursor: "pointer",
-                    boxShadow: `0 12px 36px ${GOLD}40`,
-                    fontFamily: "'Jost', sans-serif",
-                    position: "relative",
-                    overflow: "hidden",
-                  }}
-                >
-                  <motion.span
-                    animate={{x: ["-100%", "200%"]}}
-                    transition={{
-                      duration: 2.5,
-                      repeat: Infinity,
-                      repeatDelay: 1.5,
-                      ease: "easeInOut",
+                <Link to={"/"}>
+                  <motion.button
+                    whileHover={{
+                      scale: 1.04,
+                      boxShadow: `0 20px 50px ${GOLD}55`,
                     }}
+                    whileTap={{scale: 0.97}}
                     style={{
-                      position: "absolute",
-                      inset: 0,
-                      background:
-                        "linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.22) 50%, transparent 100%)",
-                      pointerEvents: "none",
+                      background: `linear-gradient(135deg, ${GOLD}, ${GOLD_LIGHT})`,
+                      border: "none",
+                      borderRadius: 100,
+                      padding: "14px 36px",
+                      color: "white",
+                      fontSize: 11,
+                      fontWeight: 500,
+                      letterSpacing: "0.28em",
+                      textTransform: "uppercase",
+                      cursor: "pointer",
+                      boxShadow: `0 12px 36px ${GOLD}40`,
+                      fontFamily: "'Jost', sans-serif",
+                      position: "relative",
+                      overflow: "hidden",
                     }}
-                  />
-                  Shop the Collection
-                </motion.button>
-
-                <button
-                  style={{
-                    background: "none",
-                    border: "none",
-                    cursor: "pointer",
-                    display: "flex",
-                    alignItems: "center",
-                    gap: 8,
-                    fontSize: 11,
-                    fontWeight: 400,
-                    letterSpacing: "0.22em",
-                    textTransform: "uppercase",
-                    color: "rgba(240,247,236,0.55)",
-                    fontFamily: "'Jost', sans-serif",
-                    transition: "color 0.3s",
-                  }}
-                  onMouseEnter={(e) =>
-                    (e.currentTarget.style.color = GOLD_LIGHT)
-                  }
-                  onMouseLeave={(e) =>
-                    (e.currentTarget.style.color = "rgba(240,247,236,0.55)")
-                  }
-                >
-                  Read Our Journal
-                  <svg
-                    width="14"
-                    height="14"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="1.5"
                   >
-                    <path d="M5 12h14M12 5l7 7-7 7" />
-                  </svg>
-                </button>
+                    <motion.span
+                      animate={{x: ["-100%", "200%"]}}
+                      transition={{
+                        duration: 2.5,
+                        repeat: Infinity,
+                        repeatDelay: 1.5,
+                        ease: "easeInOut",
+                      }}
+                      style={{
+                        position: "absolute",
+                        inset: 0,
+                        background:
+                          "linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.22) 50%, transparent 100%)",
+                        pointerEvents: "none",
+                      }}
+                    />
+                    Shop the Collection
+                  </motion.button>
+                </Link>
+                <Link to={"/blog"}>
+                  <button
+                    style={{
+                      background: "none",
+                      border: "none",
+                      cursor: "pointer",
+                      display: "flex",
+                      alignItems: "center",
+                      gap: 8,
+                      fontSize: 11,
+                      fontWeight: 400,
+                      letterSpacing: "0.22em",
+                      textTransform: "uppercase",
+                      color: "rgba(240,247,236,0.55)",
+                      fontFamily: "'Jost', sans-serif",
+                      transition: "color 0.3s",
+                    }}
+                    onMouseEnter={(e) =>
+                      (e.currentTarget.style.color = GOLD_LIGHT)
+                    }
+                    onMouseLeave={(e) =>
+                      (e.currentTarget.style.color = "rgba(240,247,236,0.55)")
+                    }
+                  >
+                    Read Our Journal
+                    <svg
+                      width="14"
+                      height="14"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="1.5"
+                    >
+                      <path d="M5 12h14M12 5l7 7-7 7" />
+                    </svg>
+                  </button>
+                </Link>
               </motion.div>
             </div>
 
-            {/* Right: floating image */}
-            <FloatingImage inView={isHeroInView} />
+            {/* Right: floating image (now with a class for hiding on mobile) */}
+            <div className="hero-image-col" style={{flex: "1 1 480px"}}>
+              <FloatingImage inView={isHeroInView} />
+            </div>
           </motion.div>
 
           {/* Stats bar */}
@@ -1252,8 +1297,8 @@ const AboutPage = () => {
                 position: "relative",
               }}
             >
-              If it doesn't grow from the earth, it doesn't belong on your skin.
-              We have never wavered from this belief — and we never will.
+              Your health to us is gold . We believe you deserve the best out
+              there and we are the right destination.
             </p>
 
             <div
@@ -1274,16 +1319,13 @@ const AboutPage = () => {
                   color: MUTED,
                 }}
               >
-                Amina Wanjiru, Co-Founder
+                Dawn Kawiria, Founder
               </span>
               <div style={{width: 40, height: 1, background: GOLD}} />
             </div>
           </div>
         </RevealSection>
 
-        {/* ══════════════════════════════════
-            VALUES
-        ══════════════════════════════════ */}
         <section
           className="page-section"
           style={{padding: "108px 80px", maxWidth: 1400, margin: "0 auto"}}
@@ -1315,7 +1357,7 @@ const AboutPage = () => {
                 }}
               >
                 The principles that guide every ingredient we choose, every
-                farmer we partner with, and every product we put our name on.
+                Company we partner with, and every product we put our name on.
               </p>
             </RevealSection>
           </div>
@@ -1399,7 +1441,7 @@ const AboutPage = () => {
               alignItems: "start",
             }}
           >
-            {/* Left: narrative */}
+            {/* Left side – unchanged narrative */}
             <RevealSection>
               <SectionLabel text="Our Journey" />
               <h2
@@ -1413,8 +1455,8 @@ const AboutPage = () => {
                   letterSpacing: "-0.01em",
                 }}
               >
-                Five years of growing{" "}
-                <em style={{fontStyle: "italic", color: GOLD}}>with nature</em>
+                Two years of growing{" "}
+                <em style={{fontStyle: "italic", color: GOLD}}>with BF suma</em>
               </h2>
 
               <p
@@ -1426,10 +1468,9 @@ const AboutPage = () => {
                   margin: "0 0 22px",
                 }}
               >
-                What started as Amina's kitchen experiments with local herbs
-                became East Africa's most-loved natural wellness brand. We've
-                never strayed from our founding principle: if it doesn't grow
-                from the earth, it doesn't belong on your skin.
+                What started as just a product distribution expercise with the
+                company's porducts became Kenya's most-loved natural wellness
+                brand. We've never strayed from our founding principle.
               </p>
               <p
                 style={{
@@ -1440,9 +1481,8 @@ const AboutPage = () => {
                   margin: "0 0 40px",
                 }}
               >
-                Every product we create is tested by real Kenyans, for Kenyan
-                skin — with the full spectrum of melanin in mind. We answer to
-                our farmers and our customers, not to shareholders.
+                Every product we create is tested by real poeple, for healthy
+                skin, with the full spectrum of melanin in mind.
               </p>
 
               {/* Pull quote */}
@@ -1484,8 +1524,7 @@ const AboutPage = () => {
                     lineHeight: 1.7,
                   }}
                 >
-                  "If it doesn't grow from the earth, it doesn't belong on your
-                  skin."
+                  "Your health to us is Gold"
                 </p>
                 <p
                   style={{
@@ -1497,33 +1536,157 @@ const AboutPage = () => {
                     fontWeight: 600,
                   }}
                 >
-                  — Amina Wanjiru, Co-Founder
+                  — Dawn Kawiria, Founder
                 </p>
               </div>
             </RevealSection>
 
-            {/* Right: timeline */}
+            {/* ── Right side: CREATIVE REPLACEMENT for timeline ── */}
             <RevealSection delay={0.15}>
-              <div style={{position: "relative"}}>
+              <div>
+                {/* Section label inside right side */}
+                <div style={{marginBottom: 32}}>
+                  <div
+                    style={{
+                      display: "inline-flex",
+                      alignItems: "center",
+                      gap: 12,
+                      marginBottom: 16,
+                    }}
+                  >
+                    <div style={{width: 28, height: 1, background: GOLD}} />
+                    <span
+                      style={{
+                        fontSize: 8,
+                        letterSpacing: "0.38em",
+                        textTransform: "uppercase",
+                        color: MUTED,
+                      }}
+                    >
+                      From Soil to Soul
+                    </span>
+                    <div style={{width: 28, height: 1, background: GOLD}} />
+                  </div>
+                  <h3
+                    style={{
+                      fontFamily: "'Playfair Display', serif",
+                      fontSize: "clamp(20px, 3vw, 28px)",
+                      fontWeight: 400,
+                      color: DARK,
+                      margin: 0,
+                      lineHeight: 1.3,
+                    }}
+                  >
+                    The pillars we stand on
+                  </h3>
+                </div>
+
+                {/* 4 creative pillars – replaces the timeline list */}
                 <div
                   style={{
-                    position: "absolute",
-                    left: 14,
-                    top: 4,
-                    bottom: 0,
-                    width: 1,
-                    background: `linear-gradient(to bottom, ${GOLD} 0%, ${GOLD}40 70%, transparent 100%)`,
+                    display: "grid",
+                    gridTemplateColumns: "repeat(2, 1fr)",
+                    gap: 28,
                   }}
-                />
-                {milestones.map((m, i) => (
-                  <TimelineItem
-                    key={m.year}
-                    year={m.year}
-                    event={m.event}
-                    index={i}
-                    isLast={i === milestones.length - 1}
-                  />
-                ))}
+                >
+                  {[
+                    {
+                      icon: <RiPlantFill />,
+                      title: "Regenerative farming",
+                      desc: "We work with 40+ farms that rebuild soil health, store carbon, and mimic nature.",
+                    },
+                    {
+                      icon: <FaExchangeAlt />,
+                      title: "Direct trade",
+                      desc: "No middlemen. Strictly just us doing what we do best.",
+                    },
+                    {
+                      icon: <GiMicroscope />,
+                      title: "Cold extraction",
+                      desc: "Our lab uses low‑heat, low‑waste methods to preserve every active compound.",
+                    },
+                    {
+                      icon: <RiRecycleFill />,
+                      title: "Zero waste",
+                      desc: "All packaging is recycleable.",
+                    },
+                  ].map((pillar, idx) => (
+                    <div
+                      key={idx}
+                      style={{
+                        background: "rgba(255,255,255,0.6)",
+                        backdropFilter: "blur(8px)",
+                        borderRadius: 24,
+                        padding: "24px 20px",
+                        border: `1px solid ${GOLD}20`,
+                        transition: "all 0.25s ease",
+                      }}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.backgroundColor = "white";
+                        e.currentTarget.style.transform = "translateY(-4px)";
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.backgroundColor =
+                          "rgba(255,255,255,0.6)";
+                        e.currentTarget.style.transform = "translateY(0)";
+                      }}
+                    >
+                      <div
+                        style={{
+                          fontSize: 32,
+                          marginBottom: 14,
+                          lineHeight: 1,
+                        }}
+                      >
+                        {pillar.icon}
+                      </div>
+                      <h4
+                        style={{
+                          fontFamily: "'Playfair Display', serif",
+                          fontSize: 16,
+                          fontWeight: 500,
+                          color: DARK,
+                          margin: "0 0 8px",
+                        }}
+                      >
+                        {pillar.title}
+                      </h4>
+                      <p
+                        style={{
+                          fontSize: 12,
+                          color: MUTED,
+                          lineHeight: 1.65,
+                          margin: 0,
+                          fontWeight: 300,
+                        }}
+                      >
+                        {pillar.desc}
+                      </p>
+                    </div>
+                  ))}
+                </div>
+
+                {/* Small note at bottom – ties back to the land */}
+                <div
+                  style={{
+                    marginTop: 32,
+                    textAlign: "center",
+                    fontSize: 10,
+                    color: MUTED,
+                    letterSpacing: "0.2em",
+                    textTransform: "uppercase",
+                  }}
+                >
+                  <span
+                    style={{
+                      background: `${GOLD}15`,
+                      padding: "6px 14px",
+                      borderRadius: 60,
+                    }}
+                  >
+                    proudly grown, made & loved in Kenya
+                  </span>
+                </div>
               </div>
             </RevealSection>
           </div>
@@ -1799,8 +1962,8 @@ const AboutPage = () => {
                 fontWeight: 300,
               }}
             >
-              Explore our full range of botanical skincare crafted with purpose,
-              precision, and a deep love for Kenyan land.
+              Explore our full range of natural health supplementaries crafted
+              with purpose, precision, and a deep love for green solutions.
             </p>
 
             <div
@@ -1812,73 +1975,76 @@ const AboutPage = () => {
                 flexWrap: "wrap",
               }}
             >
-              <motion.button
-                whileHover={{scale: 1.05, boxShadow: `0 24px 56px ${GOLD}60`}}
-                whileTap={{scale: 0.97}}
-                style={{
-                  background: `linear-gradient(135deg, ${GOLD}, ${GOLD_LIGHT})`,
-                  border: "none",
-                  borderRadius: 100,
-                  padding: "16px 48px",
-                  color: "white",
-                  fontSize: 12,
-                  fontWeight: 500,
-                  letterSpacing: "0.3em",
-                  textTransform: "uppercase",
-                  cursor: "pointer",
-                  boxShadow: `0 12px 40px ${GOLD}45`,
-                  fontFamily: "'Jost', sans-serif",
-                  position: "relative",
-                  overflow: "hidden",
-                }}
-              >
-                <motion.span
-                  animate={{x: ["-100%", "200%"]}}
-                  transition={{
-                    duration: 2.5,
-                    repeat: Infinity,
-                    repeatDelay: 1.5,
-                    ease: "easeInOut",
-                  }}
+              <Link to={"/"}>
+                <motion.button
+                  whileHover={{scale: 1.05, boxShadow: `0 24px 56px ${GOLD}60`}}
+                  whileTap={{scale: 0.97}}
                   style={{
-                    position: "absolute",
-                    inset: 0,
-                    background:
-                      "linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.25) 50%, transparent 100%)",
-                    pointerEvents: "none",
+                    background: `linear-gradient(135deg, ${GOLD}, ${GOLD_LIGHT})`,
+                    border: "none",
+                    borderRadius: 100,
+                    padding: "16px 48px",
+                    color: "white",
+                    fontSize: 12,
+                    fontWeight: 500,
+                    letterSpacing: "0.3em",
+                    textTransform: "uppercase",
+                    cursor: "pointer",
+                    boxShadow: `0 12px 40px ${GOLD}45`,
+                    fontFamily: "'Jost', sans-serif",
+                    position: "relative",
+                    overflow: "hidden",
                   }}
-                />
-                Shop the Collection
-              </motion.button>
-
-              <button
-                style={{
-                  background: "none",
-                  border: `1px solid ${GOLD}40`,
-                  borderRadius: 100,
-                  padding: "16px 40px",
-                  color: "rgba(240,247,236,0.7)",
-                  fontSize: 12,
-                  fontWeight: 400,
-                  letterSpacing: "0.28em",
-                  textTransform: "uppercase",
-                  cursor: "pointer",
-                  fontFamily: "'Jost', sans-serif",
-                  transition: "all 0.3s",
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.background = `${GOLD}22`;
-                  e.currentTarget.style.borderColor = `${GOLD}80`;
-                  e.currentTarget.style.color = "rgba(240,247,236,0.95)";
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.background = "none";
-                  e.currentTarget.style.borderColor = `${GOLD}40`;
-                  e.currentTarget.style.color = "rgba(240,247,236,0.7)";
-                }}
-              >
-                Read Our Journal
-              </button>
+                >
+                  <motion.span
+                    animate={{x: ["-100%", "200%"]}}
+                    transition={{
+                      duration: 2.5,
+                      repeat: Infinity,
+                      repeatDelay: 1.5,
+                      ease: "easeInOut",
+                    }}
+                    style={{
+                      position: "absolute",
+                      inset: 0,
+                      background:
+                        "linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.25) 50%, transparent 100%)",
+                      pointerEvents: "none",
+                    }}
+                  />
+                  Shop the Collection
+                </motion.button>
+              </Link>
+              <Link to={"/blog"}>
+                <button
+                  style={{
+                    background: "none",
+                    border: `1px solid ${GOLD}40`,
+                    borderRadius: 100,
+                    padding: "16px 40px",
+                    color: "rgba(240,247,236,0.7)",
+                    fontSize: 12,
+                    fontWeight: 400,
+                    letterSpacing: "0.28em",
+                    textTransform: "uppercase",
+                    cursor: "pointer",
+                    fontFamily: "'Jost', sans-serif",
+                    transition: "all 0.3s",
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.background = `${GOLD}22`;
+                    e.currentTarget.style.borderColor = `${GOLD}80`;
+                    e.currentTarget.style.color = "rgba(240,247,236,0.95)";
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.background = "none";
+                    e.currentTarget.style.borderColor = `${GOLD}40`;
+                    e.currentTarget.style.color = "rgba(240,247,236,0.7)";
+                  }}
+                >
+                  Read Our Journal
+                </button>
+              </Link>
             </div>
           </motion.div>
         </section>
