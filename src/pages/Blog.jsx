@@ -693,7 +693,7 @@ const BlogPage = () => {
             >
               For thousands of years, African botanicals have held the secrets
               to radiant, resilient skin. We explore the fourteen plant actives
-              at the heart of our formula — and the science that confirms their
+              at the heart of our formula and the science that confirms their
               power.
             </p>
 
@@ -767,8 +767,7 @@ const BlogPage = () => {
               style={{
                 position: "absolute",
                 inset: 0,
-                backgroundImage:
-                  "url('https://images.unsplash.com/photo-1556228852-6d35a585d566?w=900&q=80&auto=format&fit=crop')",
+                backgroundImage: "url('/src/assets/model.jpeg')",
                 backgroundSize: "cover",
                 backgroundPosition: "center",
                 opacity: 0.35,
