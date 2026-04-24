@@ -214,18 +214,50 @@ const TrustBadge = ({icon, label}) => (
   </div>
 );
 
+// ── FIX 3 & 4: Safe helpers ──────────────────────────────────────────────────
+
+/**
+ * Resolves the product object regardless of whether the backend
+ * returns a populated sub-document or a flat item.
+ */
+const resolveProduct = (item) =>
+  item.product && typeof item.product === "object" ? item.product : item;
+
+/**
+ * Resolves a stable string ID from a cart item.
+ */
+const resolveId = (item) => {
+  if (item._id) return String(item._id);
+  if (item.product && typeof item.product === "object")
+    return String(item.product._id);
+  return String(item.product);
+};
+
+/**
+ * Safely converts a Buffer/image data to a data URL.
+ * Returns null on failure so we can fall back to the leaf placeholder.
+ */
+const safeBufferToDataURL = (imageData) => {
+  if (!imageData) return null;
+  try {
+    return bufferToDataURL(imageData);
+  } catch {
+    return null;
+  }
+};
+
 // ══════════════════════════════════════════════════════════════════════════════
 // CartPage
 // ══════════════════════════════════════════════════════════════════════════════
 const CartPage = () => {
-  const {addedProduct, fetchCart, isLoading} = useAddToCartStore();
+  // FIX 1: destructure with a safe default so undefined isLoading never blocks render
+  const {addedProduct, fetchCart, isLoading = false} = useAddToCartStore();
   const navigate = useNavigate();
   const sectionRef = useRef(null);
   const isInView = useInView(sectionRef, {once: true, margin: "-80px"});
   const [promoCode, setPromoCode] = useState("");
   const [promoApplied, setPromoApplied] = useState(false);
 
-  // Fetch cart once on mount
   useEffect(() => {
     fetchCart();
   }, []);
@@ -233,12 +265,12 @@ const CartPage = () => {
   const [quantities, setQuantities] = useState({});
   const [removedIds, setRemovedIds] = useState([]);
 
-  // Update quantities whenever the cart data changes
   useEffect(() => {
     if (addedProduct && addedProduct.length) {
       setQuantities(
         Object.fromEntries(
-          addedProduct.map((i) => [i._id || i.product, i.quantity || 1]),
+          // FIX 2: use resolveId() for stable string keys
+          addedProduct.map((i) => [resolveId(i), i.quantity || 1]),
         ),
       );
     } else {
@@ -247,7 +279,8 @@ const CartPage = () => {
   }, [addedProduct]);
 
   const visibleItems = (addedProduct || []).filter(
-    (item) => !removedIds.includes(item._id || item.product),
+    // FIX 2: use resolveId() consistently
+    (item) => !removedIds.includes(resolveId(item)),
   );
 
   const handleQtyChange = (id, delta) =>
@@ -261,16 +294,15 @@ const CartPage = () => {
   const DELIVERY = 12.99;
   const DISCOUNT = promoApplied ? 0.1 : 0;
   const subtotal = visibleItems.reduce((sum, item) => {
-    const id = item._id || item.product;
+    const id = resolveId(item); // FIX 2
     const price = item.priceAtAdd || item.price || 0;
     return sum + price * (quantities[id] || 1);
   }, 0);
   const discount = subtotal * DISCOUNT;
   const total = subtotal - discount + (visibleItems.length > 0 ? DELIVERY : 0);
 
-  // ========= FIXED LOADING LOGIC =========
-  // Show loading spinner only while the store is still fetching
-  if (isLoading) {
+  // FIX 1: explicit === true check so undefined/null isLoading never traps us
+  if (isLoading === true) {
     return (
       <main
         style={{
@@ -310,7 +342,6 @@ const CartPage = () => {
     );
   }
 
-  // After loading finishes, show actual content (empty state or cart items)
   return (
     <main
       style={{
@@ -321,7 +352,6 @@ const CartPage = () => {
     >
       <NavBar />
 
-      {/* Floating background orbs – unchanged */}
       <FloatingOrb
         style={{
           width: 520,
@@ -361,7 +391,6 @@ const CartPage = () => {
         delay={6}
       />
 
-      {/* Decorative leaf watermarks */}
       <div
         style={{
           position: "fixed",
@@ -490,7 +519,7 @@ const CartPage = () => {
             </div>
           </motion.div>
 
-          {/* Two‑column grid */}
+          {/* Two-column grid */}
           <div
             className="cart-grid"
             style={{
@@ -507,7 +536,6 @@ const CartPage = () => {
               animate={isInView ? "visible" : "hidden"}
             >
               {visibleItems.length === 0 ? (
-                /* Empty state */
                 <motion.div
                   variants={itemVariants}
                   style={{
@@ -559,7 +587,7 @@ const CartPage = () => {
                       lineHeight: 1.8,
                     }}
                   >
-                    Discover our curated botanical collection — <br />
+                    Discover our curated botanical collection —<br />
                     nature's finest, thoughtfully formulated.
                   </p>
                   <motion.button
@@ -606,9 +634,16 @@ const CartPage = () => {
                 >
                   <AnimatePresence>
                     {visibleItems.map((item) => {
-                      const id = item._id || item.product;
+                      // FIX 2: stable string id
+                      const id = resolveId(item);
                       const qty = quantities[id] || 1;
                       const price = item.priceAtAdd || item.price || 0;
+
+                      // FIX 3: resolve the product sub-document safely
+                      const prod = resolveProduct(item);
+
+                      // FIX 4: safe image conversion
+                      const imgSrc = safeBufferToDataURL(prod?.image);
 
                       return (
                         <motion.div
@@ -646,6 +681,7 @@ const CartPage = () => {
                               pointerEvents: "none",
                             }}
                           />
+
                           {/* Image */}
                           <div
                             style={{
@@ -659,10 +695,11 @@ const CartPage = () => {
                               boxShadow: `0 8px 24px ${GREEN}18`,
                             }}
                           >
-                            {item.product?.image ? (
+                            {/* FIX 3 & 4: use prod and safeImg */}
+                            {imgSrc ? (
                               <img
-                                src={bufferToDataURL(item.product.image)}
-                                alt={item.product?.name}
+                                src={imgSrc}
+                                alt={prod?.name || "Product"}
                                 style={{
                                   width: "100%",
                                   height: "100%",
@@ -687,7 +724,8 @@ const CartPage = () => {
                               </div>
                             )}
                           </div>
-                          {/* Info */}
+
+                          {/* Info — FIX 3: use prod fields */}
                           <div style={{flex: 1, minWidth: 0}}>
                             <p
                               style={{
@@ -699,7 +737,7 @@ const CartPage = () => {
                                 margin: "0 0 5px",
                               }}
                             >
-                              {item.product?.category || "Botanical"}
+                              {prod?.category || "Botanical"}
                             </p>
                             <p
                               style={{
@@ -713,7 +751,7 @@ const CartPage = () => {
                                 textOverflow: "ellipsis",
                               }}
                             >
-                              {item.product?.name || "Product"}
+                              {prod?.name || "Product"}
                             </p>
                             <div
                               style={{
@@ -749,6 +787,7 @@ const CartPage = () => {
                               ${(price * qty).toFixed(2)}
                             </p>
                           </div>
+
                           {/* Controls */}
                           <div
                             style={{
@@ -809,7 +848,6 @@ const CartPage = () => {
                     })}
                   </AnimatePresence>
 
-                  {/* Continue shopping */}
                   <motion.div variants={itemVariants}>
                     <motion.button
                       whileHover={{x: -4}}
@@ -854,7 +892,7 @@ const CartPage = () => {
               )}
             </motion.div>
 
-            {/* RIGHT – Order summary (unchanged) */}
+            {/* RIGHT – Order summary */}
             <motion.div
               variants={slideIn}
               initial="hidden"
@@ -871,7 +909,6 @@ const CartPage = () => {
                   boxShadow: `0 32px 80px rgba(20,40,15,0.32), 0 8px 24px rgba(20,40,15,0.18)`,
                 }}
               >
-                {/* Panel header */}
                 <div
                   style={{
                     padding: "28px 30px 22px",
@@ -932,7 +969,6 @@ const CartPage = () => {
                   </p>
                 </div>
 
-                {/* Line items */}
                 <div
                   style={{
                     padding: "24px 30px",
@@ -1038,7 +1074,6 @@ const CartPage = () => {
                   </div>
                 </div>
 
-                {/* Promo code */}
                 <div style={{padding: "0 30px 24px"}}>
                   <div
                     style={{
@@ -1080,7 +1115,7 @@ const CartPage = () => {
                         fontWeight: 600,
                         letterSpacing: "0.28em",
                         textTransform: "uppercase",
-                        color: promoApplied ? GREEN_LIGHT : GREEN_LIGHT,
+                        color: GREEN_LIGHT,
                         transition: "background 0.2s",
                       }}
                       onMouseEnter={(e) =>
@@ -1109,7 +1144,6 @@ const CartPage = () => {
                   )}
                 </div>
 
-                {/* Checkout CTA */}
                 <div style={{padding: "0 30px 30px"}}>
                   <Link
                     to={
@@ -1166,7 +1200,6 @@ const CartPage = () => {
                     </motion.button>
                   </Link>
 
-                  {/* Trust badges */}
                   <div
                     style={{
                       display: "flex",
@@ -1188,7 +1221,6 @@ const CartPage = () => {
                     />
                   </div>
 
-                  {/* Payment icons row */}
                   <div
                     style={{
                       display: "flex",
@@ -1220,7 +1252,6 @@ const CartPage = () => {
                 </div>
               </div>
 
-              {/* Eco promise */}
               <motion.div
                 initial={{opacity: 0, y: 14}}
                 animate={isInView ? {opacity: 1, y: 0} : {}}
