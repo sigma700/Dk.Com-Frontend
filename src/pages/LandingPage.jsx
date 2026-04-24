@@ -8,7 +8,6 @@ import {Link, useNavigate} from "react-router-dom";
 import NavBar from "../components/navBar";
 import Footer from "../components/Footer";
 
-// ── Mindful Living KE — Brand Palette ──
 const GOLD = "#4A8C2A";
 const GOLD_LIGHT = "#72B84A";
 const GOLD_PALE = "#E8F5E0";
@@ -36,15 +35,6 @@ const imageVariants = {
     scale: 1,
     x: 0,
     transition: {duration: 1.2, ease: [0.16, 1, 0.3, 1], delay: 0.3},
-  },
-};
-const badgeVariants = {
-  hidden: {opacity: 0, scale: 0.7, rotate: -15},
-  visible: {
-    opacity: 1,
-    scale: 1,
-    rotate: 0,
-    transition: {duration: 0.8, ease: [0.16, 1, 0.3, 1], delay: 0.9},
   },
 };
 const statVariants = {
@@ -130,7 +120,6 @@ const LandingPage = () => {
       <div className="main-container w-full h-full flex flex-col">
         <NavBar />
 
-        {/* Hero Section */}
         <section
           ref={sectionRef}
           style={{
@@ -142,7 +131,6 @@ const LandingPage = () => {
             background: `linear-gradient(135deg, ${CREAM} 0%, ${GOLD_PALE} 45%, #C5E4AC 100%)`,
           }}
         >
-          {/* Floating orbs, borders etc. (unchanged) */}
           <motion.div
             animate={{x: [0, 30, 0], y: [0, -20, 0]}}
             transition={{duration: 12, repeat: Infinity, ease: "easeInOut"}}
@@ -220,7 +208,6 @@ const LandingPage = () => {
             }}
             className="hero-grid"
           >
-            {/* Left column */}
             <motion.div
               style={{
                 y: textY,
@@ -455,7 +442,6 @@ const LandingPage = () => {
               </motion.div>
             </motion.div>
 
-            {/* Right column (image) */}
             <motion.div
               style={{
                 y: imageY,
@@ -506,66 +492,6 @@ const LandingPage = () => {
               ))}
 
               <motion.div
-                variants={badgeVariants}
-                initial="hidden"
-                animate={isInView ? "visible" : "hidden"}
-                style={{
-                  position: "absolute",
-                  top: 24,
-                  right: 0,
-                  zIndex: 20,
-                  width: 88,
-                  height: 88,
-                  borderRadius: "50%",
-                  background: "#14280F",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                }}
-              >
-                <motion.div
-                  animate={{rotate: 360}}
-                  transition={{duration: 14, repeat: Infinity, ease: "linear"}}
-                  style={{position: "absolute", inset: 0}}
-                >
-                  <svg
-                    viewBox="0 0 88 88"
-                    style={{width: "100%", height: "100%"}}
-                  >
-                    <circle
-                      cx="44"
-                      cy="44"
-                      r="38"
-                      fill="none"
-                      stroke={GOLD}
-                      strokeWidth="0.7"
-                      strokeDasharray="3 5"
-                    />
-                  </svg>
-                </motion.div>
-                <div style={{textAlign: "center", zIndex: 1}}></div>
-              </motion.div>
-
-              <motion.div
-                initial={{opacity: 0, y: 20}}
-                animate={isInView ? {opacity: 1, y: 0} : {opacity: 0, y: 20}}
-                transition={{
-                  duration: 0.8,
-                  delay: 1.2,
-                  ease: [0.16, 1, 0.3, 1],
-                }}
-                style={{
-                  position: "absolute",
-                  bottom: 24,
-                  right: 0,
-                  zIndex: 10,
-                  background: "rgba(20,40,15,0.88)",
-                  backdropFilter: "blur(14px)",
-                  padding: "16px 22px",
-                }}
-              ></motion.div>
-
-              <motion.div
                 variants={imageVariants}
                 initial="hidden"
                 animate={isInView ? "visible" : "hidden"}
@@ -599,7 +525,6 @@ const LandingPage = () => {
           `}</style>
         </section>
 
-        {/* Products Section — fully responsive */}
         <section
           style={{
             padding: "100px 80px",
@@ -872,7 +797,6 @@ const LandingPage = () => {
             ))}
           </motion.div>
 
-          {/* Decorative leaf */}
           <div
             style={{
               position: "absolute",
@@ -893,7 +817,6 @@ const LandingPage = () => {
       </div>
 
       <style>{`
-        /* Responsive adjustments for all sections */
         @media (max-width: 1024px) {
           .hero-grid {
             grid-template-columns: 1fr !important;
@@ -930,7 +853,6 @@ const LandingPage = () => {
             border-right: none !important;
             padding: 0 !important;
           }
-          /* Products section */
           .products-section {
             padding: 60px 20px !important;
           }
@@ -942,7 +864,7 @@ const LandingPage = () => {
             height: 280px !important;
           }
           .products-grid h3 {
-            font-size: 18px !important;
+            fontSize: 18px !important;
           }
           .products-grid .price-block {
             flex-direction: column;
