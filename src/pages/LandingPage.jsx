@@ -892,7 +892,6 @@ const LandingPage = () => {
         <Footer />
       </div>
 
-      {/* Global responsive styles for the whole page */}
       <style>{`
         /* Responsive adjustments for all sections */
         @media (max-width: 1024px) {
