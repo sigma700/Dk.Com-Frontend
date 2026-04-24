@@ -142,7 +142,7 @@ const LandingPage = () => {
             background: `linear-gradient(135deg, ${CREAM} 0%, ${GOLD_PALE} 45%, #C5E4AC 100%)`,
           }}
         >
-          {/* Floating orbs, borders, etc. (unchanged) */}
+          {/* Floating orbs, borders etc. (unchanged) */}
           <motion.div
             animate={{x: [0, 30, 0], y: [0, -20, 0]}}
             transition={{duration: 12, repeat: Infinity, ease: "easeInOut"}}
@@ -369,6 +369,7 @@ const LandingPage = () => {
                   alignItems: "center",
                   gap: 28,
                   marginBottom: 56,
+                  flexWrap: "wrap",
                 }}
               >
                 <BuyNowButton />
@@ -411,6 +412,7 @@ const LandingPage = () => {
                   gap: 0,
                   paddingTop: 28,
                   borderTop: `1px solid ${GOLD}25`,
+                  flexWrap: "wrap",
                 }}
               >
                 {stats.map(({num, label}, i) => (
@@ -419,7 +421,7 @@ const LandingPage = () => {
                     custom={i}
                     variants={statVariants}
                     style={{
-                      flex: 1,
+                      flex: "1 1 auto",
                       paddingRight: i < 2 ? 24 : 0,
                       paddingLeft: i > 0 ? 24 : 0,
                       borderRight: i < 2 ? `1px solid ${GOLD}20` : "none",
@@ -594,13 +596,10 @@ const LandingPage = () => {
               50%  { background-position: 100% center }
               100% { background-position: 0%   center }
             }
-            @media (max-width: 768px) {
-              .hero-grid { grid-template-columns: 1fr !important; padding: 60px 28px !important; }
-            }
           `}</style>
         </section>
 
-        {/* Products Section */}
+        {/* Products Section — fully responsive */}
         <section
           style={{
             padding: "100px 80px",
@@ -608,6 +607,7 @@ const LandingPage = () => {
             position: "relative",
             overflow: "hidden",
           }}
+          className="products-section"
         >
           <motion.div
             initial={{scaleX: 0}}
@@ -698,6 +698,7 @@ const LandingPage = () => {
               maxWidth: 1400,
               margin: "0 auto",
             }}
+            className="products-grid"
           >
             {allProducts.map((product) => (
               <motion.div
@@ -798,6 +799,8 @@ const LandingPage = () => {
                       marginBottom: 20,
                       paddingBottom: 12,
                       borderBottom: `1px solid ${GOLD}20`,
+                      flexWrap: "wrap",
+                      gap: 8,
                     }}
                   >
                     <span
@@ -869,6 +872,7 @@ const LandingPage = () => {
             ))}
           </motion.div>
 
+          {/* Decorative leaf */}
           <div
             style={{
               position: "absolute",
@@ -885,9 +889,83 @@ const LandingPage = () => {
           </div>
         </section>
 
-        {/* Footer */}
         <Footer />
       </div>
+
+      {/* Global responsive styles for the whole page */}
+      <style>{`
+        /* Responsive adjustments for all sections */
+        @media (max-width: 1024px) {
+          .hero-grid {
+            grid-template-columns: 1fr !important;
+            gap: 48px !important;
+            padding: 60px 40px !important;
+          }
+          .hero-grid > div:first-child {
+            padding-right: 0 !important;
+            text-align: center;
+          }
+          .hero-grid .stats-wrapper {
+            justify-content: center;
+          }
+        }
+
+        @media (max-width: 768px) {
+          .hero-grid {
+            padding: 40px 24px !important;
+            gap: 32px !important;
+          }
+          .hero-grid h2 {
+            font-size: clamp(32px, 8vw, 44px) !important;
+          }
+          .hero-grid p {
+            max-width: 100% !important;
+          }
+          .hero-grid .stats-wrapper {
+            flex-wrap: wrap;
+            gap: 16px;
+          }
+          .hero-grid .stats-wrapper > div {
+            flex: 0 0 100%;
+            text-align: center;
+            border-right: none !important;
+            padding: 0 !important;
+          }
+          /* Products section */
+          .products-section {
+            padding: 60px 20px !important;
+          }
+          .products-grid {
+            grid-template-columns: 1fr !important;
+            gap: 24px !important;
+          }
+          .products-grid img {
+            height: 280px !important;
+          }
+          .products-grid h3 {
+            font-size: 18px !important;
+          }
+          .products-grid .price-block {
+            flex-direction: column;
+            align-items: flex-start;
+          }
+        }
+
+        @media (max-width: 480px) {
+          .hero-grid {
+            padding: 32px 16px !important;
+          }
+          .products-section {
+            padding: 48px 16px !important;
+          }
+          .products-grid img {
+            height: 240px !important;
+          }
+          .products-grid .product-card {
+            margin-bottom: 8px;
+          }
+        }
+      `}</style>
     </main>
   );
 };
