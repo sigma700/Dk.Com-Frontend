@@ -1104,7 +1104,7 @@ const AboutPage = () => {
                   flexWrap: "wrap",
                 }}
               >
-                <Link to={"/"}>
+                <Link to={"/discover-more"}>
                   <motion.button
                     whileHover={{
                       scale: 1.04,
@@ -1975,7 +1975,7 @@ const AboutPage = () => {
                 flexWrap: "wrap",
               }}
             >
-              <Link to={"/"}>
+              <Link to={"/discover-more"}>
                 <motion.button
                   whileHover={{scale: 1.05, boxShadow: `0 24px 56px ${GOLD}60`}}
                   whileTap={{scale: 0.97}}
