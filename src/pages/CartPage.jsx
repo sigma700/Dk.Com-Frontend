@@ -1,6 +1,6 @@
 import React, {useState, useRef, useEffect} from "react";
 import NavBar from "../components/navBar";
-import {motion, AnimatePresence, useInView} from "framer-motion";
+import {motion, AnimatePresence} from "framer-motion";
 import {useAddToCartStore} from "../stores/addToCartStore.js";
 import {bufferToDataURL} from "../utils/displayImage";
 import {Link, useNavigate} from "react-router-dom";
@@ -242,13 +242,11 @@ const safeBufferToDataURL = (imageData) => {
 };
 
 // ════════════════════════════════════════════════════════════════════════════
-// CartPage – guaranteed visible
+// CartPage – guaranteed visible, no useInView
 // ════════════════════════════════════════════════════════════════════════════
 const CartPage = () => {
   const {addedProduct, fetchCart, isLoading = false} = useAddToCartStore();
   const navigate = useNavigate();
-  const sectionRef = useRef(null);
-  const isInView = useInView(sectionRef, {once: true, margin: "0px"});
   const [promoCode, setPromoCode] = useState("");
   const [promoApplied, setPromoApplied] = useState(false);
   const [quantities, setQuantities] = useState({});
@@ -408,14 +406,13 @@ const CartPage = () => {
       </div>
 
       <section
-        ref={sectionRef}
-        style={{position: "relative", zIndex: 1, padding: "60px 0 110px"}}
+        style={{position: "relative", zIndex: 10, padding: "60px 0 110px"}}
       >
         <div style={{maxWidth: 1320, margin: "0 auto", padding: "0 24px"}}>
-          {/* Page header – unchanged */}
+          {/* Page header – always animated on mount */}
           <motion.div
             initial={{opacity: 0, y: 32}}
-            animate={isInView ? {opacity: 1, y: 0} : {}}
+            animate={{opacity: 1, y: 0}}
             transition={{duration: 0.85}}
             style={{marginBottom: 52}}
           >
@@ -523,10 +520,9 @@ const CartPage = () => {
             <motion.div
               variants={containerVariants}
               initial="hidden"
-              animate={isInView ? "visible" : "hidden"}
+              animate="visible" // Always animate on mount
             >
               {visibleItems.length === 0 ? (
-                // ✅ EMPTY STATE – SOLID WHITE CARD, FULLY VISIBLE
                 <div
                   style={{
                     background: "#ffffff",
@@ -809,7 +805,7 @@ const CartPage = () => {
             <motion.div
               variants={slideIn}
               initial="hidden"
-              animate={isInView ? "visible" : "hidden"}
+              animate="visible" // Always animate on mount
               style={{position: "sticky", top: 100}}
             >
               <div
