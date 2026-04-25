@@ -569,7 +569,7 @@ const CartPage = () => {
                       marginRight: "auto",
                     }}
                   >
-                    Discover our curated botanical collection —<br />
+                    Discover our curated botanical collection ,<br />
                     nature's finest, thoughtfully formulated.
                   </p>
                   <button

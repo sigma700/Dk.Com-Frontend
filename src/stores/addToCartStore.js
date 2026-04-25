@@ -22,13 +22,6 @@ export const useAddToCartStore = create(
             },
           );
 
-          // Handle non‑OK responses (including 304, 400, 401, etc.)
-          if (!response.ok) {
-            console.error("Add to cart failed:", response.status);
-            set({isLoading: false, isSent: false});
-            return;
-          }
-
           const data = await response.json();
           console.log("Data from API", data);
 
@@ -38,7 +31,6 @@ export const useAddToCartStore = create(
             addedProduct: data.data?.items || [],
           });
         } catch (error) {
-          console.error("Add to cart error:", error);
           set({isLoading: false, isSent: false});
         }
       },
@@ -50,25 +42,14 @@ export const useAddToCartStore = create(
             `${import.meta.env.VITE_BACKEND_URL}/store/getCart`,
             {
               credentials: "include",
-              // ✅ Force fresh data – prevents 304 responses
-              cache: "no-cache",
             },
           );
-
-          // If response is not OK, fallback to existing cart data
-          if (!response.ok) {
-            console.error("Fetch cart failed:", response.status);
-            set({isLoading: false});
-            return;
-          }
-
           const data = await response.json();
           set({
             addedProduct: data.data?.items || [],
             isLoading: false,
           });
         } catch (error) {
-          console.error("Fetch cart error:", error);
           set({isLoading: false});
         }
       },

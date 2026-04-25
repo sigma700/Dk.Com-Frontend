@@ -1,6 +1,6 @@
 import React, {useEffect, useRef, useState} from "react";
 import BuyNowButton from "../components/buyButton";
-import {useInView, useScroll, useTransform, motion} from "framer-motion";
+import {useScroll, useTransform, motion} from "framer-motion";
 import {useProductsStore} from "../stores/productDisplayStore";
 import {useAddToCartStore} from "../stores/addToCartStore";
 import {bufferToDataURL} from "../utils/displayImage";
@@ -91,7 +91,6 @@ const LandingPage = () => {
   const [addedStates, setAddedStates] = useState({});
   const [hoveredCard, setHoveredCard] = useState(null);
   const sectionRef = useRef(null);
-  const isInView = useInView(sectionRef, {once: true, margin: "-100px"});
 
   const {scrollYProgress} = useScroll({
     target: sectionRef,
@@ -166,7 +165,7 @@ const LandingPage = () => {
           />
           <motion.div
             initial={{scaleX: 0}}
-            animate={isInView ? {scaleX: 1} : {scaleX: 0}}
+            animate={{scaleX: 1}}
             transition={{duration: 1.4, ease: [0.16, 1, 0.3, 1], delay: 0.2}}
             style={{
               position: "absolute",
@@ -181,7 +180,7 @@ const LandingPage = () => {
           />
           <motion.div
             initial={{scaleX: 0}}
-            animate={isInView ? {scaleX: 1} : {scaleX: 0}}
+            animate={{scaleX: 1}}
             transition={{duration: 1.4, ease: [0.16, 1, 0.3, 1], delay: 0.5}}
             style={{
               position: "absolute",
@@ -218,7 +217,7 @@ const LandingPage = () => {
               }}
               variants={containerVariants}
               initial="hidden"
-              animate={isInView ? "visible" : "hidden"}
+              animate="visible"
             >
               <motion.div variants={itemVariants} style={{marginBottom: 28}}>
                 <div
@@ -494,7 +493,7 @@ const LandingPage = () => {
               <motion.div
                 variants={imageVariants}
                 initial="hidden"
-                animate={isInView ? "visible" : "hidden"}
+                animate="visible"
                 style={{position: "relative", zIndex: 5}}
               >
                 <motion.img
@@ -536,8 +535,7 @@ const LandingPage = () => {
         >
           <motion.div
             initial={{scaleX: 0}}
-            whileInView={{scaleX: 1}}
-            viewport={{once: true}}
+            animate={{scaleX: 1}}
             transition={{duration: 1.2, ease: [0.16, 1, 0.3, 1]}}
             style={{
               position: "absolute",
@@ -552,8 +550,7 @@ const LandingPage = () => {
           <div style={{textAlign: "center", marginBottom: 64}}>
             <motion.div
               initial={{opacity: 0, y: 20}}
-              whileInView={{opacity: 1, y: 0}}
-              viewport={{once: true}}
+              animate={{opacity: 1, y: 0}}
               transition={{duration: 0.6}}
               style={{
                 display: "inline-flex",
@@ -579,8 +576,7 @@ const LandingPage = () => {
 
             <motion.h2
               initial={{opacity: 0, y: 20}}
-              whileInView={{opacity: 1, y: 0}}
-              viewport={{once: true}}
+              animate={{opacity: 1, y: 0}}
               transition={{duration: 0.6, delay: 0.1}}
               style={{
                 fontFamily: "'Playfair Display', 'Georgia', serif",
@@ -595,8 +591,7 @@ const LandingPage = () => {
             </motion.h2>
             <motion.p
               initial={{opacity: 0, y: 20}}
-              whileInView={{opacity: 1, y: 0}}
-              viewport={{once: true}}
+              animate={{opacity: 1, y: 0}}
               transition={{duration: 0.6, delay: 0.2}}
               style={{
                 fontSize: 14,
@@ -614,8 +609,7 @@ const LandingPage = () => {
           <motion.div
             variants={productsContainerVariants}
             initial="hidden"
-            whileInView="visible"
-            viewport={{once: true, margin: "-50px"}}
+            animate="visible"
             style={{
               display: "grid",
               gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))",
