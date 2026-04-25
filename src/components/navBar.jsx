@@ -320,49 +320,50 @@ const NavBar = () => {
                 <IconButton to="/cart-page">
                   <ShoppingCart size={17} strokeWidth={1.8} />
                 </IconButton>
-                <IconButton>
+                <IconButton to={"/user-profile"}>
                   <SquareUserRound size={17} strokeWidth={1.8} />
                 </IconButton>
-
-                <motion.button
-                  whileHover={{scale: 1.04}}
-                  whileTap={{scale: 0.96}}
-                  transition={{type: "spring", stiffness: 400, damping: 18}}
-                  style={{
-                    marginLeft: 8,
-                    padding: "9px 22px",
-                    borderRadius: 100,
-                    border: "none",
-                    background: `linear-gradient(135deg, ${GREEN} 0%, ${GREEN_LIGHT} 100%)`,
-                    color: "#fff",
-                    fontSize: 12,
-                    fontWeight: 600,
-                    letterSpacing: "0.12em",
-                    textTransform: "uppercase",
-                    cursor: "pointer",
-                    boxShadow: `0 4px 20px ${GREEN}45`,
-                    position: "relative",
-                    overflow: "hidden",
-                  }}
-                >
-                  <motion.span
-                    animate={{x: ["-100%", "200%"]}}
-                    transition={{
-                      duration: 2.2,
-                      repeat: Infinity,
-                      repeatDelay: 1.5,
-                      ease: "easeInOut",
-                    }}
+                <Link to={"/discover-more"}>
+                  <motion.button
+                    whileHover={{scale: 1.04}}
+                    whileTap={{scale: 0.96}}
+                    transition={{type: "spring", stiffness: 400, damping: 18}}
                     style={{
-                      position: "absolute",
-                      inset: 0,
-                      background:
-                        "linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.28) 50%, transparent 100%)",
-                      pointerEvents: "none",
+                      marginLeft: 8,
+                      padding: "9px 22px",
+                      borderRadius: 100,
+                      border: "none",
+                      background: `linear-gradient(135deg, ${GREEN} 0%, ${GREEN_LIGHT} 100%)`,
+                      color: "#fff",
+                      fontSize: 12,
+                      fontWeight: 600,
+                      letterSpacing: "0.12em",
+                      textTransform: "uppercase",
+                      cursor: "pointer",
+                      boxShadow: `0 4px 20px ${GREEN}45`,
+                      position: "relative",
+                      overflow: "hidden",
                     }}
-                  />
-                  Shop Now
-                </motion.button>
+                  >
+                    <motion.span
+                      animate={{x: ["-100%", "200%"]}}
+                      transition={{
+                        duration: 2.2,
+                        repeat: Infinity,
+                        repeatDelay: 1.5,
+                        ease: "easeInOut",
+                      }}
+                      style={{
+                        position: "absolute",
+                        inset: 0,
+                        background:
+                          "linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.28) 50%, transparent 100%)",
+                        pointerEvents: "none",
+                      }}
+                    />
+                    Shop Now
+                  </motion.button>
+                </Link>
               </motion.div>
             </nav>
 

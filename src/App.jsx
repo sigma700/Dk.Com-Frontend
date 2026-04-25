@@ -9,6 +9,7 @@ import CategoryPage from "./pages/Category";
 import AboutPage from "./pages/About";
 import BlogPage from "./pages/Blog";
 import DiscoveryPage from "./pages/Category";
+import Profile from "./pages/Profile";
 
 const router = createBrowserRouter([
   {
@@ -42,6 +43,10 @@ const router = createBrowserRouter([
   {
     path: "/blog",
     element: <BlogPage />,
+  },
+  {
+    path: "/user-profile",
+    element: <Profile />,
   },
 ]);
 
