@@ -34,9 +34,71 @@ import {
   X,
   Menu,
 } from "lucide-react";
+import {useOrdersStore} from "../stores/getAllOrders";
+import {useAddressStore} from "../stores/getAdresses";
+
+// Helper: map backend order to display format
+const formatOrderForDisplay = (backendOrder) => {
+  const stepMap = {
+    processing: 0,
+    confirmed: 1,
+    shipped: 2,
+    out_for_delivery: 3,
+    delivered: 4,
+  };
+  const trackStep = stepMap[backendOrder.orderStatus] ?? 0;
+
+  const itemsText = backendOrder.items
+    .map((item) => `${item.product?.name || "Product"} (x${item.quantity})`)
+    .join(", ");
+  const shortItems =
+    itemsText.length > 40 ? itemsText.slice(0, 37) + "..." : itemsText;
+
+  const lines = backendOrder.items.map((item) => ({
+    name: item.product?.name || "Product",
+    qty: item.quantity,
+    price: `KES ${(item.price || 0).toLocaleString()}`,
+  }));
+
+  return {
+    id: backendOrder._id.slice(-8).toUpperCase(),
+    backendId: backendOrder._id,
+    date: new Date(backendOrder.createdAt).toLocaleDateString("en-KE", {
+      day: "numeric",
+      month: "short",
+      year: "numeric",
+    }),
+    items: shortItems,
+    total: `KES ${backendOrder.total.toLocaleString()}`,
+    status:
+      backendOrder.orderStatus === "out_for_delivery"
+        ? "Out for Delivery"
+        : backendOrder.orderStatus.charAt(0).toUpperCase() +
+          backendOrder.orderStatus.slice(1),
+    tracking: backendOrder.trackingNumber || "Pending",
+    trackStep,
+    lines,
+    shippingAddress: backendOrder.shippingAddress,
+    paymentMethod: backendOrder.paymentMethod,
+    paymentStatus: backendOrder.paymentStatus,
+  };
+};
 
 const Profile = () => {
-  // ---------- DATA LAYER ----------
+  // ---------- STORES ----------
+  const {
+    orders: backendOrders,
+    isLoading: ordersLoading,
+    fetchAllOrders,
+  } = useOrdersStore();
+
+  const {
+    addresses: backendAddresses,
+    isLoading: addressesLoading,
+    fetchAddresses,
+  } = useAddressStore();
+
+  // ---------- HARDCODED DEFAULT STATE (profile, contacts, payments, etc.) ----------
   const DEFAULT_STATE = {
     user: {
       firstName: "Amina",
@@ -59,30 +121,6 @@ const Profile = () => {
         value: "+254 712 345 678",
         billing: false,
         shipping: true,
-      },
-    ],
-    addresses: [
-      {
-        id: 1,
-        name: "Amina Njoroge",
-        line1: "Apt 4B, Westlands Court",
-        line2: "Westlands",
-        city: "Nairobi",
-        county: "Nairobi County",
-        phone: "+254 712 345 678",
-        type: "both",
-        isDefault: true,
-      },
-      {
-        id: 2,
-        name: "Office Address",
-        line1: "14th Floor, Delta Towers",
-        line2: "Upper Hill",
-        city: "Nairobi",
-        county: "Nairobi County",
-        phone: "+254 720 987 654",
-        type: "billing",
-        isDefault: false,
       },
     ],
     payments: [
@@ -108,52 +146,6 @@ const Profile = () => {
       {id: 2, name: "Cold Press Baobab Oil", price: "KES 3,200", emoji: "🫒"},
       {id: 3, name: "African Black Soap 120g", price: "KES 950", emoji: "🧼"},
       {id: 4, name: "Botanical Facial Mist", price: "KES 1,400", emoji: "💧"},
-    ],
-    orders: [
-      {
-        id: "ORD-2024-001",
-        date: "Apr 12, 2024",
-        items: "Moringa Serum Bundle (x2)",
-        total: "KES 4,800",
-        status: "Shipped",
-        tracking: "TRK-789012",
-        trackStep: 2,
-        lines: [
-          {name: "Moringa Radiance Serum 30ml", qty: 2, price: "KES 4,800"},
-        ],
-      },
-      {
-        id: "ORD-2024-002",
-        date: "Mar 3, 2024",
-        items: "Cold Press Face Oil",
-        total: "KES 3,200",
-        status: "Delivered",
-        tracking: "TRK-456123",
-        trackStep: 4,
-        lines: [
-          {name: "Cold Press Baobab Oil 15ml", qty: 1, price: "KES 3,200"},
-        ],
-      },
-      {
-        id: "ORD-2024-003",
-        date: "Feb 18, 2024",
-        items: "Starter Bundle",
-        total: "KES 5,800",
-        status: "Processing",
-        tracking: "TRK-000001",
-        trackStep: 1,
-        lines: [{name: "Starter Bundle", qty: 1, price: "KES 5,800"}],
-      },
-      {
-        id: "ORD-2023-009",
-        date: "Nov 5, 2023",
-        items: "Baobab Cream 50g",
-        total: "KES 1,800",
-        status: "Delivered",
-        tracking: "TRK-321987",
-        trackStep: 4,
-        lines: [{name: "Baobab Cream 50g", qty: 1, price: "KES 1,800"}],
-      },
     ],
     reviews: [
       {
@@ -199,6 +191,7 @@ const Profile = () => {
     Shipped: "badge-shipped",
     Delivered: "badge-delivered",
     Cancelled: "badge-cancelled",
+    "Out for Delivery": "badge-shipped",
   };
   const CARD_ICONS = {Visa: "💳", Mastercard: "💳", "M-Pesa": "📱", Amex: "💳"};
 
@@ -217,10 +210,21 @@ const Profile = () => {
     addContact: false,
   });
   const [selectedOrder, setSelectedOrder] = useState(null);
-  const [isLoadingOrders, setIsLoadingOrders] = useState(false);
   const [b2bChecked, setB2bChecked] = useState(false);
   const [avatarPreview, setAvatarPreview] = useState(null);
   const avatarInputRef = useRef(null);
+
+  // Format orders for display
+  const displayOrders = React.useMemo(() => {
+    if (!backendOrders?.length) return [];
+    return backendOrders.map(formatOrderForDisplay);
+  }, [backendOrders]);
+
+  // ---------- FETCH REAL DATA ----------
+  useEffect(() => {
+    fetchAllOrders();
+    fetchAddresses();
+  }, []);
 
   // ---------- HELPERS ----------
   const showToast = (msg, icon = "CheckCircle") => {
@@ -258,7 +262,7 @@ const Profile = () => {
     );
   }, [darkMode]);
 
-  // ---------- PERSIST STATE ----------
+  // ---------- PERSIST LOCAL STATE (excluding orders/addresses) ----------
   useEffect(() => {
     const savedState = localStorage.getItem("mlk_profile");
     if (savedState) setState(JSON.parse(savedState));
@@ -267,7 +271,7 @@ const Profile = () => {
     localStorage.setItem("mlk_profile", JSON.stringify(state));
   }, [state]);
 
-  // ---------- PROFILE ACTIONS ----------
+  // ---------- PROFILE ACTIONS (local) ----------
   const saveProfile = () => {
     const firstName = document.getElementById("editFirstName")?.value;
     const lastName = document.getElementById("editLastName")?.value;
@@ -312,7 +316,7 @@ const Profile = () => {
       return;
     }
     closeModal("password");
-    showToast("Password changed successfully", "ShieldCheck");
+    showToast("Password changed successfully", "Shield");
   };
 
   const enable2FA = () => {
@@ -328,7 +332,7 @@ const Profile = () => {
     showToast("Profile photo updated", "Camera");
   };
 
-  // ---------- CONTACTS ----------
+  // ---------- CONTACTS (local) ----------
   const saveContact = () => {
     const type = document.getElementById("contactType")?.value;
     const value = document.getElementById("contactValue")?.value.trim();
@@ -355,56 +359,10 @@ const Profile = () => {
     showToast("Contact removed", "Trash2");
   };
 
-  // ---------- ADDRESSES ----------
-  const saveAddress = () => {
-    const name = document.getElementById("addrName")?.value.trim();
-    const line1 = document.getElementById("addrLine1")?.value.trim();
-    const city = document.getElementById("addrCity")?.value.trim();
-    if (!name || !line1 || !city) {
-      showToast("Please fill required fields", "AlertCircle");
-      return;
-    }
-    const type =
-      document.querySelector('input[name="addrType"]:checked')?.value ||
-      "shipping";
-    setState((prev) => ({
-      ...prev,
-      addresses: [
-        ...prev.addresses,
-        {
-          id: Date.now(),
-          name,
-          phone: document.getElementById("addrPhone")?.value || "",
-          line1,
-          line2: document.getElementById("addrLine2")?.value || "",
-          city,
-          county: document.getElementById("addrCounty")?.value || "",
-          type,
-          isDefault: false,
-        },
-      ],
-    }));
-    closeModal("addAddress");
-    showToast("Address saved", "CheckCircle");
-  };
+  // ---------- ADDRESSES (read‑only – no write operations) ----------
+  // No addAddress, setDefaultAddress, deleteAddress functions
 
-  const setDefaultAddress = (id) => {
-    setState((prev) => ({
-      ...prev,
-      addresses: prev.addresses.map((a) => ({...a, isDefault: a.id === id})),
-    }));
-    showToast("Default address updated", "MapPin");
-  };
-
-  const deleteAddress = (id) => {
-    setState((prev) => ({
-      ...prev,
-      addresses: prev.addresses.filter((a) => a.id !== id),
-    }));
-    showToast("Address removed", "Trash2");
-  };
-
-  // ---------- PAYMENTS ----------
+  // ---------- PAYMENTS (local) ----------
   const setDefaultPayment = (id) => {
     setState((prev) => ({
       ...prev,
@@ -431,7 +389,7 @@ const Profile = () => {
     showToast("Gift card redeemed! KES 500 added to your balance", "Gift");
   };
 
-  // ---------- PREFERENCES ----------
+  // ---------- PREFERENCES (local) ----------
   const togglePref = (key) => {
     setState((prev) => ({
       ...prev,
@@ -448,7 +406,7 @@ const Profile = () => {
     showToast("Default shipping method updated", "Truck");
   };
 
-  // ---------- WISHLIST ----------
+  // ---------- WISHLIST (local) ----------
   const removeWishlist = (id) => {
     setState((prev) => ({
       ...prev,
@@ -460,14 +418,6 @@ const Profile = () => {
   const moveToCart = () => showToast("Added to cart", "ShoppingBag");
 
   // ---------- ORDERS ----------
-  useEffect(() => {
-    if (activePage === "orders") {
-      setIsLoadingOrders(true);
-      const timer = setTimeout(() => setIsLoadingOrders(false), 700);
-      return () => clearTimeout(timer);
-    }
-  }, [activePage]);
-
   const openOrderDetail = (order) => {
     setSelectedOrder(order);
     openModal("order");
@@ -488,7 +438,7 @@ const Profile = () => {
     showToast("Invoice downloaded", "FileText");
   };
 
-  // ---------- RETURNS / BULK ORDER ----------
+  // ---------- RETURNS / BULK ORDER (local) ----------
   const submitReturn = () =>
     showToast(
       "Return request submitted. We'll respond within 24 hours.",
@@ -510,7 +460,6 @@ const Profile = () => {
     );
   };
 
-  // ---------- RENDER HELPERS (dynamic lists) ----------
   const fullName = `${state.user.firstName} ${state.user.lastName}`;
   const initials =
     (state.user.firstName[0] || "") + (state.user.lastName[0] || "");
@@ -775,7 +724,7 @@ const Profile = () => {
             onClick={() => navigate("orders")}
           >
             <Package size={16} className="nav-icon" /> Orders
-            <span className="nav-badge">3</span>
+            <span className="nav-badge">{displayOrders.length}</span>
           </button>
           <button
             className={`nav-item ${activePage === "payments" ? "active" : ""}`}
@@ -882,7 +831,7 @@ const Profile = () => {
           </div>
         </div>
 
-        {/* ========== PROFILE PAGE ========== */}
+        {/* ========== PROFILE PAGE (hardcoded) ========== */}
         {activePage === "profile" && (
           <div className="page-content active">
             <div className="page-header">
@@ -894,7 +843,7 @@ const Profile = () => {
             <div className="stat-grid">
               <div className="stat-card">
                 <div className="stat-label">Total Orders</div>
-                <div className="stat-value">12</div>
+                <div className="stat-value">{displayOrders.length}</div>
                 <div className="stat-sub">Since June 2023</div>
                 <div className="stat-icon">
                   <Package size={48} />
@@ -1238,7 +1187,7 @@ const Profile = () => {
           </div>
         )}
 
-        {/* ========== ORDERS PAGE ========== */}
+        {/* ========== ORDERS PAGE (real orders) ========== */}
         {activePage === "orders" && (
           <div className="page-content active">
             <div className="page-header">
@@ -1249,7 +1198,7 @@ const Profile = () => {
                 Track, reorder, and download invoices for all your purchases
               </p>
             </div>
-            {isLoadingOrders ? (
+            {ordersLoading ? (
               <div>
                 <div
                   className="skeleton"
@@ -1291,63 +1240,74 @@ const Profile = () => {
                       </tr>
                     </thead>
                     <tbody>
-                      {state.orders.map((o) => (
-                        <tr key={o.id}>
-                          <td>
-                            <strong>{o.id}</strong>
-                          </td>
-                          <td>{o.date}</td>
-                          <td
-                            style={{
-                              maxWidth: 180,
-                              whiteSpace: "nowrap",
-                              overflow: "hidden",
-                              textOverflow: "ellipsis",
-                            }}
-                          >
-                            {o.items}
-                          </td>
-                          <td>
-                            <strong>{o.total}</strong>
-                          </td>
-                          <td>
-                            <span
-                              className={`badge ${STATUS_CLASS[o.status] || "badge-shipped"}`}
-                            >
-                              <span className="badge-dot" />
-                              {o.status}
-                            </span>
-                          </td>
-                          <td>
-                            <div
+                      {displayOrders.length ? (
+                        displayOrders.map((o) => (
+                          <tr key={o.id}>
+                            <td>
+                              <strong>{o.id}</strong>
+                            </td>
+                            <td>{o.date}</td>
+                            <td
                               style={{
-                                display: "flex",
-                                gap: 6,
-                                flexWrap: "wrap",
+                                maxWidth: 180,
+                                whiteSpace: "nowrap",
+                                overflow: "hidden",
+                                textOverflow: "ellipsis",
                               }}
                             >
-                              <button
-                                className="btn btn-outline btn-sm"
-                                onClick={() => openOrderDetail(o)}
+                              {o.items}
+                            </td>
+                            <td>
+                              <strong>{o.total}</strong>
+                            </td>
+                            <td>
+                              <span
+                                className={`badge ${STATUS_CLASS[o.status] || "badge-shipped"}`}
                               >
-                                View
-                              </button>
-                              <button
-                                className="btn btn-ghost btn-sm"
-                                onClick={() => reorder()}
+                                <span className="badge-dot" />
+                                {o.status}
+                              </span>
+                            </td>
+                            <td>
+                              <div
+                                style={{
+                                  display: "flex",
+                                  gap: 6,
+                                  flexWrap: "wrap",
+                                }}
                               >
-                                Reorder
-                              </button>
-                              <button
-                                className="btn btn-ghost btn-sm"
-                                onClick={() => downloadInvoice(o.id)}
-                              >
-                                Invoice
-                              </button>
-                            </div>
+                                <button
+                                  className="btn btn-outline btn-sm"
+                                  onClick={() => openOrderDetail(o)}
+                                >
+                                  View
+                                </button>
+                                <button
+                                  className="btn btn-ghost btn-sm"
+                                  onClick={() => reorder()}
+                                >
+                                  Reorder
+                                </button>
+                                <button
+                                  className="btn btn-ghost btn-sm"
+                                  onClick={() => downloadInvoice(o.id)}
+                                >
+                                  Invoice
+                                </button>
+                              </div>
+                            </td>
+                          </tr>
+                        ))
+                      ) : (
+                        <tr>
+                          <td
+                            colSpan="6"
+                            style={{textAlign: "center", padding: 40}}
+                          >
+                            No orders found
                           </td>
                         </tr>
-                      ))}
+                      )}
                     </tbody>
                   </table>
                 </div>
@@ -1356,7 +1316,7 @@ const Profile = () => {
           </div>
         )}
 
-        {/* ========== PAYMENTS PAGE ========== */}
+        {/* ========== PAYMENTS PAGE (hardcoded) ========== */}
         {activePage === "payments" && (
           <div className="page-content active">
             <div className="page-header">
@@ -1540,79 +1500,76 @@ const Profile = () => {
           </div>
         )}
 
-        {/* ========== ADDRESSES PAGE ========== */}
+        {/* ========== ADDRESSES PAGE (read‑only, from orders) ========== */}
         {activePage === "addresses" && (
           <div className="page-content active">
             <div className="page-header">
               <h1>
                 Address <em>Book</em>
               </h1>
-              <p>Saved shipping and billing addresses</p>
+              <p>Your shipping addresses from past orders (read‑only)</p>
             </div>
-            <div className="grid-2" style={{marginBottom: 20}}>
-              {state.addresses.map((a) => (
+            {addressesLoading ? (
+              <div
+                className="skeleton"
+                style={{height: 120, marginBottom: 20}}
+              />
+            ) : backendAddresses.length === 0 ? (
+              <div className="card">
                 <div
-                  key={a.id}
-                  className={`address-card ${a.isDefault ? "default" : ""}`}
+                  className="card-body"
+                  style={{textAlign: "center", padding: 40}}
                 >
-                  <div className="address-name">{a.name}</div>
-                  <div className="address-line">
-                    {a.line1}
-                    <br />
-                    {a.line2 && (
-                      <>
-                        {a.line2}
-                        <br />
-                      </>
-                    )}
-                    {a.city}, {a.county}
-                  </div>
-                  <div
-                    style={{
-                      fontSize: 11,
-                      color: "var(--text-muted)",
-                      marginTop: 4,
-                    }}
-                  >
-                    {a.phone}
-                  </div>
-                  <div
-                    style={{
-                      fontSize: 9,
-                      letterSpacing: "0.15em",
-                      textTransform: "uppercase",
-                      color: "var(--accent)",
-                      margin: "6px 0 12px",
-                    }}
-                  >
-                    {a.type}
-                  </div>
-                  <div style={{display: "flex", gap: 6, flexWrap: "wrap"}}>
-                    {!a.isDefault && (
-                      <button
-                        className="btn btn-outline btn-sm"
-                        onClick={() => setDefaultAddress(a.id)}
-                      >
-                        Set Default
-                      </button>
-                    )}
-                    <button
-                      className="btn btn-ghost btn-sm"
-                      onClick={() => deleteAddress(a.id)}
-                    >
-                      <Trash2 size={12} color="#c0392b" /> Remove
-                    </button>
-                  </div>
+                  No addresses found. Addresses will appear here after you place
+                  an order.
                 </div>
-              ))}
-            </div>
-            <button
-              className="btn btn-outline"
-              onClick={() => openModal("addAddress")}
-              style={{marginBottom: 28}}
-            >
-              <Plus size={14} /> Add New Address
-            </button>
+              </div>
+            ) : (
+              <div className="grid-2" style={{marginBottom: 20}}>
+                {backendAddresses.map((addr, idx) => (
+                  <div
+                    key={addr.id || idx}
+                    className="address-card"
+                    style={{cursor: "default"}}
+                  >
+                    <div className="address-name">{addr.name}</div>
+                    <div className="address-line">
+                      {addr.line1}
+                      <br />
+                      {addr.line2 && (
+                        <>
+                          {addr.line2}
+                          <br />
+                        </>
+                      )}
+                      {addr.city}, {addr.county}
+                    </div>
+                    <div
+                      style={{
+                        fontSize: 11,
+                        color: "var(--text-muted)",
+                        marginTop: 4,
+                      }}
+                    >
+                      {addr.phone}
+                    </div>
+                    <div
+                      style={{
+                        fontSize: 9,
+                        letterSpacing: "0.15em",
+                        textTransform: "uppercase",
+                        color: "var(--accent)",
+                        marginTop: 8,
+                      }}
+                    >
+                      {addr.type || "shipping"}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {/* Communication preferences and shipping methods (unchanged) */}
             <div className="card">
               <div className="card-header">
                 <span className="card-title">Communication Preferences</span>
@@ -1714,7 +1671,7 @@ const Profile = () => {
           </div>
         )}
 
-        {/* ========== WISHLIST PAGE ========== */}
+        {/* ========== WISHLIST PAGE (hardcoded) ========== */}
         {activePage === "wishlist" && (
           <div className="page-content active">
             <div className="page-header">
@@ -1754,7 +1711,7 @@ const Profile = () => {
           </div>
         )}
 
-        {/* ========== REVIEWS PAGE ========== */}
+        {/* ========== REVIEWS PAGE (hardcoded) ========== */}
         {activePage === "reviews" && (
           <div className="page-content active">
             <div className="page-header">
@@ -1824,7 +1781,7 @@ const Profile = () => {
           </div>
         )}
 
-        {/* ========== RETURNS PAGE ========== */}
+        {/* ========== RETURNS PAGE (hardcoded) ========== */}
         {activePage === "returns" && (
           <div className="page-content active">
             <div className="page-header">
@@ -1963,7 +1920,7 @@ const Profile = () => {
           </div>
         )}
 
-        {/* ========== SUPPORT PAGE ========== */}
+        {/* ========== SUPPORT PAGE (hardcoded) ========== */}
         {activePage === "support" && (
           <div className="page-content active">
             <div className="page-header">
@@ -2020,7 +1977,7 @@ const Profile = () => {
           </div>
         )}
 
-        {/* ========== BULK ORDER PAGE ========== */}
+        {/* ========== BULK ORDER PAGE (hardcoded) ========== */}
         {activePage === "bulkorder" && (
           <div className="page-content active">
             <div className="page-header">
@@ -2136,21 +2093,24 @@ const Profile = () => {
             {t.icon === "ShoppingBag" && (
               <ShoppingBag size={20} style={{color: "var(--accent-light)"}} />
             )}
-            {t.icon !== "CheckCircle" &&
-              t.icon !== "AlertCircle" &&
-              t.icon !== "Camera" &&
-              t.icon !== "Trash2" &&
-              t.icon !== "Bell" &&
-              t.icon !== "Gift" &&
-              t.icon !== "ShoppingBag" && (
-                <CheckCircle size={20} style={{color: "var(--accent-light)"}} />
-              )}
+            {![
+              "CheckCircle",
+              "AlertCircle",
+              "Camera",
+              "Trash2",
+              "Bell",
+              "Gift",
+              "ShoppingBag",
+            ].includes(t.icon) && (
+              <CheckCircle size={20} style={{color: "var(--accent-light)"}} />
+            )}
             <span>{t.msg}</span>
           </div>
         ))}
       </div>
 
       {/* MODALS */}
+
       {/* Edit Profile Modal */}
       <div
         className={`modal-overlay ${modals.edit ? "open" : ""}`}
@@ -2411,6 +2371,104 @@ const Profile = () => {
           <div className="modal-body">
             {selectedOrder && (
               <>
+                <div
+                  style={{
+                    display: "grid",
+                    gridTemplateColumns: "1fr 1fr",
+                    gap: 20,
+                    marginBottom: 24,
+                  }}
+                >
+                  <div>
+                    <div
+                      style={{
+                        fontSize: 11,
+                        color: "var(--text-muted)",
+                        marginBottom: 4,
+                      }}
+                    >
+                      Payment Method
+                    </div>
+                    <div style={{fontSize: 13, fontWeight: 500}}>
+                      {selectedOrder.paymentMethod || "N/A"}
+                    </div>
+                    <div
+                      style={{
+                        fontSize: 11,
+                        color: "var(--text-muted)",
+                        marginTop: 8,
+                      }}
+                    >
+                      Payment Status
+                    </div>
+                    <div
+                      style={{
+                        fontSize: 13,
+                        fontWeight: 500,
+                        color:
+                          selectedOrder.paymentStatus === "paid"
+                            ? "var(--accent)"
+                            : "var(--accent-gold)",
+                      }}
+                    >
+                      {selectedOrder.paymentStatus === "paid"
+                        ? "✓ Paid"
+                        : "Pending"}
+                    </div>
+                  </div>
+                  <div>
+                    <div
+                      style={{
+                        fontSize: 11,
+                        color: "var(--text-muted)",
+                        marginBottom: 4,
+                      }}
+                    >
+                      Tracking Number
+                    </div>
+                    <div style={{fontSize: 13}}>{selectedOrder.tracking}</div>
+                  </div>
+                </div>
+
+                {selectedOrder.shippingAddress && (
+                  <div
+                    style={{
+                      marginBottom: 24,
+                      padding: 16,
+                      background: "var(--accent-pale)",
+                      borderRadius: "var(--radius)",
+                    }}
+                  >
+                    <div
+                      style={{
+                        fontSize: 10,
+                        letterSpacing: "0.2em",
+                        textTransform: "uppercase",
+                        color: "var(--text-muted)",
+                        marginBottom: 8,
+                      }}
+                    >
+                      Shipping Address
+                    </div>
+                    <div style={{fontSize: 13, lineHeight: 1.5}}>
+                      {selectedOrder.shippingAddress.name}
+                      <br />
+                      {selectedOrder.shippingAddress.line1}
+                      <br />
+                      {selectedOrder.shippingAddress.line2 && (
+                        <>
+                          {selectedOrder.shippingAddress.line2}
+                          <br />
+                        </>
+                      )}
+                      {selectedOrder.shippingAddress.city},{" "}
+                      {selectedOrder.shippingAddress.county}
+                      <br />
+                      {selectedOrder.shippingAddress.phone}
+                    </div>
+                  </div>
+                )}
+
                 <div style={{marginBottom: 24}}>
                   <div
                     style={{
@@ -2419,10 +2477,7 @@ const Profile = () => {
                       marginBottom: 6,
                     }}
                   >
-                    Tracking:{" "}
-                    <span style={{color: "var(--accent)"}}>
-                      {selectedOrder.tracking}
-                    </span>
+                    Delivery Status
                   </div>
                   <div
                     style={{
@@ -2435,25 +2490,36 @@ const Profile = () => {
                       <React.Fragment key={s}>
                         <div className="track-step">
                           <div
-                            className={`track-node ${i < selectedOrder.trackStep ? "done" : i === selectedOrder.trackStep ? "active" : "pending"}`}
+                            className={`track-node ${
+                              i < selectedOrder.trackStep
+                                ? "done"
+                                : i === selectedOrder.trackStep
+                                  ? "active"
+                                  : "pending"
+                            }`}
                           >
                             {i < selectedOrder.trackStep ? "✓" : i + 1}
                           </div>
                           <div
-                            className={`track-label ${i < selectedOrder.trackStep ? "done" : ""}`}
+                            className={`track-label ${
+                              i < selectedOrder.trackStep ? "done" : ""
+                            }`}
                           >
                             {s}
                           </div>
                         </div>
                         {i < TRACK_STEPS.length - 1 && (
                           <div
-                            className={`track-line ${i < selectedOrder.trackStep ? "done" : ""}`}
+                            className={`track-line ${
+                              i < selectedOrder.trackStep ? "done" : ""
+                            }`}
                           />
                         )}
                       </React.Fragment>
                     ))}
                   </div>
                 </div>
+
                 <div style={{marginBottom: 20}}>
                   {selectedOrder.lines.map((l) => (
                     <div
@@ -2476,6 +2542,7 @@ const Profile = () => {
                     </div>
                   ))}
                 </div>
+
                 <div
                   style={{display: "flex", justifyContent: "flex-end", gap: 8}}
                 >
@@ -2498,137 +2565,7 @@ const Profile = () => {
         </div>
       </div>
 
-      {/* Add Address Modal */}
-      <div
-        className={`modal-overlay ${modals.addAddress ? "open" : ""}`}
-        onClick={(e) => {
-          if (e.target === e.currentTarget) closeModal("addAddress");
-        }}
-      >
-        <div className="modal">
-          <div className="modal-header">
-            <h2>Add New Address</h2>
-            <button
-              className="modal-close"
-              onClick={() => closeModal("addAddress")}
-            >
-              <X size={15} />
-            </button>
-          </div>
-          <div className="modal-body">
-            <div className="grid-2">
-              <div className="field-group">
-                <label className="field-label">Full Name</label>
-                <input
-                  type="text"
-                  className="field-input"
-                  id="addrName"
-                  placeholder="Recipient name"
-                />
-              </div>
-              <div className="field-group">
-                <label className="field-label">Phone</label>
-                <input
-                  type="tel"
-                  className="field-input"
-                  id="addrPhone"
-                  placeholder="+254 7XX XXX XXX"
-                />
-              </div>
-            </div>
-            <div className="field-group">
-              <label className="field-label">Address Line 1</label>
-              <input
-                type="text"
-                className="field-input"
-                id="addrLine1"
-                placeholder="Street, building, apartment"
-              />
-            </div>
-            <div className="field-group">
-              <label className="field-label">Address Line 2 (optional)</label>
-              <input
-                type="text"
-                className="field-input"
-                id="addrLine2"
-                placeholder="Estate, area"
-              />
-            </div>
-            <div className="grid-2">
-              <div className="field-group">
-                <label className="field-label">City</label>
-                <input
-                  type="text"
-                  className="field-input"
-                  id="addrCity"
-                  defaultValue="Nairobi"
-                />
-              </div>
-              <div className="field-group">
-                <label className="field-label">County</label>
-                <input
-                  type="text"
-                  className="field-input"
-                  id="addrCounty"
-                  placeholder="Nairobi County"
-                />
-              </div>
-            </div>
-            <div className="field-group">
-              <label className="field-label">Address Type</label>
-              <div style={{display: "flex", gap: 16}}>
-                <label>
-                  <input
-                    type="radio"
-                    name="addrType"
-                    value="shipping"
-                    defaultChecked
-                    style={{accentColor: "var(--accent)"}}
-                  />{" "}
-                  Shipping
-                </label>
-                <label>
-                  <input
-                    type="radio"
-                    name="addrType"
-                    value="billing"
-                    style={{accentColor: "var(--accent)"}}
-                  />{" "}
-                  Billing
-                </label>
-                <label>
-                  <input
-                    type="radio"
-                    name="addrType"
-                    value="both"
-                    style={{accentColor: "var(--accent)"}}
-                  />{" "}
-                  Both
-                </label>
-              </div>
-            </div>
-            <div
-              style={{
-                display: "flex",
-                gap: 10,
-                justifyContent: "flex-end",
-                marginTop: 8,
-              }}
-            >
-              <button
-                className="btn btn-outline"
-                onClick={() => closeModal("addAddress")}
-              >
-                Cancel
-              </button>
-              <button className="btn btn-primary" onClick={saveAddress}>
-                Save Address
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
-
+      {/* Add Address Modal – removed (no write) */}
       {/* Add Contact Modal */}
       <div
         className={`modal-overlay ${modals.addContact ? "open" : ""}`}
