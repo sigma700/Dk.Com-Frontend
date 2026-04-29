@@ -146,7 +146,7 @@ const Footer = () => {
             </li>
             <li>
               <Link
-                to="/discovery"
+                to="/discover-more"
                 style={{
                   fontSize: 13,
                   color: "#B8C4B2",
