@@ -11,6 +11,7 @@ import {Link, useNavigate} from "react-router-dom";
 import {FaLeaf, FaRegMoneyBillAlt, FaTruck} from "react-icons/fa";
 import {FaPersonCircleCheck} from "react-icons/fa6";
 import {TbHealthRecognition} from "react-icons/tb";
+import useAuthStore from "../stores/authStore";
 
 // ── Brand Palette ──────────────────────────────────────────────
 const GOLD = "#4A8C2A";
@@ -528,58 +529,6 @@ const SocialButton = ({icon, label, onClick}) => {
   );
 };
 
-// ── Confetti Leaf ──────────────────────────────────────────────
-const ConfettiLeaf = ({x, angle, delay, color}) => (
-  <motion.div
-    initial={{y: 0, x: 0, opacity: 1, rotate: 0, scale: 1}}
-    animate={{
-      y: -160 - Math.random() * 100,
-      x,
-      opacity: 0,
-      rotate: angle,
-      scale: 0.3,
-    }}
-    transition={{
-      duration: 1.4 + Math.random() * 0.5,
-      delay,
-      ease: [0.16, 1, 0.3, 1],
-    }}
-    style={{
-      position: "absolute",
-      width: 10,
-      height: 10,
-      borderRadius: "0 50% 50% 0",
-      background: color,
-      transformOrigin: "left center",
-      pointerEvents: "none",
-    }}
-  />
-);
-
-// ── Char-by-char text ──────────────────────────────────────────
-const AnimatedText = ({text, stagger = 0.035}) => (
-  <span style={{display: "inline-flex", flexWrap: "wrap"}}>
-    {text.split("").map((char, i) => (
-      <motion.span
-        key={i}
-        initial={{opacity: 0, y: 18, filter: "blur(4px)"}}
-        animate={{opacity: 1, y: 0, filter: "blur(0px)"}}
-        transition={{
-          duration: 0.45,
-          delay: i * stagger,
-          ease: [0.16, 1, 0.3, 1],
-        }}
-        style={{
-          display: "inline-block",
-          whiteSpace: char === " " ? "pre" : "normal",
-        }}
-      >
-        {char}
-      </motion.span>
-    ))}
-  </span>
-);
-
 // ── Three-dot loader ───────────────────────────────────────────
 const ThreeDots = () => (
   <span style={{display: "inline-flex", gap: 5, alignItems: "center"}}>
@@ -605,13 +554,15 @@ const ThreeDots = () => (
   </span>
 );
 
-// ── Main ───────────────────────────────────────────────────────
+// ── Main Page ──────────────────────────────────────────────────
 const CreateAccountPage = () => {
   const navigate = useNavigate();
   const heroRef = useRef(null);
   const sidebarRef = useRef(null);
   const isHeroInView = useInView(heroRef, {once: true});
   const isSidebarInView = useInView(sidebarRef, {once: true});
+
+  const {register, isLoading, error: authError, clearError} = useAuthStore();
 
   const [form, setForm] = useState({
     firstName: "",
@@ -622,9 +573,7 @@ const CreateAccountPage = () => {
   });
   const [errors, setErrors] = useState({});
   const [agreed, setAgreed] = useState(false);
-  const [submitted, setSubmitted] = useState(false);
-  const [loading, setLoading] = useState(false);
-  const [showConfetti, setShowConfetti] = useState(false);
+  const [generalError, setGeneralError] = useState("");
 
   const mouseX = useMotionValue(0);
   const mouseY = useMotionValue(0);
@@ -642,9 +591,21 @@ const CreateAccountPage = () => {
     return () => window.removeEventListener("mousemove", fn);
   }, []);
 
+  useEffect(() => {
+    if (authError) {
+      setGeneralError(authError);
+      const timer = setTimeout(() => {
+        clearError();
+        setGeneralError("");
+      }, 5000);
+      return () => clearTimeout(timer);
+    }
+  }, [authError, clearError]);
+
   const set = (field) => (e) => {
     setForm((f) => ({...f, [field]: e.target.value}));
     if (errors[field]) setErrors((err) => ({...err, [field]: ""}));
+    if (generalError) setGeneralError("");
   };
 
   const validate = () => {
@@ -672,14 +633,20 @@ const CreateAccountPage = () => {
       setErrors(errs);
       return;
     }
-    setLoading(true);
-    await new Promise((r) => setTimeout(r, 1800));
-    setLoading(false);
-    setShowConfetti(true);
-    setTimeout(() => {
-      setSubmitted(true);
-      setShowConfetti(false);
-    }, 600);
+
+    const result = await register({
+      firstName: form.firstName,
+      lastName: form.lastName,
+      email: form.email,
+      password: form.password,
+    });
+
+    if (result.success) {
+      // ── Navigate to email verification, passing email as state ──
+      navigate("/verify-email", {state: {email: form.email}});
+    } else {
+      setGeneralError(result.error || "Registration failed. Please try again.");
+    }
   };
 
   const particles = Array.from({length: 10}, (_, i) => ({
@@ -692,13 +659,6 @@ const CreateAccountPage = () => {
       "rgba(114,184,74,0.45)",
       "rgba(168,216,120,0.4)",
     ][i % 3],
-  }));
-
-  const confettiPieces = Array.from({length: 18}, (_, i) => ({
-    x: (Math.random() - 0.5) * 280,
-    angle: Math.random() * 720 - 360,
-    delay: i * 0.04,
-    color: [GOLD, GOLD_LIGHT, "#A8D878", GOLD_PALE, "#C5E4AC"][i % 5],
   }));
 
   const benefitVariants = {
@@ -754,7 +714,6 @@ const CreateAccountPage = () => {
           }
         `}</style>
 
-        {/* Grain overlay */}
         <div
           className="page-grain"
           style={{
@@ -765,7 +724,6 @@ const CreateAccountPage = () => {
           }}
         />
 
-        {/* Center seam glow */}
         <div
           style={{
             position: "fixed",
@@ -781,7 +739,7 @@ const CreateAccountPage = () => {
         />
 
         <div className="create-account-grid">
-          {/* ── LEFT SIDEBAR ── */}
+          {/* LEFT SIDEBAR */}
           <motion.div
             ref={sidebarRef}
             initial={{x: -80, opacity: 0, filter: "blur(10px)"}}
@@ -800,7 +758,6 @@ const CreateAccountPage = () => {
               padding: "52px 56px",
             }}
           >
-            {/* Grid texture */}
             <div
               style={{
                 position: "absolute",
@@ -810,8 +767,6 @@ const CreateAccountPage = () => {
                 pointerEvents: "none",
               }}
             />
-
-            {/* Parallax orbs */}
             <motion.div
               style={{
                 x: orb1X,
@@ -842,8 +797,6 @@ const CreateAccountPage = () => {
                 pointerEvents: "none",
               }}
             />
-
-            {/* Dashed rings */}
             {[
               {
                 size: 320,
@@ -881,13 +834,9 @@ const CreateAccountPage = () => {
                 }}
               />
             ))}
-
-            {/* Sidebar particles */}
             {particles.map((p, i) => (
               <Particle key={i} {...p} />
             ))}
-
-            {/* Content */}
             <div style={{position: "relative", zIndex: 2}}>
               <div
                 style={{
@@ -1053,7 +1002,6 @@ const CreateAccountPage = () => {
               </motion.div>
             </div>
 
-            {/* Testimonial – 3D flip card */}
             <motion.div
               initial={{opacity: 0, y: 20}}
               animate={isSidebarInView ? {opacity: 1, y: 0} : {}}
@@ -1141,7 +1089,7 @@ const CreateAccountPage = () => {
             </motion.div>
           </motion.div>
 
-          {/* ── RIGHT FORM PANEL ── */}
+          {/* RIGHT FORM PANEL */}
           <motion.div
             ref={heroRef}
             initial={{x: 80, opacity: 0, filter: "blur(10px)"}}
@@ -1160,7 +1108,6 @@ const CreateAccountPage = () => {
               background: `radial-gradient(ellipse at 80% 20%, rgba(114,184,74,0.08) 0%, transparent 58%), radial-gradient(ellipse at 20% 80%, rgba(74,140,42,0.06) 0%, transparent 52%), ${CREAM}`,
             }}
           >
-            {/* Glass card */}
             <div
               style={{
                 position: "absolute",
@@ -1177,7 +1124,6 @@ const CreateAccountPage = () => {
               }}
             />
 
-            {/* Right panel particles */}
             {particles.slice(0, 5).map((p, i) => (
               <Particle
                 key={`r${i}`}
@@ -1189,681 +1135,533 @@ const CreateAccountPage = () => {
               />
             ))}
 
-            <AnimatePresence mode="wait">
-              {submitted ? (
-                <motion.div
-                  key="success"
-                  initial={{
-                    opacity: 0,
-                    scale: 0.88,
-                    y: 32,
-                    filter: "blur(10px)",
-                  }}
-                  animate={{opacity: 1, scale: 1, y: 0, filter: "blur(0px)"}}
-                  transition={{duration: 0.85, ease: [0.16, 1, 0.3, 1]}}
+            <motion.div
+              initial={{opacity: 0, y: 24}}
+              animate={isHeroInView ? {opacity: 1, y: 0} : {}}
+              transition={{
+                duration: 0.85,
+                ease: [0.16, 1, 0.3, 1],
+                delay: 0.2,
+              }}
+              style={{
+                position: "relative",
+                zIndex: 1,
+                maxWidth: 480,
+                width: "100%",
+              }}
+            >
+              <motion.div whileHover={{x: -2}} style={{display: "inline-flex"}}>
+                <Link
+                  to="/"
                   style={{
-                    textAlign: "center",
-                    padding: "40px 20px",
-                    position: "relative",
-                    zIndex: 1,
+                    display: "inline-flex",
+                    alignItems: "center",
+                    gap: 8,
+                    fontSize: 10,
+                    color: MUTED,
+                    textDecoration: "none",
+                    letterSpacing: "0.22em",
+                    textTransform: "uppercase",
+                    fontWeight: 500,
+                    marginBottom: 36,
+                    opacity: 0.7,
+                    transition: "opacity 0.2s",
+                  }}
+                  onMouseEnter={(e) => (e.currentTarget.style.opacity = "1")}
+                  onMouseLeave={(e) => (e.currentTarget.style.opacity = "0.7")}
+                >
+                  <svg
+                    width="12"
+                    height="12"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                  >
+                    <path d="M19 12H5M12 19l-7-7 7-7" />
+                  </svg>
+                  Back to Shop
+                </Link>
+              </motion.div>
+
+              <SectionLabel text="Create Account" />
+
+              <h1
+                style={{
+                  fontFamily: "'Playfair Display','Georgia',serif",
+                  fontSize: "clamp(28px, 3vw, 38px)",
+                  fontWeight: 300,
+                  color: DARK,
+                  margin: "0 0 8px",
+                  lineHeight: 1.12,
+                  letterSpacing: "-0.01em",
+                }}
+              >
+                Begin Your{" "}
+                <em
+                  style={{
+                    fontStyle: "italic",
+                    background: `linear-gradient(90deg, ${GOLD} 0%, ${GOLD_LIGHT} 50%, ${GOLD} 100%)`,
+                    backgroundSize: "200% auto",
+                    WebkitBackgroundClip: "text",
+                    WebkitTextFillColor: "transparent",
+                    backgroundClip: "text",
+                    animation: "shimmer-text 3s ease-in-out infinite",
                   }}
                 >
+                  Ritual
+                </em>
+              </h1>
+              <p
+                style={{
+                  fontSize: 13,
+                  color: MUTED,
+                  fontWeight: 300,
+                  marginBottom: 32,
+                  lineHeight: 1.85,
+                }}
+              >
+                Create your account and discover Kenya's finest botanicals.
+              </p>
+
+              {generalError && (
+                <motion.div
+                  initial={{opacity: 0, y: -8}}
+                  animate={{opacity: 1, y: 0}}
+                  style={{
+                    background: "rgba(196,30,58,0.08)",
+                    border: `1px solid #C41E3A55`,
+                    borderRadius: 12,
+                    padding: "12px 16px",
+                    marginBottom: 24,
+                    fontSize: 11,
+                    color: "#C41E3A",
+                    textAlign: "center",
+                    fontWeight: 500,
+                  }}
+                >
+                  {generalError}
+                </motion.div>
+              )}
+
+              <div style={{display: "flex", gap: 10, marginBottom: 28}}>
+                <SocialButton
+                  icon={
+                    <svg width="16" height="16" viewBox="0 0 24 24">
+                      <path
+                        d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
+                        fill="#4285F4"
+                      />
+                      <path
+                        d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
+                        fill="#34A853"
+                      />
+                      <path
+                        d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"
+                        fill="#FBBC05"
+                      />
+                      <path
+                        d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
+                        fill="#EA4335"
+                      />
+                    </svg>
+                  }
+                  label="Google"
+                />
+                <SocialButton
+                  icon={
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill={DARK}>
+                      <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" />
+                    </svg>
+                  }
+                  label="Facebook"
+                />
+              </div>
+
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 12,
+                  marginBottom: 28,
+                }}
+              >
+                <motion.div
+                  initial={{scaleX: 0}}
+                  animate={{scaleX: 1}}
+                  transition={{duration: 0.8, delay: 0.5}}
+                  style={{
+                    flex: 1,
+                    height: 1,
+                    background: `linear-gradient(90deg, transparent, rgba(74,140,42,0.2))`,
+                    transformOrigin: "left",
+                  }}
+                />
+                <span
+                  style={{
+                    fontSize: 9,
+                    color: MUTED,
+                    letterSpacing: "0.3em",
+                    textTransform: "uppercase",
+                    fontWeight: 500,
+                  }}
+                >
+                  or with email
+                </span>
+                <motion.div
+                  initial={{scaleX: 0}}
+                  animate={{scaleX: 1}}
+                  transition={{duration: 0.8, delay: 0.5}}
+                  style={{
+                    flex: 1,
+                    height: 1,
+                    background: `linear-gradient(90deg, rgba(74,140,42,0.2), transparent)`,
+                    transformOrigin: "right",
+                  }}
+                />
+              </div>
+
+              <form onSubmit={handleSubmit} noValidate>
+                <div
+                  className="name-row"
+                  style={{
+                    display: "grid",
+                    gridTemplateColumns: "1fr 1fr",
+                    gap: 12,
+                    marginBottom: 6,
+                  }}
+                >
+                  <FloatingInput
+                    label="First Name"
+                    value={form.firstName}
+                    onChange={set("firstName")}
+                    error={errors.firstName}
+                    icon={
+                      <svg
+                        width="14"
+                        height="14"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="1.8"
+                      >
+                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+                        <circle cx="12" cy="7" r="4" />
+                      </svg>
+                    }
+                  />
+                  <FloatingInput
+                    label="Last Name"
+                    value={form.lastName}
+                    onChange={set("lastName")}
+                    error={errors.lastName}
+                  />
+                </div>
+
+                <div style={{marginBottom: 6}}>
+                  <FloatingInput
+                    label="Email Address"
+                    type="email"
+                    value={form.email}
+                    onChange={set("email")}
+                    error={errors.email}
+                    icon={
+                      <svg
+                        width="14"
+                        height="14"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="1.8"
+                      >
+                        <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
+                        <polyline points="22,6 12,13 2,6" />
+                      </svg>
+                    }
+                  />
+                </div>
+
+                <div style={{marginBottom: 4}}>
+                  <FloatingInput
+                    label="Password"
+                    type="password"
+                    value={form.password}
+                    onChange={set("password")}
+                    error={errors.password}
+                    hint={
+                      !errors.password && !form.password
+                        ? "At least 8 characters"
+                        : ""
+                    }
+                    icon={
+                      <svg
+                        width="14"
+                        height="14"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="1.8"
+                      >
+                        <rect
+                          x="3"
+                          y="11"
+                          width="18"
+                          height="11"
+                          rx="2"
+                          ry="2"
+                        />
+                        <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+                      </svg>
+                    }
+                  />
+                </div>
+
+                <PasswordStrength password={form.password} />
+
+                <div style={{marginBottom: 20}}>
+                  <FloatingInput
+                    label="Confirm Password"
+                    type="password"
+                    value={form.confirmPassword}
+                    onChange={set("confirmPassword")}
+                    error={errors.confirmPassword}
+                    icon={
+                      <svg
+                        width="14"
+                        height="14"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="1.8"
+                      >
+                        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+                      </svg>
+                    }
+                  />
+                </div>
+
+                <div style={{marginBottom: 24}}>
                   <div
                     style={{
-                      position: "relative",
-                      display: "inline-block",
-                      marginBottom: 32,
+                      display: "flex",
+                      alignItems: "flex-start",
+                      gap: 12,
                     }}
                   >
                     <motion.div
-                      initial={{scale: 0, rotate: -45}}
-                      animate={{scale: 1, rotate: 0}}
-                      transition={{
-                        delay: 0.15,
-                        type: "spring",
-                        stiffness: 250,
-                        damping: 18,
+                      data-interactive
+                      onClick={() => {
+                        setAgreed((a) => !a);
+                        if (errors.agreed)
+                          setErrors((e) => ({...e, agreed: ""}));
                       }}
+                      whileTap={{scale: 0.85}}
+                      animate={{
+                        background: agreed ? GOLD : "transparent",
+                        borderColor: errors.agreed
+                          ? "#C41E3A"
+                          : agreed
+                            ? GOLD
+                            : "rgba(74,140,42,0.3)",
+                        boxShadow: agreed
+                          ? `0 4px 14px -4px ${GOLD}66`
+                          : "none",
+                      }}
+                      transition={{type: "spring", stiffness: 400, damping: 20}}
                       style={{
-                        width: 90,
-                        height: 90,
-                        borderRadius: "50%",
-                        background: `radial-gradient(circle, ${GOLD_PALE} 0%, rgba(114,184,74,0.2) 100%)`,
-                        border: `2px solid ${GOLD}`,
+                        width: 22,
+                        height: 22,
+                        borderRadius: 7,
+                        border: "1.5px solid rgba(74,140,42,0.3)",
                         display: "flex",
                         alignItems: "center",
                         justifyContent: "center",
-                        fontSize: 34,
-                        color: GOLD,
-                        margin: "0 auto",
-                        boxShadow: `0 0 0 8px rgba(74,140,42,0.08), 0 0 0 16px rgba(74,140,42,0.04), 0 16px 48px -16px rgba(74,140,42,0.35)`,
+                        flexShrink: 0,
+                        marginTop: 1,
+                        cursor: "pointer",
                       }}
                     >
-                      <motion.div
-                        animate={{rotate: [0, 9, -9, 0], scale: [1, 1.12, 1]}}
-                        transition={{
-                          duration: 2.5,
-                          repeat: Infinity,
-                          ease: "easeInOut",
+                      <AnimatePresence>
+                        {agreed && (
+                          <motion.svg
+                            initial={{scale: 0, rotate: -90, opacity: 0}}
+                            animate={{scale: 1, rotate: 0, opacity: 1}}
+                            exit={{scale: 0, rotate: 90, opacity: 0}}
+                            transition={{
+                              type: "spring",
+                              stiffness: 500,
+                              damping: 20,
+                            }}
+                            width="11"
+                            height="11"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="#fff"
+                            strokeWidth="3"
+                          >
+                            <path d="M20 6L9 17l-5-5" />
+                          </motion.svg>
+                        )}
+                      </AnimatePresence>
+                    </motion.div>
+                    <span
+                      style={{
+                        fontSize: 12,
+                        color: MUTED,
+                        fontWeight: 300,
+                        lineHeight: 1.7,
+                      }}
+                    >
+                      I agree to Mindful Living Ke's{" "}
+                      <Link
+                        to="/terms"
+                        style={{
+                          color: GOLD,
+                          textDecoration: "none",
+                          fontWeight: 500,
+                          borderBottom: `1px solid ${GOLD}55`,
                         }}
                       >
-                        <FaLeaf />
-                      </motion.div>
-                    </motion.div>
-                    {showConfetti &&
-                      confettiPieces.map((c, i) => (
-                        <ConfettiLeaf key={i} {...c} />
-                      ))}
-                    {[1, 2, 3].map((n) => (
-                      <motion.div
-                        key={n}
-                        initial={{scale: 1, opacity: 0.55}}
-                        animate={{scale: 1 + n * 0.5, opacity: 0}}
-                        transition={{
-                          duration: 1.5,
-                          delay: n * 0.25,
-                          repeat: Infinity,
-                        }}
+                        Terms of Service
+                      </Link>{" "}
+                      and{" "}
+                      <Link
+                        to="/privacy"
                         style={{
-                          position: "absolute",
-                          inset: 0,
-                          borderRadius: "50%",
-                          border: `1px solid ${GOLD}`,
-                          pointerEvents: "none",
+                          color: GOLD,
+                          textDecoration: "none",
+                          fontWeight: 500,
+                          borderBottom: `1px solid ${GOLD}55`,
                         }}
-                      />
-                    ))}
+                      >
+                        Privacy Policy
+                      </Link>
+                      . I consent to receive wellness updates and exclusive
+                      offers.
+                    </span>
                   </div>
+                  <AnimatePresence>
+                    {errors.agreed && (
+                      <motion.p
+                        initial={{opacity: 0, y: -6, height: 0}}
+                        animate={{opacity: 1, y: 0, height: "auto"}}
+                        exit={{opacity: 0, y: -4, height: 0}}
+                        style={{
+                          fontSize: 10,
+                          color: "#C41E3A",
+                          marginTop: 7,
+                          marginLeft: 34,
+                          fontWeight: 500,
+                          letterSpacing: "0.06em",
+                        }}
+                      >
+                        {errors.agreed}
+                      </motion.p>
+                    )}
+                  </AnimatePresence>
+                </div>
 
-                  <h2
-                    style={{
-                      fontFamily: "'Playfair Display','Georgia',serif",
-                      fontSize: 34,
-                      fontWeight: 300,
-                      color: DARK,
-                      margin: "0 0 14px",
-                      lineHeight: 1.2,
-                    }}
-                  >
-                    <AnimatedText text="Your Journey " />
-                    <em style={{fontStyle: "italic", color: GOLD}}>
-                      <AnimatedText text="Awaits" stagger={0.065} />
-                    </em>
-                  </h2>
-                  <motion.p
-                    initial={{opacity: 0}}
-                    animate={{opacity: 1}}
-                    transition={{delay: 0.85}}
-                    style={{
-                      fontSize: 13,
-                      color: MUTED,
-                      fontWeight: 300,
-                      lineHeight: 1.9,
-                      marginBottom: 40,
-                    }}
-                  >
-                    Welcome, {form.firstName}! We've sent a confirmation to{" "}
-                    <strong style={{color: GOLD}}>{form.email}</strong>. Check
-                    your inbox to activate your account.
-                  </motion.p>
-                  <motion.button
-                    whileTap={{scale: 0.95}}
-                    whileHover={{
-                      y: -2,
-                      boxShadow: `0 0 0 6px rgba(74,140,42,0.12), 0 12px 36px -8px rgba(74,140,42,0.5)`,
-                    }}
-                    initial={{opacity: 0, y: 16}}
-                    animate={{opacity: 1, y: 0}}
-                    transition={{delay: 1.05}}
-                    onClick={() => navigate("/")}
-                    style={{
-                      background: `linear-gradient(135deg, ${GOLD} 0%, ${DARK_GREEN} 100%)`,
-                      border: "none",
-                      borderRadius: 100,
-                      padding: "14px 40px",
-                      fontSize: 10,
-                      fontWeight: 500,
-                      letterSpacing: "0.32em",
-                      textTransform: "uppercase",
-                      color: "#fff",
-                      cursor: "pointer",
-                      fontFamily: "inherit",
-                      boxShadow: `0 8px 32px -8px rgba(74,140,42,0.45)`,
-                      transition: "all 0.3s ease",
-                    }}
-                  >
-                    Explore
-                  </motion.button>
-                </motion.div>
-              ) : (
-                <motion.div
-                  key="form"
-                  initial={{opacity: 0, y: 24}}
-                  animate={isHeroInView ? {opacity: 1, y: 0} : {}}
-                  transition={{
-                    duration: 0.85,
-                    ease: [0.16, 1, 0.3, 1],
-                    delay: 0.2,
+                <motion.button
+                  type="submit"
+                  whileTap={{scale: 0.96, y: 1}}
+                  whileHover={{
+                    y: -2,
+                    boxShadow: `0 16px 48px -12px rgba(74,140,42,0.55), 0 4px 16px -4px rgba(0,0,0,0.1)`,
                   }}
+                  disabled={isLoading}
                   style={{
-                    position: "relative",
-                    zIndex: 1,
-                    maxWidth: 480,
                     width: "100%",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    gap: 10,
+                    background: `linear-gradient(135deg, ${GOLD_WARM} 0%, ${GOLD} 40%, ${DARK_GREEN} 100%)`,
+                    border: "none",
+                    borderRadius: 16,
+                    padding: "16px 28px",
+                    fontSize: 10,
+                    fontWeight: 500,
+                    letterSpacing: "0.32em",
+                    textTransform: "uppercase",
+                    color: "#fff",
+                    cursor: isLoading ? "not-allowed" : "pointer",
+                    fontFamily: "inherit",
+                    transition: "box-shadow 0.3s ease",
+                    boxShadow: `0 8px 28px -8px rgba(74,140,42,0.42), inset 0 1px 0 rgba(255,255,255,0.18)`,
+                    marginBottom: 20,
+                    opacity: isLoading ? 0.85 : 1,
+                    willChange: "transform",
                   }}
                 >
-                  <motion.div
-                    whileHover={{x: -2}}
-                    style={{display: "inline-flex"}}
-                  >
-                    <Link
-                      to="/"
-                      style={{
-                        display: "inline-flex",
-                        alignItems: "center",
-                        gap: 8,
-                        fontSize: 10,
-                        color: MUTED,
-                        textDecoration: "none",
-                        letterSpacing: "0.22em",
-                        textTransform: "uppercase",
-                        fontWeight: 500,
-                        marginBottom: 36,
-                        opacity: 0.7,
-                        transition: "opacity 0.2s",
-                      }}
-                      onMouseEnter={(e) =>
-                        (e.currentTarget.style.opacity = "1")
-                      }
-                      onMouseLeave={(e) =>
-                        (e.currentTarget.style.opacity = "0.7")
-                      }
-                    >
-                      <svg
-                        width="12"
-                        height="12"
+                  {isLoading ? (
+                    <ThreeDots />
+                  ) : (
+                    <>
+                      Create Account
+                      <motion.svg
+                        width="13"
+                        height="13"
                         viewBox="0 0 24 24"
                         fill="none"
                         stroke="currentColor"
                         strokeWidth="2"
-                      >
-                        <path d="M19 12H5M12 19l-7-7 7-7" />
-                      </svg>
-                      Back to Shop
-                    </Link>
-                  </motion.div>
-
-                  <SectionLabel text="Create Account" />
-
-                  <h1
-                    style={{
-                      fontFamily: "'Playfair Display','Georgia',serif",
-                      fontSize: "clamp(28px, 3vw, 38px)",
-                      fontWeight: 300,
-                      color: DARK,
-                      margin: "0 0 8px",
-                      lineHeight: 1.12,
-                      letterSpacing: "-0.01em",
-                    }}
-                  >
-                    Begin Your{" "}
-                    <em
-                      style={{
-                        fontStyle: "italic",
-                        background: `linear-gradient(90deg, ${GOLD} 0%, ${GOLD_LIGHT} 50%, ${GOLD} 100%)`,
-                        backgroundSize: "200% auto",
-                        WebkitBackgroundClip: "text",
-                        WebkitTextFillColor: "transparent",
-                        backgroundClip: "text",
-                        animation: "shimmer-text 3s ease-in-out infinite",
-                      }}
-                    >
-                      Ritual
-                    </em>
-                  </h1>
-                  <p
-                    style={{
-                      fontSize: 13,
-                      color: MUTED,
-                      fontWeight: 300,
-                      marginBottom: 32,
-                      lineHeight: 1.85,
-                    }}
-                  >
-                    Create your account and discover Kenya's finest botanicals.
-                  </p>
-
-                  <div style={{display: "flex", gap: 10, marginBottom: 28}}>
-                    <SocialButton
-                      icon={
-                        <svg width="16" height="16" viewBox="0 0 24 24">
-                          <path
-                            d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
-                            fill="#4285F4"
-                          />
-                          <path
-                            d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
-                            fill="#34A853"
-                          />
-                          <path
-                            d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"
-                            fill="#FBBC05"
-                          />
-                          <path
-                            d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
-                            fill="#EA4335"
-                          />
-                        </svg>
-                      }
-                      label="Google"
-                    />
-                    <SocialButton
-                      icon={
-                        <svg
-                          width="16"
-                          height="16"
-                          viewBox="0 0 24 24"
-                          fill={DARK}
-                        >
-                          <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" />
-                        </svg>
-                      }
-                      label="Facebook"
-                    />
-                  </div>
-
-                  <div
-                    style={{
-                      display: "flex",
-                      alignItems: "center",
-                      gap: 12,
-                      marginBottom: 28,
-                    }}
-                  >
-                    <motion.div
-                      initial={{scaleX: 0}}
-                      animate={{scaleX: 1}}
-                      transition={{duration: 0.8, delay: 0.5}}
-                      style={{
-                        flex: 1,
-                        height: 1,
-                        background: `linear-gradient(90deg, transparent, rgba(74,140,42,0.2))`,
-                        transformOrigin: "left",
-                      }}
-                    />
-                    <span
-                      style={{
-                        fontSize: 9,
-                        color: MUTED,
-                        letterSpacing: "0.3em",
-                        textTransform: "uppercase",
-                        fontWeight: 500,
-                      }}
-                    >
-                      or with email
-                    </span>
-                    <motion.div
-                      initial={{scaleX: 0}}
-                      animate={{scaleX: 1}}
-                      transition={{duration: 0.8, delay: 0.5}}
-                      style={{
-                        flex: 1,
-                        height: 1,
-                        background: `linear-gradient(90deg, rgba(74,140,42,0.2), transparent)`,
-                        transformOrigin: "right",
-                      }}
-                    />
-                  </div>
-
-                  <form onSubmit={handleSubmit} noValidate>
-                    <div
-                      className="name-row"
-                      style={{
-                        display: "grid",
-                        gridTemplateColumns: "1fr 1fr",
-                        gap: 12,
-                        marginBottom: 6,
-                      }}
-                    >
-                      <FloatingInput
-                        label="First Name"
-                        value={form.firstName}
-                        onChange={set("firstName")}
-                        error={errors.firstName}
-                        icon={
-                          <svg
-                            width="14"
-                            height="14"
-                            viewBox="0 0 24 24"
-                            fill="none"
-                            stroke="currentColor"
-                            strokeWidth="1.8"
-                          >
-                            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
-                            <circle cx="12" cy="7" r="4" />
-                          </svg>
-                        }
-                      />
-                      <FloatingInput
-                        label="Last Name"
-                        value={form.lastName}
-                        onChange={set("lastName")}
-                        error={errors.lastName}
-                      />
-                    </div>
-
-                    <div style={{marginBottom: 6}}>
-                      <FloatingInput
-                        label="Email Address"
-                        type="email"
-                        value={form.email}
-                        onChange={set("email")}
-                        error={errors.email}
-                        icon={
-                          <svg
-                            width="14"
-                            height="14"
-                            viewBox="0 0 24 24"
-                            fill="none"
-                            stroke="currentColor"
-                            strokeWidth="1.8"
-                          >
-                            <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
-                            <polyline points="22,6 12,13 2,6" />
-                          </svg>
-                        }
-                      />
-                    </div>
-
-                    <div style={{marginBottom: 4}}>
-                      <FloatingInput
-                        label="Password"
-                        type="password"
-                        value={form.password}
-                        onChange={set("password")}
-                        error={errors.password}
-                        hint={
-                          !errors.password && !form.password
-                            ? "At least 8 characters"
-                            : ""
-                        }
-                        icon={
-                          <svg
-                            width="14"
-                            height="14"
-                            viewBox="0 0 24 24"
-                            fill="none"
-                            stroke="currentColor"
-                            strokeWidth="1.8"
-                          >
-                            <rect
-                              x="3"
-                              y="11"
-                              width="18"
-                              height="11"
-                              rx="2"
-                              ry="2"
-                            />
-                            <path d="M7 11V7a5 5 0 0 1 10 0v4" />
-                          </svg>
-                        }
-                      />
-                    </div>
-
-                    <PasswordStrength password={form.password} />
-
-                    <div style={{marginBottom: 20}}>
-                      <FloatingInput
-                        label="Confirm Password"
-                        type="password"
-                        value={form.confirmPassword}
-                        onChange={set("confirmPassword")}
-                        error={errors.confirmPassword}
-                        icon={
-                          <svg
-                            width="14"
-                            height="14"
-                            viewBox="0 0 24 24"
-                            fill="none"
-                            stroke="currentColor"
-                            strokeWidth="1.8"
-                          >
-                            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
-                          </svg>
-                        }
-                      />
-                    </div>
-
-                    <div style={{marginBottom: 24}}>
-                      <div
-                        style={{
-                          display: "flex",
-                          alignItems: "flex-start",
-                          gap: 12,
+                        animate={{x: [0, 3, 0]}}
+                        transition={{
+                          duration: 1.8,
+                          repeat: Infinity,
+                          ease: "easeInOut",
                         }}
                       >
-                        <motion.div
-                          data-interactive
-                          onClick={() => {
-                            setAgreed((a) => !a);
-                            if (errors.agreed)
-                              setErrors((e) => ({...e, agreed: ""}));
-                          }}
-                          whileTap={{scale: 0.85}}
-                          animate={{
-                            background: agreed ? GOLD : "transparent",
-                            borderColor: errors.agreed
-                              ? "#C41E3A"
-                              : agreed
-                                ? GOLD
-                                : "rgba(74,140,42,0.3)",
-                            boxShadow: agreed
-                              ? `0 4px 14px -4px ${GOLD}66`
-                              : "none",
-                          }}
-                          transition={{
-                            type: "spring",
-                            stiffness: 400,
-                            damping: 20,
-                          }}
-                          style={{
-                            width: 22,
-                            height: 22,
-                            borderRadius: 7,
-                            border: "1.5px solid rgba(74,140,42,0.3)",
-                            display: "flex",
-                            alignItems: "center",
-                            justifyContent: "center",
-                            flexShrink: 0,
-                            marginTop: 1,
-                            cursor: "pointer",
-                          }}
-                        >
-                          <AnimatePresence>
-                            {agreed && (
-                              <motion.svg
-                                initial={{scale: 0, rotate: -90, opacity: 0}}
-                                animate={{scale: 1, rotate: 0, opacity: 1}}
-                                exit={{scale: 0, rotate: 90, opacity: 0}}
-                                transition={{
-                                  type: "spring",
-                                  stiffness: 500,
-                                  damping: 20,
-                                }}
-                                width="11"
-                                height="11"
-                                viewBox="0 0 24 24"
-                                fill="none"
-                                stroke="#fff"
-                                strokeWidth="3"
-                              >
-                                <path d="M20 6L9 17l-5-5" />
-                              </motion.svg>
-                            )}
-                          </AnimatePresence>
-                        </motion.div>
-                        <span
-                          style={{
-                            fontSize: 12,
-                            color: MUTED,
-                            fontWeight: 300,
-                            lineHeight: 1.7,
-                          }}
-                        >
-                          I agree to Mindful Living Ke's{" "}
-                          <Link
-                            to="/terms"
-                            style={{
-                              color: GOLD,
-                              textDecoration: "none",
-                              fontWeight: 500,
-                              borderBottom: `1px solid ${GOLD}55`,
-                            }}
-                          >
-                            Terms of Service
-                          </Link>{" "}
-                          and{" "}
-                          <Link
-                            to="/privacy"
-                            style={{
-                              color: GOLD,
-                              textDecoration: "none",
-                              fontWeight: 500,
-                              borderBottom: `1px solid ${GOLD}55`,
-                            }}
-                          >
-                            Privacy Policy
-                          </Link>
-                          . I consent to receive wellness updates and exclusive
-                          offers.
-                        </span>
-                      </div>
-                      <AnimatePresence>
-                        {errors.agreed && (
-                          <motion.p
-                            initial={{opacity: 0, y: -6, height: 0}}
-                            animate={{opacity: 1, y: 0, height: "auto"}}
-                            exit={{opacity: 0, y: -4, height: 0}}
-                            style={{
-                              fontSize: 10,
-                              color: "#C41E3A",
-                              marginTop: 7,
-                              marginLeft: 34,
-                              fontWeight: 500,
-                              letterSpacing: "0.06em",
-                            }}
-                          >
-                            {errors.agreed}
-                          </motion.p>
-                        )}
-                      </AnimatePresence>
-                    </div>
+                        <path d="M5 12h14M12 5l7 7-7 7" />
+                      </motion.svg>
+                    </>
+                  )}
+                </motion.button>
 
-                    <motion.button
-                      type="submit"
-                      whileTap={{scale: 0.96, y: 1}}
-                      whileHover={{
-                        y: -2,
-                        boxShadow: `0 16px 48px -12px rgba(74,140,42,0.55), 0 4px 16px -4px rgba(0,0,0,0.1)`,
-                      }}
-                      disabled={loading}
-                      style={{
-                        width: "100%",
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        gap: 10,
-                        background: `linear-gradient(135deg, ${GOLD_WARM} 0%, ${GOLD} 40%, ${DARK_GREEN} 100%)`,
-                        border: "none",
-                        borderRadius: 16,
-                        padding: "16px 28px",
-                        fontSize: 10,
-                        fontWeight: 500,
-                        letterSpacing: "0.32em",
-                        textTransform: "uppercase",
-                        color: "#fff",
-                        cursor: loading ? "not-allowed" : "pointer",
-                        fontFamily: "inherit",
-                        transition: "box-shadow 0.3s ease",
-                        boxShadow: `0 8px 28px -8px rgba(74,140,42,0.42), inset 0 1px 0 rgba(255,255,255,0.18)`,
-                        marginBottom: 20,
-                        opacity: loading ? 0.85 : 1,
-                        willChange: "transform",
-                      }}
-                    >
-                      {loading ? (
-                        <ThreeDots />
-                      ) : (
-                        <>
-                          Create Account
-                          <motion.svg
-                            width="13"
-                            height="13"
-                            viewBox="0 0 24 24"
-                            fill="none"
-                            stroke="currentColor"
-                            strokeWidth="2"
-                            animate={{x: [0, 3, 0]}}
-                            transition={{
-                              duration: 1.8,
-                              repeat: Infinity,
-                              ease: "easeInOut",
-                            }}
-                          >
-                            <path d="M5 12h14M12 5l7 7-7 7" />
-                          </motion.svg>
-                        </>
-                      )}
-                    </motion.button>
-
-                    <p
-                      style={{
-                        textAlign: "center",
-                        fontSize: 12,
-                        color: MUTED,
-                        fontWeight: 300,
-                        lineHeight: 1.8,
-                      }}
-                    >
-                      Already have an account?{" "}
-                      <Link
-                        to="/login"
+                <p
+                  style={{
+                    textAlign: "center",
+                    fontSize: 12,
+                    color: MUTED,
+                    fontWeight: 300,
+                    lineHeight: 1.8,
+                  }}
+                >
+                  Already have an account?{" "}
+                  <Link
+                    to="/login"
+                    style={{
+                      color: GOLD,
+                      fontWeight: 500,
+                      textDecoration: "none",
+                      position: "relative",
+                    }}
+                    onMouseEnter={(e) =>
+                      (e.currentTarget.style.color = GOLD_LIGHT)
+                    }
+                    onMouseLeave={(e) => (e.currentTarget.style.color = GOLD)}
+                  >
+                    <motion.span style={{position: "relative"}}>
+                      Sign in
+                      <motion.span
+                        initial={{scaleX: 0}}
+                        whileHover={{scaleX: 1}}
                         style={{
-                          color: GOLD,
-                          fontWeight: 500,
-                          textDecoration: "none",
-                          position: "relative",
+                          position: "absolute",
+                          bottom: -1,
+                          left: 0,
+                          right: 0,
+                          height: 1,
+                          background: GOLD_LIGHT,
+                          transformOrigin: "left",
+                          display: "block",
                         }}
-                        onMouseEnter={(e) =>
-                          (e.currentTarget.style.color = GOLD_LIGHT)
-                        }
-                        onMouseLeave={(e) =>
-                          (e.currentTarget.style.color = GOLD)
-                        }
-                      >
-                        <motion.span style={{position: "relative"}}>
-                          Sign in
-                          <motion.span
-                            initial={{scaleX: 0}}
-                            whileHover={{scaleX: 1}}
-                            style={{
-                              position: "absolute",
-                              bottom: -1,
-                              left: 0,
-                              right: 0,
-                              height: 1,
-                              background: GOLD_LIGHT,
-                              transformOrigin: "left",
-                              display: "block",
-                            }}
-                          />
-                        </motion.span>
-                      </Link>
-                    </p>
-                  </form>
-                </motion.div>
-              )}
-            </AnimatePresence>
+                      />
+                    </motion.span>
+                  </Link>
+                </p>
+              </form>
+            </motion.div>
           </motion.div>
         </div>
       </main>

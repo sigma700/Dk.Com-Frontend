@@ -11,6 +11,7 @@ import BlogPage from "./pages/Blog";
 import DiscoveryPage from "./pages/Category";
 import Profile from "./pages/Profile";
 import CreateAccountPage from "./pages/CreateAccountPage";
+import VerifyEmailPage from "./pages/Verifymail";
 
 const router = createBrowserRouter([
   {
@@ -52,6 +53,10 @@ const router = createBrowserRouter([
   {
     path: "/create-acc",
     element: <CreateAccountPage />,
+  },
+  {
+    path: "/verify-email",
+    element: <VerifyEmailPage />,
   },
 ]);
 
