@@ -5,25 +5,23 @@ import {
   AnimatePresence,
   useMotionValue,
   useTransform,
-  useSpring,
 } from "framer-motion";
 import {Link, useNavigate} from "react-router-dom";
-import {FaLeaf, FaRegMoneyBillAlt, FaTruck} from "react-icons/fa";
+import {FaRegMoneyBillAlt, FaTruck} from "react-icons/fa";
 import {FaPersonCircleCheck} from "react-icons/fa6";
 import {TbHealthRecognition} from "react-icons/tb";
 import useAuthStore from "../stores/authStore";
 
-// ── Brand Palette ──────────────────────────────────────────────
+// ── Brand Palette (same as CreateAccountPage) ─────────────────
 const GOLD = "#4A8C2A";
 const GOLD_LIGHT = "#72B84A";
-const GOLD_PALE = "#E8F5E0";
 const CREAM = "#F7FBF4";
 const DARK = "#1A1A1A";
 const MUTED = "#5A7A4A";
 const DARK_GREEN = "#14280F";
 const GOLD_WARM = "#5BA535";
 
-// ── Floating Particle ──────────────────────────────────────────
+// ── Floating Particle (unchanged) ─────────────────────────────
 const Particle = ({delay, size, startX, startY, color}) => (
   <motion.div
     style={{
@@ -53,7 +51,7 @@ const Particle = ({delay, size, startX, startY, color}) => (
   />
 );
 
-// ── Animated SectionLabel ──────────────────────────────────────
+// ── SectionLabel (unchanged) ──────────────────────────────────
 const SectionLabel = ({text}) => {
   const ref = useRef(null);
   const inView = useInView(ref, {once: true});
@@ -107,7 +105,7 @@ const SectionLabel = ({text}) => {
   );
 };
 
-// ── Floating Input ─────────────────────────────────────────────
+// ── FloatingInput (same as before, but without password toggle if not needed) ──
 const FloatingInput = ({
   label,
   type = "text",
@@ -119,9 +117,6 @@ const FloatingInput = ({
   inputRef,
 }) => {
   const [focused, setFocused] = useState(false);
-  const [showPassword, setShowPassword] = useState(false);
-  const isPassword = type === "password";
-  const inputType = isPassword ? (showPassword ? "text" : "password") : type;
   const hasValue = value && value.length > 0;
   const isFloated = focused || hasValue;
   const mx = useMotionValue(0);
@@ -230,7 +225,7 @@ const FloatingInput = ({
           )}
           <input
             ref={inputRef}
-            type={inputType}
+            type={type}
             value={value}
             onChange={onChange}
             onFocus={() => setFocused(true)}
@@ -243,62 +238,14 @@ const FloatingInput = ({
               fontSize: 14,
               color: DARK,
               fontFamily: "inherit",
-              padding:
-                isFloated || hasValue
-                  ? `26px ${isPassword ? 48 : 18}px 10px ${icon ? 48 : 18}px`
-                  : `18px ${isPassword ? 48 : 18}px 18px ${icon ? 48 : 18}px`,
-              letterSpacing:
-                isPassword && !showPassword && hasValue ? "0.18em" : "0.02em",
+              padding: isFloated
+                ? `26px 18px 10px ${icon ? 48 : 18}px`
+                : `18px 18px 18px ${icon ? 48 : 18}px`,
               boxSizing: "border-box",
               transition: "padding 0.2s",
               lineHeight: 1.8,
             }}
           />
-          {isPassword && (
-            <button
-              type="button"
-              onClick={() => setShowPassword((p) => !p)}
-              style={{
-                position: "absolute",
-                right: 16,
-                top: "50%",
-                transform: "translateY(-50%)",
-                background: "none",
-                border: "none",
-                cursor: "pointer",
-                color: MUTED,
-                display: "flex",
-                padding: 4,
-              }}
-            >
-              {showPassword ? (
-                <svg
-                  width="16"
-                  height="16"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="1.8"
-                >
-                  <path d="M17.94 17.94A10.07 10.07 0 0112 20c-7 0-11-8-11-8a18.45 18.45 0 015.06-5.94" />
-                  <path d="M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19" />
-                  <line x1="1" y1="1" x2="23" y2="23" />
-                </svg>
-              ) : (
-                <svg
-                  width="16"
-                  height="16"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="1.8"
-                >
-                  <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
-                  <circle cx="12" cy="12" r="3" />
-                </svg>
-              )}
-            </button>
-          )}
         </motion.div>
       </motion.div>
       <AnimatePresence>
@@ -329,88 +276,7 @@ const FloatingInput = ({
   );
 };
 
-// ── Password Strength ──────────────────────────────────────────
-const PasswordStrength = ({password}) => {
-  const score = (() => {
-    if (!password) return 0;
-    let s = 0;
-    if (password.length >= 8) s++;
-    if (/[A-Z]/.test(password)) s++;
-    if (/[0-9]/.test(password)) s++;
-    if (/[^A-Za-z0-9]/.test(password)) s++;
-    return s;
-  })();
-  const labels = ["", "Weak", "Fair", "Good", "Strong"];
-  const colors = ["", "#C41E3A", "#F5A623", GOLD, GOLD_LIGHT];
-  if (!password) return null;
-  return (
-    <motion.div
-      initial={{opacity: 0, y: -8}}
-      animate={{opacity: 1, y: 0}}
-      style={{marginBottom: 16}}
-    >
-      <div style={{display: "flex", gap: 5, marginBottom: 7}}>
-        {[1, 2, 3, 4].map((i) => (
-          <motion.div
-            key={i}
-            initial={{scaleX: 0}}
-            animate={{
-              scaleX: 1,
-              background: i <= score ? colors[score] : "rgba(74,140,42,0.1)",
-              boxShadow: i <= score ? `0 0 8px ${colors[score]}55` : "none",
-            }}
-            transition={{
-              duration: 0.4,
-              delay: i * 0.07,
-              type: "spring",
-              stiffness: 300,
-              damping: 20,
-            }}
-            style={{
-              flex: 1,
-              height: 3.5,
-              borderRadius: 100,
-              transformOrigin: "left",
-            }}
-          />
-        ))}
-      </div>
-      <div style={{display: "flex", alignItems: "center", gap: 8}}>
-        <span
-          style={{
-            fontSize: 9,
-            color: colors[score],
-            fontWeight: 600,
-            letterSpacing: "0.28em",
-            textTransform: "uppercase",
-          }}
-        >
-          {labels[score]}
-        </span>
-        <AnimatePresence>
-          {score === 4 && (
-            <motion.svg
-              initial={{scale: 0, rotate: -180, opacity: 0}}
-              animate={{scale: 1, rotate: 0, opacity: 1}}
-              exit={{scale: 0}}
-              transition={{type: "spring", stiffness: 400, damping: 15}}
-              width="12"
-              height="12"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke={GOLD_LIGHT}
-              strokeWidth="2.5"
-            >
-              <path d="M20 6L9 17l-5-5" />
-            </motion.svg>
-          )}
-        </AnimatePresence>
-      </div>
-    </motion.div>
-  );
-};
-
-// ── Social Button ──────────────────────────────────────────────
+// ── SocialButton (unchanged) ──────────────────────────────────
 const SocialButton = ({icon, label, onClick}) => {
   const [hovered, setHovered] = useState(false);
   const [ripples, setRipples] = useState([]);
@@ -439,7 +305,9 @@ const SocialButton = ({icon, label, onClick}) => {
         alignItems: "center",
         justifyContent: "center",
         gap: 8,
-        border: `1.5px solid ${hovered ? "rgba(74,140,42,0.4)" : "rgba(74,140,42,0.15)"}`,
+        border: `1.5px solid ${
+          hovered ? "rgba(74,140,42,0.4)" : "rgba(74,140,42,0.15)"
+        }`,
         borderRadius: 14,
         padding: "12px 16px",
         background: hovered
@@ -480,7 +348,7 @@ const SocialButton = ({icon, label, onClick}) => {
   );
 };
 
-// ── Three-dot loader ───────────────────────────────────────────
+// ── Three-dot loader (reused) ─────────────────────────────────
 const ThreeDots = () => (
   <span style={{display: "inline-flex", gap: 5, alignItems: "center"}}>
     {[0, 1, 2].map((i) => (
@@ -505,25 +373,19 @@ const ThreeDots = () => (
   </span>
 );
 
-// ── Main Page ──────────────────────────────────────────────────
-const CreateAccountPage = () => {
+// ── Main Login Page ───────────────────────────────────────────
+const LoginPage = () => {
   const navigate = useNavigate();
   const heroRef = useRef(null);
   const sidebarRef = useRef(null);
   const isHeroInView = useInView(heroRef, {once: true});
   const isSidebarInView = useInView(sidebarRef, {once: true});
 
-  const {register, isLoading, error: authError, clearError} = useAuthStore();
+  const {login, isLoading, error: authError, clearError} = useAuthStore();
 
-  const [form, setForm] = useState({
-    firstName: "",
-    lastName: "",
-    email: "",
-    password: "",
-    confirmPassword: "",
-  });
+  const [form, setForm] = useState({email: "", password: ""});
   const [errors, setErrors] = useState({});
-  const [agreed, setAgreed] = useState(false);
+  const [rememberMe, setRememberMe] = useState(false);
   const [generalError, setGeneralError] = useState("");
 
   const mouseX = useMotionValue(0);
@@ -553,7 +415,7 @@ const CreateAccountPage = () => {
     }
   }, [authError, clearError]);
 
-  const set = (field) => (e) => {
+  const setField = (field) => (e) => {
     setForm((f) => ({...f, [field]: e.target.value}));
     if (errors[field]) setErrors((err) => ({...err, [field]: ""}));
     if (generalError) setGeneralError("");
@@ -561,19 +423,10 @@ const CreateAccountPage = () => {
 
   const validate = () => {
     const e = {};
-    if (!form.firstName.trim()) e.firstName = "First name is required";
-    if (!form.lastName.trim()) e.lastName = "Last name is required";
     if (!form.email.trim()) e.email = "Email is required";
     else if (!/\S+@\S+\.\S+/.test(form.email))
       e.email = "Enter a valid email address";
     if (!form.password) e.password = "Password is required";
-    else if (form.password.length < 8)
-      e.password = "Password must be at least 8 characters";
-    if (!form.confirmPassword)
-      e.confirmPassword = "Please confirm your password";
-    else if (form.password !== form.confirmPassword)
-      e.confirmPassword = "Passwords don't match";
-    if (!agreed) e.agreed = "Please accept the terms to continue";
     return e;
   };
 
@@ -585,18 +438,15 @@ const CreateAccountPage = () => {
       return;
     }
 
-    const result = await register({
-      firstName: form.firstName,
-      lastName: form.lastName,
+    const result = await login({
       email: form.email,
       password: form.password,
+      rememberMe,
     });
-
     if (result.success) {
-      // ── Navigate to email verification, passing email as state ──
-      navigate("/verify-email", {state: {email: form.email}});
+      navigate("/"); // or wherever you want after login
     } else {
-      setGeneralError(result.error || "Registration failed. Please try again.");
+      setGeneralError(result.error || "Login failed. Please try again.");
     }
   };
 
@@ -641,24 +491,22 @@ const CreateAccountPage = () => {
         @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,300;0,400;1,300;1,400&display=swap');
         @keyframes shimmer-text { 0%,100%{background-position:0% center} 50%{background-position:100% center} }
         @keyframes spin-slow { from{transform:rotate(0deg)} to{transform:rotate(360deg)} }
-        @keyframes bg-shift { 0%,100%{background-position:0% 50%} 50%{background-position:100% 50%} }
         @keyframes pulse-ring { 0%,100%{opacity:0.14;transform:scale(1)} 50%{opacity:0.32;transform:scale(1.05)} }
         @keyframes grain {
           0%,100%{transform:translate(0,0)} 10%{transform:translate(-2%,-3%)} 20%{transform:translate(2%,2%)}
           30%{transform:translate(-1%,3%)} 40%{transform:translate(3%,-1%)} 50%{transform:translate(-2%,2%)}
           60%{transform:translate(1%,-3%)} 70%{transform:translate(-3%,1%)} 80%{transform:translate(2%,3%)} 90%{transform:translate(-1%,-2%)}
         }
-        .create-account-grid { display:grid; grid-template-columns:1fr 1fr; min-height:100vh; }
+        .login-grid { display:grid; grid-template-columns:1fr 1fr; min-height:100vh; }
         .page-grain::after {
           content:''; position:fixed; inset:-50%; width:200%; height:200%;
           background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
           opacity:0.025; pointer-events:none; z-index:9998; animation:grain 8s steps(10) infinite;
         }
         @media (max-width:900px) {
-          .create-account-grid { grid-template-columns:1fr !important; }
+          .login-grid { grid-template-columns:1fr !important; }
           .sidebar-panel { display:none !important; }
           .form-panel { padding:40px 24px 60px !important; }
-          .name-row { grid-template-columns:1fr !important; }
         }
       `}</style>
 
@@ -686,8 +534,8 @@ const CreateAccountPage = () => {
         }}
       />
 
-      <div className="create-account-grid">
-        {/* LEFT SIDEBAR */}
+      <div className="login-grid">
+        {/* LEFT SIDEBAR - same content as CreateAccountPage */}
         <motion.div
           ref={sidebarRef}
           initial={{x: -80, opacity: 0, filter: "blur(10px)"}}
@@ -778,7 +626,9 @@ const CreateAccountPage = () => {
                 border: `1px dashed rgba(114,184,74,${r.op})`,
                 ...r.pos,
                 pointerEvents: "none",
-                animation: `spin-slow ${r.dur} linear infinite ${r.dir}, pulse-ring ${6 + i * 2.5}s ease-in-out infinite`,
+                animation: `spin-slow ${r.dur} linear infinite ${r.dir}, pulse-ring ${
+                  6 + i * 2.5
+                }s ease-in-out infinite`,
               }}
             />
           ))}
@@ -832,7 +682,7 @@ const CreateAccountPage = () => {
               </span>
             </div>
 
-            <SectionLabel text="Join the Community" />
+            <SectionLabel text="Welcome Back" />
 
             <motion.h2
               initial={{opacity: 0, y: 28, filter: "blur(8px)"}}
@@ -850,7 +700,7 @@ const CreateAccountPage = () => {
                 letterSpacing: "-0.01em",
               }}
             >
-              Take your{" "}
+              Continue your{" "}
               <em
                 style={{
                   fontStyle: "italic",
@@ -862,9 +712,9 @@ const CreateAccountPage = () => {
                   animation: "shimmer-text 3s ease-in-out infinite",
                 }}
               >
-                Health
+                Wellness
               </em>{" "}
-              seriously
+              Journey
             </motion.h2>
 
             <motion.p
@@ -880,8 +730,8 @@ const CreateAccountPage = () => {
                 marginBottom: 52,
               }}
             >
-              Join the vast community of thousands who trust our products for a
-              healthier, more intentional life.
+              Access your account, track orders, and discover personalised
+              wellness recommendations.
             </motion.p>
 
             <motion.div
@@ -1037,7 +887,7 @@ const CreateAccountPage = () => {
           </motion.div>
         </motion.div>
 
-        {/* RIGHT FORM PANEL */}
+        {/* RIGHT FORM PANEL - Login specific */}
         <motion.div
           ref={heroRef}
           initial={{x: 80, opacity: 0, filter: "blur(10px)"}}
@@ -1130,7 +980,7 @@ const CreateAccountPage = () => {
               </Link>
             </motion.div>
 
-            <SectionLabel text="Create Account" />
+            <SectionLabel text="Sign In" />
 
             <h1
               style={{
@@ -1143,7 +993,7 @@ const CreateAccountPage = () => {
                 letterSpacing: "-0.01em",
               }}
             >
-              Begin Your{" "}
+              Welcome{" "}
               <em
                 style={{
                   fontStyle: "italic",
@@ -1155,7 +1005,7 @@ const CreateAccountPage = () => {
                   animation: "shimmer-text 3s ease-in-out infinite",
                 }}
               >
-                Ritual
+                Back
               </em>
             </h1>
             <p
@@ -1167,7 +1017,7 @@ const CreateAccountPage = () => {
                 lineHeight: 1.85,
               }}
             >
-              Create your account and discover Kenya's finest botanicals.
+              Sign in to access your account and continue your wellness journey.
             </p>
 
             {generalError && (
@@ -1268,48 +1118,12 @@ const CreateAccountPage = () => {
             </div>
 
             <form onSubmit={handleSubmit} noValidate>
-              <div
-                className="name-row"
-                style={{
-                  display: "grid",
-                  gridTemplateColumns: "1fr 1fr",
-                  gap: 12,
-                  marginBottom: 6,
-                }}
-              >
-                <FloatingInput
-                  label="First Name"
-                  value={form.firstName}
-                  onChange={set("firstName")}
-                  error={errors.firstName}
-                  icon={
-                    <svg
-                      width="14"
-                      height="14"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="1.8"
-                    >
-                      <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
-                      <circle cx="12" cy="7" r="4" />
-                    </svg>
-                  }
-                />
-                <FloatingInput
-                  label="Last Name"
-                  value={form.lastName}
-                  onChange={set("lastName")}
-                  error={errors.lastName}
-                />
-              </div>
-
-              <div style={{marginBottom: 6}}>
+              <div style={{marginBottom: 20}}>
                 <FloatingInput
                   label="Email Address"
                   type="email"
                   value={form.email}
-                  onChange={set("email")}
+                  onChange={setField("email")}
                   error={errors.email}
                   icon={
                     <svg
@@ -1327,18 +1141,13 @@ const CreateAccountPage = () => {
                 />
               </div>
 
-              <div style={{marginBottom: 4}}>
+              <div style={{marginBottom: 12}}>
                 <FloatingInput
                   label="Password"
                   type="password"
                   value={form.password}
-                  onChange={set("password")}
+                  onChange={setField("password")}
                   error={errors.password}
-                  hint={
-                    !errors.password && !form.password
-                      ? "At least 8 characters"
-                      : ""
-                  }
                   icon={
                     <svg
                       width="14"
@@ -1355,80 +1164,47 @@ const CreateAccountPage = () => {
                 />
               </div>
 
-              <PasswordStrength password={form.password} />
-
-              <div style={{marginBottom: 20}}>
-                <FloatingInput
-                  label="Confirm Password"
-                  type="password"
-                  value={form.confirmPassword}
-                  onChange={set("confirmPassword")}
-                  error={errors.confirmPassword}
-                  icon={
-                    <svg
-                      width="14"
-                      height="14"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="1.8"
-                    >
-                      <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
-                    </svg>
-                  }
-                />
-              </div>
-
-              <div style={{marginBottom: 24}}>
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "center",
+                  marginBottom: 28,
+                }}
+              >
                 <div
                   style={{
                     display: "flex",
-                    alignItems: "flex-start",
-                    gap: 12,
+                    alignItems: "center",
+                    gap: 8,
                   }}
                 >
                   <motion.div
-                    onClick={() => {
-                      setAgreed((a) => !a);
-                      if (errors.agreed) setErrors((e) => ({...e, agreed: ""}));
-                    }}
+                    onClick={() => setRememberMe(!rememberMe)}
                     whileTap={{scale: 0.85}}
                     animate={{
-                      background: agreed ? GOLD : "transparent",
-                      borderColor: errors.agreed
-                        ? "#C41E3A"
-                        : agreed
-                          ? GOLD
-                          : "rgba(74,140,42,0.3)",
-                      boxShadow: agreed ? `0 4px 14px -4px ${GOLD}66` : "none",
+                      background: rememberMe ? GOLD : "transparent",
+                      borderColor: rememberMe ? GOLD : "rgba(74,140,42,0.3)",
                     }}
-                    transition={{type: "spring", stiffness: 400, damping: 20}}
                     style={{
-                      width: 22,
-                      height: 22,
-                      borderRadius: 7,
+                      width: 18,
+                      height: 18,
+                      borderRadius: 5,
                       border: "1.5px solid rgba(74,140,42,0.3)",
                       display: "flex",
                       alignItems: "center",
                       justifyContent: "center",
-                      flexShrink: 0,
-                      marginTop: 1,
                       cursor: "pointer",
                     }}
                   >
                     <AnimatePresence>
-                      {agreed && (
+                      {rememberMe && (
                         <motion.svg
-                          initial={{scale: 0, rotate: -90, opacity: 0}}
-                          animate={{scale: 1, rotate: 0, opacity: 1}}
-                          exit={{scale: 0, rotate: 90, opacity: 0}}
-                          transition={{
-                            type: "spring",
-                            stiffness: 500,
-                            damping: 20,
-                          }}
-                          width="11"
-                          height="11"
+                          initial={{scale: 0}}
+                          animate={{scale: 1}}
+                          exit={{scale: 0}}
+                          width="10"
+                          height="10"
                           viewBox="0 0 24 24"
                           fill="none"
                           stroke="#fff"
@@ -1441,59 +1217,27 @@ const CreateAccountPage = () => {
                   </motion.div>
                   <span
                     style={{
-                      fontSize: 12,
+                      fontSize: 11,
                       color: MUTED,
-                      fontWeight: 300,
-                      lineHeight: 1.7,
+                      fontWeight: 400,
                     }}
                   >
-                    I agree to Mindful Living Ke's{" "}
-                    <Link
-                      to="/terms"
-                      style={{
-                        color: GOLD,
-                        textDecoration: "none",
-                        fontWeight: 500,
-                        borderBottom: `1px solid ${GOLD}55`,
-                      }}
-                    >
-                      Terms of Service
-                    </Link>{" "}
-                    and{" "}
-                    <Link
-                      to="/privacy"
-                      style={{
-                        color: GOLD,
-                        textDecoration: "none",
-                        fontWeight: 500,
-                        borderBottom: `1px solid ${GOLD}55`,
-                      }}
-                    >
-                      Privacy Policy
-                    </Link>
-                    . I consent to receive wellness updates and exclusive
-                    offers.
+                    Remember me
                   </span>
                 </div>
-                <AnimatePresence>
-                  {errors.agreed && (
-                    <motion.p
-                      initial={{opacity: 0, y: -6, height: 0}}
-                      animate={{opacity: 1, y: 0, height: "auto"}}
-                      exit={{opacity: 0, y: -4, height: 0}}
-                      style={{
-                        fontSize: 10,
-                        color: "#C41E3A",
-                        marginTop: 7,
-                        marginLeft: 34,
-                        fontWeight: 500,
-                        letterSpacing: "0.06em",
-                      }}
-                    >
-                      {errors.agreed}
-                    </motion.p>
-                  )}
-                </AnimatePresence>
+                <Link
+                  to="/forgot-password"
+                  style={{
+                    fontSize: 11,
+                    color: GOLD,
+                    textDecoration: "none",
+                    fontWeight: 500,
+                    letterSpacing: "0.03em",
+                    borderBottom: `1px solid ${GOLD}55`,
+                  }}
+                >
+                  Forgot password?
+                </Link>
               </div>
 
               <motion.button
@@ -1532,7 +1276,7 @@ const CreateAccountPage = () => {
                   <ThreeDots />
                 ) : (
                   <>
-                    Create Account
+                    Sign In
                     <motion.svg
                       width="13"
                       height="13"
@@ -1562,9 +1306,9 @@ const CreateAccountPage = () => {
                   lineHeight: 1.8,
                 }}
               >
-                Already have an account?{" "}
+                Don't have an account?{" "}
                 <Link
-                  to="/login"
+                  to="/create-acc"
                   style={{
                     color: GOLD,
                     fontWeight: 500,
@@ -1577,7 +1321,7 @@ const CreateAccountPage = () => {
                   onMouseLeave={(e) => (e.currentTarget.style.color = GOLD)}
                 >
                   <motion.span style={{position: "relative"}}>
-                    Sign in
+                    Create one
                     <motion.span
                       initial={{scaleX: 0}}
                       whileHover={{scaleX: 1}}
@@ -1603,4 +1347,4 @@ const CreateAccountPage = () => {
   );
 };
 
-export default CreateAccountPage;
+export default LoginPage;

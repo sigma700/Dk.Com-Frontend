@@ -13,7 +13,6 @@ import {FaPersonCircleCheck} from "react-icons/fa6";
 import {TbHealthRecognition} from "react-icons/tb";
 import useAuthStore from "../stores/authStore";
 
-// ── Brand Palette ──────────────────────────────────────────────
 const GOLD = "#4A8C2A";
 const GOLD_LIGHT = "#72B84A";
 const GOLD_PALE = "#E8F5E0";
@@ -23,7 +22,6 @@ const MUTED = "#5A7A4A";
 const DARK_GREEN = "#14280F";
 const GOLD_WARM = "#5BA535";
 
-// ── Cursor Follower ────────────────────────────────────────────
 const CursorFollower = () => {
   const cursorX = useMotionValue(-100);
   const cursorY = useMotionValue(-100);
@@ -72,7 +70,6 @@ const CursorFollower = () => {
   );
 };
 
-// ── Floating Particle ──────────────────────────────────────────
 const Particle = ({delay, size, startX, startY, color}) => (
   <motion.div
     style={{
@@ -102,7 +99,6 @@ const Particle = ({delay, size, startX, startY, color}) => (
   />
 );
 
-// ── Section Label ──────────────────────────────────────────────
 const SectionLabel = ({text}) => {
   const ref = useRef(null);
   const inView = useInView(ref, {once: true});
@@ -156,7 +152,6 @@ const SectionLabel = ({text}) => {
   );
 };
 
-// ── Three-dot loader ───────────────────────────────────────────
 const ThreeDots = () => (
   <span style={{display: "inline-flex", gap: 5, alignItems: "center"}}>
     {[0, 1, 2].map((i) => (
@@ -181,7 +176,6 @@ const ThreeDots = () => (
   </span>
 );
 
-// ── Confetti Leaf ──────────────────────────────────────────────
 const ConfettiLeaf = ({x, angle, delay, color}) => (
   <motion.div
     initial={{y: 0, x: 0, opacity: 1, rotate: 0, scale: 1}}
@@ -209,7 +203,6 @@ const ConfettiLeaf = ({x, angle, delay, color}) => (
   />
 );
 
-// ── Animated Text ──────────────────────────────────────────────
 const AnimatedText = ({text, stagger = 0.035}) => (
   <span style={{display: "inline-flex", flexWrap: "wrap"}}>
     {text.split("").map((char, i) => (
@@ -233,7 +226,6 @@ const AnimatedText = ({text, stagger = 0.035}) => (
   </span>
 );
 
-// ── OTP Single Input Cell ──────────────────────────────────────
 const OtpCell = ({
   value,
   index,
@@ -253,7 +245,6 @@ const OtpCell = ({
       animate={error ? {x: [0, -6, 6, -4, 4, -2, 0]} : {x: 0}}
       transition={error ? {duration: 0.4} : {}}
     >
-      {/* Glow ring when focused */}
       <AnimatePresence>
         {focused && (
           <motion.div
@@ -329,11 +320,9 @@ const OtpCell = ({
           cursor: "text",
           letterSpacing: 0,
           caretColor: "transparent",
-          transition: "none",
         }}
       />
 
-      {/* Filled indicator dot */}
       <AnimatePresence>
         {isFilled && !focused && (
           <motion.div
@@ -358,7 +347,6 @@ const OtpCell = ({
   );
 };
 
-// ── Main Verify Email Page ─────────────────────────────────────
 const VerifyEmailPage = () => {
   const navigate = useNavigate();
   const location = useLocation();
@@ -404,7 +392,6 @@ const VerifyEmailPage = () => {
     return () => window.removeEventListener("mousemove", fn);
   }, []);
 
-  // Countdown timer
   useEffect(() => {
     if (countdown <= 0) {
       setCanResend(true);
@@ -414,7 +401,6 @@ const VerifyEmailPage = () => {
     return () => clearTimeout(timer);
   }, [countdown]);
 
-  // Sync auth errors
   useEffect(() => {
     if (authError) {
       setError(authError);
@@ -426,13 +412,11 @@ const VerifyEmailPage = () => {
     }
   }, [authError, clearError]);
 
-  // Auto-focus first input on mount
   useEffect(() => {
     setTimeout(() => inputRefs.current[0]?.focus(), 600);
   }, []);
 
   const handleChange = (index, value) => {
-    // Only allow single digit
     const digit = value.replace(/\D/g, "").slice(-1);
     const newOtp = [...otp];
     newOtp[index] = digit;
@@ -488,23 +472,22 @@ const VerifyEmailPage = () => {
       return;
     }
 
-    const result = await verifyEmail(email, code);
+    const result = await verifyEmail(code);
     if (result?.success) {
       setShowConfetti(true);
       setTimeout(() => {
         setSuccess(true);
         setShowConfetti(false);
-        setTimeout(() => navigate("/dashboard"), 2200);
+        setTimeout(() => navigate("/"), 2200);
       }, 500);
     } else {
       setError(result?.error || "Invalid code. Please try again.");
-      // Shake and clear OTP
       setTimeout(() => {
         setOtp(["", "", "", "", "", ""]);
         inputRefs.current[0]?.focus();
       }, 600);
     }
-  }, [otp, email, verifyEmail, navigate]);
+  }, [otp, verifyEmail, navigate]);
 
   const handleResend = async () => {
     if (!canResend || resendLoading) return;
@@ -559,7 +542,6 @@ const VerifyEmailPage = () => {
     },
   };
 
-  // Mask email for display
   const maskedEmail = (() => {
     if (!email || email === "your email") return "your email";
     const [local, domain] = email.split("@");
@@ -620,7 +602,6 @@ const VerifyEmailPage = () => {
           }}
         />
 
-        {/* Center divider line */}
         <div
           style={{
             position: "fixed",
@@ -636,7 +617,6 @@ const VerifyEmailPage = () => {
         />
 
         <div className="verify-grid">
-          {/* ── LEFT SIDEBAR ── */}
           <motion.div
             ref={sidebarRef}
             initial={{x: -80, opacity: 0, filter: "blur(10px)"}}
@@ -655,7 +635,6 @@ const VerifyEmailPage = () => {
               padding: "52px 56px",
             }}
           >
-            {/* Grid overlay */}
             <div
               style={{
                 position: "absolute",
@@ -665,8 +644,6 @@ const VerifyEmailPage = () => {
                 pointerEvents: "none",
               }}
             />
-
-            {/* Orbs */}
             <motion.div
               style={{
                 x: orb1X,
@@ -697,8 +674,6 @@ const VerifyEmailPage = () => {
                 pointerEvents: "none",
               }}
             />
-
-            {/* Rotating rings */}
             {[
               {
                 size: 320,
@@ -736,14 +711,10 @@ const VerifyEmailPage = () => {
                 }}
               />
             ))}
-
             {particles.map((p, i) => (
               <Particle key={i} {...p} />
             ))}
-
-            {/* Content */}
             <div style={{position: "relative", zIndex: 2}}>
-              {/* Brand mark */}
               <div
                 style={{
                   display: "flex",
@@ -838,7 +809,7 @@ const VerifyEmailPage = () => {
                 }}
               >
                 Verify your email to unlock your full Mindful Living Ke
-                experience12 curated botanicals, wellness guides, and
+                experience – curated botanicals, wellness guides, and
                 member-exclusive offers await.
               </motion.p>
 
@@ -908,7 +879,6 @@ const VerifyEmailPage = () => {
               </motion.div>
             </div>
 
-            {/* Testimonial card */}
             <motion.div
               initial={{opacity: 0, y: 20}}
               animate={isSidebarInView ? {opacity: 1, y: 0} : {}}
@@ -996,7 +966,6 @@ const VerifyEmailPage = () => {
             </motion.div>
           </motion.div>
 
-          {/* ── RIGHT FORM PANEL ── */}
           <motion.div
             ref={heroRef}
             initial={{x: 80, opacity: 0, filter: "blur(10px)"}}
@@ -1016,7 +985,6 @@ const VerifyEmailPage = () => {
               background: `radial-gradient(ellipse at 80% 20%, rgba(114,184,74,0.08) 0%, transparent 58%), radial-gradient(ellipse at 20% 80%, rgba(74,140,42,0.06) 0%, transparent 52%), ${CREAM}`,
             }}
           >
-            {/* Glass card bg */}
             <div
               style={{
                 position: "absolute",
@@ -1033,7 +1001,6 @@ const VerifyEmailPage = () => {
               }}
             />
 
-            {/* Mini particles */}
             {particles.slice(0, 5).map((p, i) => (
               <Particle
                 key={`r${i}`}
@@ -1047,7 +1014,6 @@ const VerifyEmailPage = () => {
 
             <AnimatePresence mode="wait">
               {success ? (
-                /* ── SUCCESS STATE ── */
                 <motion.div
                   key="success"
                   initial={{
@@ -1177,7 +1143,6 @@ const VerifyEmailPage = () => {
                   />
                 </motion.div>
               ) : (
-                /* ── VERIFY FORM ── */
                 <motion.div
                   key="verify-form"
                   initial={{opacity: 0, y: 24}}
@@ -1194,7 +1159,6 @@ const VerifyEmailPage = () => {
                     width: "100%",
                   }}
                 >
-                  {/* Back link */}
                   <motion.div
                     whileHover={{x: -2}}
                     style={{display: "inline-flex"}}
@@ -1236,7 +1200,6 @@ const VerifyEmailPage = () => {
                     </Link>
                   </motion.div>
 
-                  {/* Email icon */}
                   <motion.div
                     initial={{opacity: 0, scale: 0.5}}
                     animate={{opacity: 1, scale: 1}}
@@ -1260,7 +1223,6 @@ const VerifyEmailPage = () => {
                       boxShadow: `0 8px 28px -8px rgba(74,140,42,0.3), 0 0 0 6px rgba(74,140,42,0.06)`,
                     }}
                   >
-                    {/* Scan line animation */}
                     <div
                       style={{
                         position: "absolute",
@@ -1343,7 +1305,6 @@ const VerifyEmailPage = () => {
                     . Enter it below to activate your account.
                   </p>
 
-                  {/* Error / Resend success banner */}
                   <AnimatePresence>
                     {error && (
                       <motion.div
@@ -1391,7 +1352,6 @@ const VerifyEmailPage = () => {
                     )}
                   </AnimatePresence>
 
-                  {/* OTP Input Row */}
                   <motion.div
                     className="otp-row"
                     style={{
@@ -1428,7 +1388,6 @@ const VerifyEmailPage = () => {
                     ))}
                   </motion.div>
 
-                  {/* Progress dots */}
                   <div
                     style={{
                       display: "flex",
@@ -1454,7 +1413,6 @@ const VerifyEmailPage = () => {
                     ))}
                   </div>
 
-                  {/* Verify button */}
                   <motion.button
                     type="button"
                     onClick={handleVerify}
@@ -1520,7 +1478,6 @@ const VerifyEmailPage = () => {
                     )}
                   </motion.button>
 
-                  {/* Resend + back */}
                   <div style={{textAlign: "center"}}>
                     <p
                       style={{
@@ -1560,7 +1517,6 @@ const VerifyEmailPage = () => {
                       </motion.button>
                     </p>
 
-                    {/* Countdown arc */}
                     {!canResend && (
                       <motion.div
                         style={{

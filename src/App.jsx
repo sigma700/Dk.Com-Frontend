@@ -5,13 +5,14 @@ import CartPage from "./pages/CartPage";
 import Order from "./pages/Order";
 import PersonalInfo from "./pages/PersonalInfo";
 import OrderConfirmation from "./pages/OrderConfirmation";
-import CategoryPage from "./pages/Category";
+import DiscoveryPage from "./pages/Category";
 import AboutPage from "./pages/About";
 import BlogPage from "./pages/Blog";
-import DiscoveryPage from "./pages/Category";
 import Profile from "./pages/Profile";
 import CreateAccountPage from "./pages/CreateAccountPage";
 import VerifyEmailPage from "./pages/Verifymail";
+import ProtectedRoute from "./components/ProtectedRoute"; // <-- import
+import LoginPage from "./pages/Loginpage";
 
 const router = createBrowserRouter([
   {
@@ -48,7 +49,11 @@ const router = createBrowserRouter([
   },
   {
     path: "/user-profile",
-    element: <Profile />,
+    element: (
+      <ProtectedRoute>
+        <Profile />
+      </ProtectedRoute>
+    ),
   },
   {
     path: "/create-acc",
@@ -57,6 +62,10 @@ const router = createBrowserRouter([
   {
     path: "/verify-email",
     element: <VerifyEmailPage />,
+  },
+  {
+    path: "/login",
+    element: <LoginPage />,
   },
 ]);
 
