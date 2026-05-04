@@ -141,6 +141,38 @@ const useAuthStore = create((set, get) => ({
     }
   },
 
+  fetchUser: async () => {
+    set({isLoading: true, error: null});
+    try {
+      const token = localStorage.getItem("authToken");
+      const headers = {"Content-Type": "application/json"};
+      if (token) headers["Authorization"] = `Bearer ${token}`;
+
+      const response = await fetch(`${API_BASE}/api/me`, {
+        method: "GET",
+        credentials: "include",
+        headers,
+      });
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.message || "Failed to fetch user");
+
+      set({
+        user: data.data,
+        isAuthenticated: true,
+        isLoading: false,
+        error: null,
+      });
+      return {success: true, user: data.data};
+    } catch (err) {
+      set({
+        isLoading: false,
+        error: err.message,
+        isAuthenticated: false,
+        user: null,
+      });
+      return {success: false, error: err.message};
+    }
+  },
   // ── Resend Verification Code ──────────────────────────────
   resendVerificationCode: async (email) => {
     set({isLoading: true, error: null});
