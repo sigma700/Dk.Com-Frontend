@@ -142,7 +142,7 @@ const Profile = () => {
         product: "Moringa Radiance Serum",
         rating: 5,
         date: "Apr 20, 2024",
-        text: "Absolutely transformed my skin — lighter, more even, glowing. I tell everyone about this.",
+        text: "Absolutely transformed my skin lighter, more even, glowing. I tell everyone about this.",
       },
       {
         product: "African Black Soap",

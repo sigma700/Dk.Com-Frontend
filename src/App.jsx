@@ -13,6 +13,8 @@ import CreateAccountPage from "./pages/CreateAccountPage";
 import VerifyEmailPage from "./pages/Verifymail";
 import ProtectedRoute from "./components/ProtectedRoute"; // <-- import
 import LoginPage from "./pages/Loginpage";
+import Contacts from "./pages/Contacts";
+import ContactPage from "./pages/Contacts";
 
 const router = createBrowserRouter([
   {
@@ -66,6 +68,11 @@ const router = createBrowserRouter([
   {
     path: "/login",
     element: <LoginPage />,
+  },
+
+  {
+    path: "/contact",
+    element: <ContactPage />,
   },
 ]);
 
