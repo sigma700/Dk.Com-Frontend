@@ -1,6 +1,6 @@
 import React, {useState, useRef} from "react";
 import {motion, AnimatePresence} from "framer-motion";
-import Footer from "../components/Footer";
+import Footer from "../components/footer";
 import NavBar from "../components/navBar";
 import {FaLocationDot} from "react-icons/fa6";
 import {CiTimer} from "react-icons/ci";

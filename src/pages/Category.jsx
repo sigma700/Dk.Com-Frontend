@@ -2,7 +2,7 @@ import React, {useState, useRef, useEffect} from "react";
 import {motion, useInView, AnimatePresence} from "framer-motion";
 import {Link, useNavigate} from "react-router-dom";
 import NavBar from "../components/navBar";
-import Footer from "../components/Footer";
+import Footer from "../components/footer";
 import {useProductsStore} from "../stores/productDisplayStore";
 import {useAddToCartStore} from "../stores/addToCartStore";
 import {bufferToDataURL} from "../utils/displayImage";

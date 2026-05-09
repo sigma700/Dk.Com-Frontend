@@ -1,7 +1,7 @@
 import React, {useEffect, useRef, useState} from "react";
 import {Link} from "react-router-dom";
 import NavBar from "../components/navBar";
-import Footer from "../components/Footer";
+import Footer from "../components/footer";
 
 // ── Mindful Living KE — Brand Palette ──
 const GOLD = "#4A8C2A";
