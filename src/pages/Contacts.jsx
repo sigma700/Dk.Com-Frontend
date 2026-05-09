@@ -588,7 +588,6 @@ export default function ContactPage() {
             padding: "0 48px",
             alignItems: "start",
           }}
-          className="split-grid page-wrap"
         >
           {/* ── LEFT COLUMN ── */}
           <motion.div
