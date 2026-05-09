@@ -11,7 +11,7 @@ import BlogPage from "./pages/Blog";
 import Profile from "./pages/Profile";
 import CreateAccountPage from "./pages/CreateAccountPage";
 import VerifyEmailPage from "./pages/Verifymail";
-import ProtectedRoute from "./components/ProtectedRoute"; // <-- import
+import ProtectedRoute from "./components/protectedRoute";
 import LoginPage from "./pages/Loginpage";
 import Contacts from "./pages/Contacts";
 import ContactPage from "./pages/Contacts";
