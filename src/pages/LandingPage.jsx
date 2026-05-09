@@ -8,7 +8,7 @@ import {Link, useNavigate} from "react-router-dom";
 import NavBar from "../components/navBar";
 
 import PremiumLoader from "../components/loader";
-import Footer from "../components/Footer";
+import Footer from "../components/footer";
 
 const GOLD = "#4A8C2A";
 const GOLD_LIGHT = "#72B84A";
