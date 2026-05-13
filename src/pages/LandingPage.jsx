@@ -116,7 +116,7 @@ const LandingPage = () => {
     try {
       await addToCart(productId, 1);
       setAddedStates((prev) => ({...prev, [productId]: true}));
-      // setTimeout(() => navigate("/"), 1200);
+      setTimeout(() => navigate("/cart-page"), 1200);
     } catch (e) {
       console.error(e);
     }
