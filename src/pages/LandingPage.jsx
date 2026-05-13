@@ -116,7 +116,7 @@ const LandingPage = () => {
     try {
       await addToCart(productId, 1);
       setAddedStates((prev) => ({...prev, [productId]: true}));
-      setTimeout(() => navigate("/cart-page"), 1200);
+      // setTimeout(() => navigate("/"), 1200);
     } catch (e) {
       console.error(e);
     }
@@ -505,7 +505,7 @@ const LandingPage = () => {
                 style={{position: "relative", zIndex: 5}}
               >
                 <motion.img
-                  src="src/assets/saop-image.png"
+                  src="/saop-image.png"
                   alt="BF Suma Natural Medicinal Soap"
                   animate={{y: [0, -18, 0], rotate: [-1.5, 1.5, -1.5]}}
                   transition={{

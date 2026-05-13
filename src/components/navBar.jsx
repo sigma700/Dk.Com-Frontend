@@ -200,7 +200,7 @@ const LogoMark = () => (
       }}
     >
       <img
-        src="/src/assets/logo.jpeg"
+        src="/logo.jpeg"
         alt="Mindful Living KE"
         style={{
           height: 64,

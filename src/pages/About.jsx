@@ -632,7 +632,7 @@ const FloatingImage = ({inView}) => (
       }}
     >
       <img
-        src="/src/assets/ABOUT-US.png"
+        src="/ABOUT-US.png"
         alt="Mindful Living KE — botanical roots"
         style={{
           width: "100%",

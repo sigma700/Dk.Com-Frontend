@@ -824,7 +824,7 @@ const BlogPage = () => {
               style={{
                 position: "absolute",
                 inset: 0,
-                backgroundImage: "url('/src/assets/model.jpeg')",
+                backgroundImage: "url('/model.jpeg')",
                 backgroundSize: "cover",
                 backgroundPosition: "center",
                 opacity: 0.35,
