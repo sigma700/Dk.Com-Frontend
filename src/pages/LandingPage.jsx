@@ -116,7 +116,7 @@ const LandingPage = () => {
     try {
       await addToCart(productId, 1);
       setAddedStates((prev) => ({...prev, [productId]: true}));
-      setTimeout(() => navigate("/cart-page"), 1200);
+      // setTimeout(() => navigate("/cart-page"), 1200);
     } catch (e) {
       console.error(e);
     }
@@ -750,7 +750,7 @@ const LandingPage = () => {
                           color: DARK,
                         }}
                       >
-                        Ksh{product.price?.toFixed(2)}
+                        Ksh {product.price?.toFixed(2)}
                       </span>
                       <span
                         style={{

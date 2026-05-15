@@ -434,7 +434,7 @@ const FeaturedBanner = () => (
       }}
     >
       <img
-        src="/src/assets/Men's sexual pack.jpeg"
+        src="/Men's sexual pack.jpeg"
         alt="Men's Sexual Wellness Bundle"
         style={{
           width: "100%",
