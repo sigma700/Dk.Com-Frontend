@@ -4,6 +4,7 @@ import {motion, AnimatePresence} from "framer-motion";
 import {useAddToCartStore} from "../stores/addToCartStore.js";
 import {bufferToDataURL} from "../utils/displayImage";
 import {Link, useNavigate} from "react-router-dom";
+import Footer from "../components/footer.jsx";
 
 const GREEN = "#4A8C2A";
 const GREEN_LIGHT = "#72B84A";
@@ -233,324 +234,305 @@ const safeBufferToDataURL = (imageData) => {
   }
 };
 
-const Footer = () => {
-  return (
-    <footer
-      style={{
-        background: GREEN_DARK,
-        color: "#fff",
-        padding: "60px 80px 32px",
-        position: "relative",
-        overflow: "hidden",
-      }}
-    >
-      <div
-        style={{
-          position: "absolute",
-          bottom: -40,
-          right: -40,
-          fontSize: 200,
-          opacity: 0.03,
-          pointerEvents: "none",
-          transform: "rotate(15deg)",
-        }}
-      >
-        ✿
-      </div>
-
-      <div
-        style={{
-          maxWidth: 1400,
-          margin: "0 auto",
-          display: "grid",
-          gridTemplateColumns: "2fr 1fr 1fr 1fr",
-          gap: 48,
-        }}
-      >
-        <div>
-          <div
-            style={{
-              display: "flex",
-              alignItems: "center",
-              gap: 12,
-              marginBottom: 16,
-            }}
-          >
-            <div
-              style={{
-                width: 48,
-                height: 48,
-                borderRadius: "50%",
-                background: "#F7FBF4",
-                padding: 4,
-                boxShadow:
-                  "0 4px 12px rgba(0,0,0,0.1), inset 0 1px 0 rgba(255,255,255,0.8)",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-              }}
-            >
-              <img
-                src="/src/assets/logo.jpeg"
-                alt="Mindful Living KE"
-                style={{
-                  width: "100%",
-                  height: "100%",
-                  objectFit: "cover",
-                  borderRadius: "50%",
-                }}
-              />
-            </div>
-            <span
-              style={{
-                fontSize: 18,
-                fontWeight: 600,
-                letterSpacing: "-0.01em",
-                color: "#fff",
-              }}
-            >
-              Mindful Living <span style={{color: GREEN_LIGHT}}>KE</span>
-            </span>
-          </div>
-          <p
-            style={{
-              fontSize: 13,
-              lineHeight: 1.7,
-              color: "#B8C4B2",
-              marginTop: 8,
-              maxWidth: 260,
-            }}
-          >
-            Kenyan natural skincare rooted in botanical wisdom. Pure, effective,
-            and kind to your skin and the planet.
-          </p>
-        </div>
-
-        <div>
-          <h4
-            style={{
-              fontSize: 11,
-              fontWeight: 600,
-              letterSpacing: "0.3em",
-              textTransform: "uppercase",
-              color: GREEN_LIGHT,
-              marginBottom: 20,
-            }}
-          >
-            Explore
-          </h4>
-          <ul
-            style={{
-              listStyle: "none",
-              margin: 0,
-              padding: 0,
-              display: "flex",
-              flexDirection: "column",
-              gap: 12,
-            }}
-          >
-            <li>
-              <Link
-                to="/"
-                style={{
-                  fontSize: 13,
-                  color: "#B8C4B2",
-                  textDecoration: "none",
-                  transition: "color 0.2s",
-                }}
-                onMouseEnter={(e) =>
-                  (e.currentTarget.style.color = GREEN_LIGHT)
-                }
-                onMouseLeave={(e) => (e.currentTarget.style.color = "#B8C4B2")}
-              >
-                Home
-              </Link>
-            </li>
-            <li>
-              <Link
-                to="/discovery"
-                style={{
-                  fontSize: 13,
-                  color: "#B8C4B2",
-                  textDecoration: "none",
-                  transition: "color 0.2s",
-                }}
-                onMouseEnter={(e) =>
-                  (e.currentTarget.style.color = GREEN_LIGHT)
-                }
-                onMouseLeave={(e) => (e.currentTarget.style.color = "#B8C4B2")}
-              >
-                Shop
-              </Link>
-            </li>
-            <li>
-              <Link
-                to="/about"
-                style={{
-                  fontSize: 13,
-                  color: "#B8C4B2",
-                  textDecoration: "none",
-                  transition: "color 0.2s",
-                }}
-                onMouseEnter={(e) =>
-                  (e.currentTarget.style.color = GREEN_LIGHT)
-                }
-                onMouseLeave={(e) => (e.currentTarget.style.color = "#B8C4B2")}
-              >
-                About
-              </Link>
-            </li>
-          </ul>
-        </div>
-
-        <div>
-          <h4
-            style={{
-              fontSize: 11,
-              fontWeight: 600,
-              letterSpacing: "0.3em",
-              textTransform: "uppercase",
-              color: GREEN_LIGHT,
-              marginBottom: 20,
-            }}
-          >
-            Resources
-          </h4>
-          <ul
-            style={{
-              listStyle: "none",
-              margin: 0,
-              padding: 0,
-              display: "flex",
-              flexDirection: "column",
-              gap: 12,
-            }}
-          >
-            <li>
-              <Link
-                to="/blog"
-                style={{
-                  fontSize: 13,
-                  color: "#B8C4B2",
-                  textDecoration: "none",
-                  transition: "color 0.2s",
-                }}
-                onMouseEnter={(e) =>
-                  (e.currentTarget.style.color = GREEN_LIGHT)
-                }
-                onMouseLeave={(e) => (e.currentTarget.style.color = "#B8C4B2")}
-              >
-                Journal
-              </Link>
-            </li>
-            <li>
-              <Link
-                to="/contact"
-                style={{
-                  fontSize: 13,
-                  color: "#B8C4B2",
-                  textDecoration: "none",
-                  transition: "color 0.2s",
-                }}
-                onMouseEnter={(e) =>
-                  (e.currentTarget.style.color = GREEN_LIGHT)
-                }
-                onMouseLeave={(e) => (e.currentTarget.style.color = "#B8C4B2")}
-              >
-                Contact
-              </Link>
-            </li>
-            <li>
-              <Link
-                to="/faq"
-                style={{
-                  fontSize: 13,
-                  color: "#B8C4B2",
-                  textDecoration: "none",
-                  transition: "color 0.2s",
-                }}
-                onMouseEnter={(e) =>
-                  (e.currentTarget.style.color = GREEN_LIGHT)
-                }
-                onMouseLeave={(e) => (e.currentTarget.style.color = "#B8C4B2")}
-              >
-                FAQ
-              </Link>
-            </li>
-          </ul>
-        </div>
-
-        <div>
-          <h4
-            style={{
-              fontSize: 11,
-              fontWeight: 600,
-              letterSpacing: "0.3em",
-              textTransform: "uppercase",
-              color: GREEN_LIGHT,
-              marginBottom: 20,
-            }}
-          >
-            Connect
-          </h4>
-          <p style={{fontSize: 13, color: "#B8C4B2", marginBottom: 20}}>
-            Join our newsletter for botanical insights & offers.
-          </p>
-          <div style={{display: "flex", gap: 12}}>
-            <input
-              type="email"
-              placeholder="Your email"
-              style={{
-                flex: 1,
-                padding: "10px 14px",
-                background: "rgba(255,255,255,0.1)",
-                border: `1px solid ${GREEN}40`,
-                borderRadius: 40,
-                fontSize: 12,
-                color: "#fff",
-                outline: "none",
-              }}
-            />
-            <button
-              style={{
-                background: GREEN,
-                border: "none",
-                borderRadius: 40,
-                padding: "10px 20px",
-                fontSize: 10,
-                fontWeight: 600,
-                letterSpacing: "0.1em",
-                color: "#fff",
-                cursor: "pointer",
-                transition: "background 0.2s",
-              }}
-              onMouseEnter={(e) =>
-                (e.currentTarget.style.background = GREEN_LIGHT)
-              }
-              onMouseLeave={(e) => (e.currentTarget.style.background = GREEN)}
-            >
-              Subscribe
-            </button>
-          </div>
-        </div>
-      </div>
-
-      <div
-        style={{
-          marginTop: 56,
-          paddingTop: 24,
-          borderTop: `1px solid ${GREEN}30`,
-          textAlign: "center",
-          fontSize: 11,
-          color: "#8A9A80",
-          letterSpacing: "0.05em",
-        }}
-      >
-        © {new Date().getFullYear()} Mindful Living KE. All rights reserved.
-      </div>
-    </footer>
-  );
-};
+// const Footer = () => (
+//   <footer
+//     style={{
+//       background: GREEN_DARK,
+//       color: "#fff",
+//       padding: "60px 80px 32px",
+//       position: "relative",
+//       overflow: "hidden",
+//     }}
+//   >
+//     <div
+//       style={{
+//         position: "absolute",
+//         bottom: -40,
+//         right: -40,
+//         fontSize: 200,
+//         opacity: 0.03,
+//         pointerEvents: "none",
+//         transform: "rotate(15deg)",
+//       }}
+//     >
+//       ✿
+//     </div>
+//     <div
+//       style={{
+//         maxWidth: 1400,
+//         margin: "0 auto",
+//         display: "grid",
+//         gridTemplateColumns: "2fr 1fr 1fr 1fr",
+//         gap: 48,
+//       }}
+//     >
+//       <div>
+//         <div
+//           style={{
+//             display: "flex",
+//             alignItems: "center",
+//             gap: 12,
+//             marginBottom: 16,
+//           }}
+//         >
+//           <div
+//             style={{
+//               width: 48,
+//               height: 48,
+//               borderRadius: "50%",
+//               background: "#F7FBF4",
+//               padding: 4,
+//               boxShadow:
+//                 "0 4px 12px rgba(0,0,0,0.1), inset 0 1px 0 rgba(255,255,255,0.8)",
+//               display: "flex",
+//               alignItems: "center",
+//               justifyContent: "center",
+//             }}
+//           >
+//             <img
+//               src="/src/assets/logo.jpeg"
+//               alt="Mindful Living KE"
+//               style={{
+//                 width: "100%",
+//                 height: "100%",
+//                 objectFit: "cover",
+//                 borderRadius: "50%",
+//               }}
+//             />
+//           </div>
+//           <span
+//             style={{
+//               fontSize: 18,
+//               fontWeight: 600,
+//               letterSpacing: "-0.01em",
+//               color: "#fff",
+//             }}
+//           >
+//             Mindful Living <span style={{color: GREEN_LIGHT}}>KE</span>
+//           </span>
+//         </div>
+//         <p
+//           style={{
+//             fontSize: 13,
+//             lineHeight: 1.7,
+//             color: "#B8C4B2",
+//             marginTop: 8,
+//             maxWidth: 260,
+//           }}
+//         >
+//           Kenyan natural skincare rooted in botanical wisdom. Pure, effective,
+//           and kind to your skin and the planet.
+//         </p>
+//       </div>
+//       <div>
+//         <h4
+//           style={{
+//             fontSize: 11,
+//             fontWeight: 600,
+//             letterSpacing: "0.3em",
+//             textTransform: "uppercase",
+//             color: GREEN_LIGHT,
+//             marginBottom: 20,
+//           }}
+//         >
+//           Explore
+//         </h4>
+//         <ul
+//           style={{
+//             listStyle: "none",
+//             margin: 0,
+//             padding: 0,
+//             display: "flex",
+//             flexDirection: "column",
+//             gap: 12,
+//           }}
+//         >
+//           <li>
+//             <Link
+//               to="/"
+//               style={{
+//                 fontSize: 13,
+//                 color: "#B8C4B2",
+//                 textDecoration: "none",
+//                 transition: "color 0.2s",
+//               }}
+//               onMouseEnter={(e) => (e.currentTarget.style.color = GREEN_LIGHT)}
+//               onMouseLeave={(e) => (e.currentTarget.style.color = "#B8C4B2")}
+//             >
+//               Home
+//             </Link>
+//           </li>
+//           <li>
+//             <Link
+//               to="/discovery"
+//               style={{
+//                 fontSize: 13,
+//                 color: "#B8C4B2",
+//                 textDecoration: "none",
+//                 transition: "color 0.2s",
+//               }}
+//               onMouseEnter={(e) => (e.currentTarget.style.color = GREEN_LIGHT)}
+//               onMouseLeave={(e) => (e.currentTarget.style.color = "#B8C4B2")}
+//             >
+//               Shop
+//             </Link>
+//           </li>
+//           <li>
+//             <Link
+//               to="/about"
+//               style={{
+//                 fontSize: 13,
+//                 color: "#B8C4B2",
+//                 textDecoration: "none",
+//                 transition: "color 0.2s",
+//               }}
+//               onMouseEnter={(e) => (e.currentTarget.style.color = GREEN_LIGHT)}
+//               onMouseLeave={(e) => (e.currentTarget.style.color = "#B8C4B2")}
+//             >
+//               About
+//             </Link>
+//           </li>
+//         </ul>
+//       </div>
+//       <div>
+//         <h4
+//           style={{
+//             fontSize: 11,
+//             fontWeight: 600,
+//             letterSpacing: "0.3em",
+//             textTransform: "uppercase",
+//             color: GREEN_LIGHT,
+//             marginBottom: 20,
+//           }}
+//         >
+//           Resources
+//         </h4>
+//         <ul
+//           style={{
+//             listStyle: "none",
+//             margin: 0,
+//             padding: 0,
+//             display: "flex",
+//             flexDirection: "column",
+//             gap: 12,
+//           }}
+//         >
+//           <li>
+//             <Link
+//               to="/blog"
+//               style={{
+//                 fontSize: 13,
+//                 color: "#B8C4B2",
+//                 textDecoration: "none",
+//                 transition: "color 0.2s",
+//               }}
+//               onMouseEnter={(e) => (e.currentTarget.style.color = GREEN_LIGHT)}
+//               onMouseLeave={(e) => (e.currentTarget.style.color = "#B8C4B2")}
+//             >
+//               Journal
+//             </Link>
+//           </li>
+//           <li>
+//             <Link
+//               to="/contact"
+//               style={{
+//                 fontSize: 13,
+//                 color: "#B8C4B2",
+//                 textDecoration: "none",
+//                 transition: "color 0.2s",
+//               }}
+//               onMouseEnter={(e) => (e.currentTarget.style.color = GREEN_LIGHT)}
+//               onMouseLeave={(e) => (e.currentTarget.style.color = "#B8C4B2")}
+//             >
+//               Contact
+//             </Link>
+//           </li>
+//           <li>
+//             <Link
+//               to="/faq"
+//               style={{
+//                 fontSize: 13,
+//                 color: "#B8C4B2",
+//                 textDecoration: "none",
+//                 transition: "color 0.2s",
+//               }}
+//               onMouseEnter={(e) => (e.currentTarget.style.color = GREEN_LIGHT)}
+//               onMouseLeave={(e) => (e.currentTarget.style.color = "#B8C4B2")}
+//             >
+//               FAQ
+//             </Link>
+//           </li>
+//         </ul>
+//       </div>
+//       <div>
+//         <h4
+//           style={{
+//             fontSize: 11,
+//             fontWeight: 600,
+//             letterSpacing: "0.3em",
+//             textTransform: "uppercase",
+//             color: GREEN_LIGHT,
+//             marginBottom: 20,
+//           }}
+//         >
+//           Connect
+//         </h4>
+//         <p style={{fontSize: 13, color: "#B8C4B2", marginBottom: 20}}>
+//           Join our newsletter for botanical insights & offers.
+//         </p>
+//         <div style={{display: "flex", gap: 12}}>
+//           <input
+//             type="email"
+//             placeholder="Your email"
+//             style={{
+//               flex: 1,
+//               padding: "10px 14px",
+//               background: "rgba(255,255,255,0.1)",
+//               border: `1px solid ${GREEN}40`,
+//               borderRadius: 40,
+//               fontSize: 12,
+//               color: "#fff",
+//               outline: "none",
+//             }}
+//           />
+//           <button
+//             style={{
+//               background: GREEN,
+//               border: "none",
+//               borderRadius: 40,
+//               padding: "10px 20px",
+//               fontSize: 10,
+//               fontWeight: 600,
+//               letterSpacing: "0.1em",
+//               color: "#fff",
+//               cursor: "pointer",
+//               transition: "background 0.2s",
+//             }}
+//             onMouseEnter={(e) =>
+//               (e.currentTarget.style.background = GREEN_LIGHT)
+//             }
+//             onMouseLeave={(e) => (e.currentTarget.style.background = GREEN)}
+//           >
+//             Subscribe
+//           </button>
+//         </div>
+//       </div>
+//     </div>
+//     <div
+//       style={{
+//         marginTop: 56,
+//         paddingTop: 24,
+//         borderTop: `1px solid ${GREEN}30`,
+//         textAlign: "center",
+//         fontSize: 11,
+//         color: "#8A9A80",
+//         letterSpacing: "0.05em",
+//       }}
+//     >
+//       © {new Date().getFullYear()} Mindful Living KE. All rights reserved.
+//     </div>
+//   </footer>
+// );
 
 const CartPage = () => {
   const {addedProduct, fetchCart, isLoading = false} = useAddToCartStore();
@@ -645,6 +627,66 @@ const CartPage = () => {
         position: "relative",
       }}
     >
+      <style>
+        {`
+          /* Responsive cart grid */
+          @media (max-width: 1024px) {
+            .cart-grid-responsive {
+              grid-template-columns: 1fr !important;
+              gap: 32px !important;
+            }
+            .cart-summary-sticky {
+              position: static !important;
+              top: auto !important;
+            }
+          }
+          @media (max-width: 768px) {
+            .cart-item-card {
+              flex-direction: column !important;
+              align-items: flex-start !important;
+              padding: 20px !important;
+            }
+            .cart-item-image {
+              width: 100% !important;
+              height: auto !important;
+              max-width: 140px !important;
+              margin-bottom: 16px !important;
+            }
+            .cart-item-actions {
+              flex-direction: row !important;
+              justify-content: space-between !important;
+              width: 100% !important;
+              margin-top: 16px !important;
+            }
+            .empty-cart-padding {
+              padding: 60px 24px !important;
+            }
+            .cart-summary-padding {
+              padding: 20px !important;
+            }
+            .trust-badge-row {
+              gap: 16px !important;
+            }
+          }
+          @media (max-width: 480px) {
+            .cart-section-padding {
+              padding: 32px 16px !important;
+            }
+            .cart-header-title {
+              font-size: 32px !important;
+            }
+            .cart-item-price {
+              font-size: 18px !important;
+            }
+          }
+          @keyframes shimmer-text {
+            0%   { background-position: 0%   center }
+            50%  { background-position: 100% center }
+            100% { background-position: 0%   center }
+          }
+        `}
+      </style>
+
       <NavBar />
 
       <FloatingOrb
@@ -714,6 +756,7 @@ const CartPage = () => {
 
       <section
         style={{position: "relative", zIndex: 10, padding: "60px 0 110px"}}
+        className="cart-section-padding"
       >
         <div style={{maxWidth: 1320, margin: "0 auto", padding: "0 24px"}}>
           <motion.div
@@ -757,6 +800,7 @@ const CartPage = () => {
               </span>
             </div>
             <h1
+              className="cart-header-title"
               style={{
                 fontFamily: "'Playfair Display', 'Georgia', serif",
                 fontSize: "clamp(38px, 4.5vw, 68px)",
@@ -813,7 +857,7 @@ const CartPage = () => {
           </motion.div>
 
           <div
-            className="cart-grid"
+            className="cart-grid-responsive"
             style={{
               display: "grid",
               gridTemplateColumns: "1fr 390px",
@@ -828,6 +872,7 @@ const CartPage = () => {
             >
               {visibleItems.length === 0 ? (
                 <div
+                  className="empty-cart-padding"
                   style={{
                     background: "#ffffff",
                     borderRadius: 24,
@@ -911,6 +956,7 @@ const CartPage = () => {
                           variants={itemVariants}
                           exit={{opacity: 0, x: -60, scale: 0.96}}
                           layout
+                          className="cart-item-card"
                           style={{
                             background: "rgba(247,251,244,0.92)",
                             backdropFilter: "blur(10px)",
@@ -924,6 +970,7 @@ const CartPage = () => {
                           }}
                         >
                           <div
+                            className="cart-item-image"
                             style={{
                               width: 106,
                               height: 106,
@@ -1003,6 +1050,7 @@ const CartPage = () => {
                               </span>
                             </div>
                             <p
+                              className="cart-item-price"
                               style={{
                                 fontFamily: "'Playfair Display', serif",
                                 fontSize: 22,
@@ -1015,6 +1063,7 @@ const CartPage = () => {
                             </p>
                           </div>
                           <div
+                            className="cart-item-actions"
                             style={{
                               display: "flex",
                               flexDirection: "column",
@@ -1109,6 +1158,7 @@ const CartPage = () => {
               variants={slideIn}
               initial="hidden"
               animate="visible"
+              className="cart-summary-sticky"
               style={{position: "sticky", top: 100}}
             >
               <div
@@ -1121,6 +1171,7 @@ const CartPage = () => {
                 }}
               >
                 <div
+                  className="cart-summary-padding"
                   style={{
                     padding: "28px 30px 22px",
                     borderBottom: `1px solid ${GREEN}22`,
@@ -1354,10 +1405,13 @@ const CartPage = () => {
                     </button>
                   </Link>
                   <div
+                    className="trust-badge-row"
                     style={{
                       display: "flex",
                       justifyContent: "space-around",
                       marginTop: 24,
+                      gap: 12,
+                      flexWrap: "wrap",
                     }}
                   >
                     <TrustBadge
@@ -1385,6 +1439,7 @@ const CartPage = () => {
                   background: `${GREEN}12`,
                   border: `1px solid ${GREEN}25`,
                   borderRadius: 12,
+                  flexWrap: "wrap",
                 }}
               >
                 <LeafIcon size={15} color={GREEN} />
