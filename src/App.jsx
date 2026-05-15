@@ -15,6 +15,7 @@ import ProtectedRoute from "./components/protectedRoute";
 import LoginPage from "./pages/Loginpage";
 import Contacts from "./pages/Contacts";
 import ContactPage from "./pages/Contacts";
+import Faqs from "./pages/Faqs";
 
 const router = createBrowserRouter([
   {
@@ -73,6 +74,10 @@ const router = createBrowserRouter([
   {
     path: "/contact",
     element: <ContactPage />,
+  },
+  {
+    path: "/faqs",
+    element: <Faqs />,
   },
 ]);
 
