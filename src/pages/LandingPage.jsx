@@ -8,6 +8,7 @@ import {Link, useNavigate} from "react-router-dom";
 import NavBar from "../components/navBar";
 import PremiumLoader from "../components/loader";
 import Footer from "../components/footer";
+import {ShoppingCart} from "lucide-react"; // ← added for cart icon
 
 // ─── Design Tokens ────────────────────────────────────────────────────────────
 const GOLD = "#4A8C2A";
@@ -169,6 +170,40 @@ const LandingPage = () => {
         @media (max-width: 480px) {
           .hero-grid   { padding: 32px 16px !important; }
           .products-section { padding: 48px 16px !important; }
+        }
+
+        /* ── Mobile‑only floating cart button ───────────────────────────── */
+        .mobile-cart-fab {
+          position: fixed;
+          bottom: 24px;
+          right: 24px;
+          z-index: 1000;
+          display: none;  /* hidden by default, shown only on mobile */
+        }
+
+        @media (max-width: 768px) {
+          .mobile-cart-fab {
+            display: block;
+          }
+        }
+
+        /* Optional: add a subtle shadow and transition */
+        .mobile-cart-fab a {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          width: 56px;
+          height: 56px;
+          background: ${GOLD};
+          border-radius: 50%;
+          color: white;
+          box-shadow: 0 4px 20px rgba(74, 140, 42, 0.4);
+          transition: transform 0.2s ease, background 0.2s ease;
+        }
+        .mobile-cart-fab a:hover,
+        .mobile-cart-fab a:active {
+          transform: scale(0.96);
+          background: ${GOLD_LIGHT};
         }
       `}</style>
 
@@ -838,6 +873,13 @@ const LandingPage = () => {
         </section>
 
         <Footer />
+      </div>
+
+      {/* ── MOBILE‑ONLY FLOATING CART BUTTON ───────────────────────────────── */}
+      <div className="mobile-cart-fab">
+        <Link to="/cart-page">
+          <ShoppingCart size={24} strokeWidth={1.8} />
+        </Link>
       </div>
     </main>
   );
