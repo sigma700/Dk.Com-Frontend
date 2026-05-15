@@ -503,8 +503,16 @@ const ContactStrip = () => {
           }}
         >
           {[
-            {label: "WhatsApp Us", href: "#", primary: true},
-            {label: "Send an Email", href: "#", primary: false},
+            {
+              label: "WhatsApp Us",
+              href: "https://wa.me/254792624342",
+              primary: true,
+            },
+            {
+              label: "Send an Email",
+              href: "mailto:hello@mindfulliving.co.ke?subject=Inquiry%20about%20natural%20skincare",
+              primary: false,
+            },
           ].map(({label, href, primary}) => (
             <motion.a
               key={label}
