@@ -64,6 +64,7 @@ const FloatingOrb = ({style, animX, animY, duration, delay = 0}) => (
 
 const QtyControl = ({qty, onInc, onDec}) => (
   <div
+    className="qty-control"
     style={{
       display: "flex",
       alignItems: "center",
@@ -234,306 +235,6 @@ const safeBufferToDataURL = (imageData) => {
   }
 };
 
-// const Footer = () => (
-//   <footer
-//     style={{
-//       background: GREEN_DARK,
-//       color: "#fff",
-//       padding: "60px 80px 32px",
-//       position: "relative",
-//       overflow: "hidden",
-//     }}
-//   >
-//     <div
-//       style={{
-//         position: "absolute",
-//         bottom: -40,
-//         right: -40,
-//         fontSize: 200,
-//         opacity: 0.03,
-//         pointerEvents: "none",
-//         transform: "rotate(15deg)",
-//       }}
-//     >
-//       ✿
-//     </div>
-//     <div
-//       style={{
-//         maxWidth: 1400,
-//         margin: "0 auto",
-//         display: "grid",
-//         gridTemplateColumns: "2fr 1fr 1fr 1fr",
-//         gap: 48,
-//       }}
-//     >
-//       <div>
-//         <div
-//           style={{
-//             display: "flex",
-//             alignItems: "center",
-//             gap: 12,
-//             marginBottom: 16,
-//           }}
-//         >
-//           <div
-//             style={{
-//               width: 48,
-//               height: 48,
-//               borderRadius: "50%",
-//               background: "#F7FBF4",
-//               padding: 4,
-//               boxShadow:
-//                 "0 4px 12px rgba(0,0,0,0.1), inset 0 1px 0 rgba(255,255,255,0.8)",
-//               display: "flex",
-//               alignItems: "center",
-//               justifyContent: "center",
-//             }}
-//           >
-//             <img
-//               src="/src/assets/logo.jpeg"
-//               alt="Mindful Living KE"
-//               style={{
-//                 width: "100%",
-//                 height: "100%",
-//                 objectFit: "cover",
-//                 borderRadius: "50%",
-//               }}
-//             />
-//           </div>
-//           <span
-//             style={{
-//               fontSize: 18,
-//               fontWeight: 600,
-//               letterSpacing: "-0.01em",
-//               color: "#fff",
-//             }}
-//           >
-//             Mindful Living <span style={{color: GREEN_LIGHT}}>KE</span>
-//           </span>
-//         </div>
-//         <p
-//           style={{
-//             fontSize: 13,
-//             lineHeight: 1.7,
-//             color: "#B8C4B2",
-//             marginTop: 8,
-//             maxWidth: 260,
-//           }}
-//         >
-//           Kenyan natural skincare rooted in botanical wisdom. Pure, effective,
-//           and kind to your skin and the planet.
-//         </p>
-//       </div>
-//       <div>
-//         <h4
-//           style={{
-//             fontSize: 11,
-//             fontWeight: 600,
-//             letterSpacing: "0.3em",
-//             textTransform: "uppercase",
-//             color: GREEN_LIGHT,
-//             marginBottom: 20,
-//           }}
-//         >
-//           Explore
-//         </h4>
-//         <ul
-//           style={{
-//             listStyle: "none",
-//             margin: 0,
-//             padding: 0,
-//             display: "flex",
-//             flexDirection: "column",
-//             gap: 12,
-//           }}
-//         >
-//           <li>
-//             <Link
-//               to="/"
-//               style={{
-//                 fontSize: 13,
-//                 color: "#B8C4B2",
-//                 textDecoration: "none",
-//                 transition: "color 0.2s",
-//               }}
-//               onMouseEnter={(e) => (e.currentTarget.style.color = GREEN_LIGHT)}
-//               onMouseLeave={(e) => (e.currentTarget.style.color = "#B8C4B2")}
-//             >
-//               Home
-//             </Link>
-//           </li>
-//           <li>
-//             <Link
-//               to="/discovery"
-//               style={{
-//                 fontSize: 13,
-//                 color: "#B8C4B2",
-//                 textDecoration: "none",
-//                 transition: "color 0.2s",
-//               }}
-//               onMouseEnter={(e) => (e.currentTarget.style.color = GREEN_LIGHT)}
-//               onMouseLeave={(e) => (e.currentTarget.style.color = "#B8C4B2")}
-//             >
-//               Shop
-//             </Link>
-//           </li>
-//           <li>
-//             <Link
-//               to="/about"
-//               style={{
-//                 fontSize: 13,
-//                 color: "#B8C4B2",
-//                 textDecoration: "none",
-//                 transition: "color 0.2s",
-//               }}
-//               onMouseEnter={(e) => (e.currentTarget.style.color = GREEN_LIGHT)}
-//               onMouseLeave={(e) => (e.currentTarget.style.color = "#B8C4B2")}
-//             >
-//               About
-//             </Link>
-//           </li>
-//         </ul>
-//       </div>
-//       <div>
-//         <h4
-//           style={{
-//             fontSize: 11,
-//             fontWeight: 600,
-//             letterSpacing: "0.3em",
-//             textTransform: "uppercase",
-//             color: GREEN_LIGHT,
-//             marginBottom: 20,
-//           }}
-//         >
-//           Resources
-//         </h4>
-//         <ul
-//           style={{
-//             listStyle: "none",
-//             margin: 0,
-//             padding: 0,
-//             display: "flex",
-//             flexDirection: "column",
-//             gap: 12,
-//           }}
-//         >
-//           <li>
-//             <Link
-//               to="/blog"
-//               style={{
-//                 fontSize: 13,
-//                 color: "#B8C4B2",
-//                 textDecoration: "none",
-//                 transition: "color 0.2s",
-//               }}
-//               onMouseEnter={(e) => (e.currentTarget.style.color = GREEN_LIGHT)}
-//               onMouseLeave={(e) => (e.currentTarget.style.color = "#B8C4B2")}
-//             >
-//               Journal
-//             </Link>
-//           </li>
-//           <li>
-//             <Link
-//               to="/contact"
-//               style={{
-//                 fontSize: 13,
-//                 color: "#B8C4B2",
-//                 textDecoration: "none",
-//                 transition: "color 0.2s",
-//               }}
-//               onMouseEnter={(e) => (e.currentTarget.style.color = GREEN_LIGHT)}
-//               onMouseLeave={(e) => (e.currentTarget.style.color = "#B8C4B2")}
-//             >
-//               Contact
-//             </Link>
-//           </li>
-//           <li>
-//             <Link
-//               to="/faq"
-//               style={{
-//                 fontSize: 13,
-//                 color: "#B8C4B2",
-//                 textDecoration: "none",
-//                 transition: "color 0.2s",
-//               }}
-//               onMouseEnter={(e) => (e.currentTarget.style.color = GREEN_LIGHT)}
-//               onMouseLeave={(e) => (e.currentTarget.style.color = "#B8C4B2")}
-//             >
-//               FAQ
-//             </Link>
-//           </li>
-//         </ul>
-//       </div>
-//       <div>
-//         <h4
-//           style={{
-//             fontSize: 11,
-//             fontWeight: 600,
-//             letterSpacing: "0.3em",
-//             textTransform: "uppercase",
-//             color: GREEN_LIGHT,
-//             marginBottom: 20,
-//           }}
-//         >
-//           Connect
-//         </h4>
-//         <p style={{fontSize: 13, color: "#B8C4B2", marginBottom: 20}}>
-//           Join our newsletter for botanical insights & offers.
-//         </p>
-//         <div style={{display: "flex", gap: 12}}>
-//           <input
-//             type="email"
-//             placeholder="Your email"
-//             style={{
-//               flex: 1,
-//               padding: "10px 14px",
-//               background: "rgba(255,255,255,0.1)",
-//               border: `1px solid ${GREEN}40`,
-//               borderRadius: 40,
-//               fontSize: 12,
-//               color: "#fff",
-//               outline: "none",
-//             }}
-//           />
-//           <button
-//             style={{
-//               background: GREEN,
-//               border: "none",
-//               borderRadius: 40,
-//               padding: "10px 20px",
-//               fontSize: 10,
-//               fontWeight: 600,
-//               letterSpacing: "0.1em",
-//               color: "#fff",
-//               cursor: "pointer",
-//               transition: "background 0.2s",
-//             }}
-//             onMouseEnter={(e) =>
-//               (e.currentTarget.style.background = GREEN_LIGHT)
-//             }
-//             onMouseLeave={(e) => (e.currentTarget.style.background = GREEN)}
-//           >
-//             Subscribe
-//           </button>
-//         </div>
-//       </div>
-//     </div>
-//     <div
-//       style={{
-//         marginTop: 56,
-//         paddingTop: 24,
-//         borderTop: `1px solid ${GREEN}30`,
-//         textAlign: "center",
-//         fontSize: 11,
-//         color: "#8A9A80",
-//         letterSpacing: "0.05em",
-//       }}
-//     >
-//       © {new Date().getFullYear()} Mindful Living KE. All rights reserved.
-//     </div>
-//   </footer>
-// );
-
 const CartPage = () => {
   const {addedProduct, fetchCart, isLoading = false} = useAddToCartStore();
   const navigate = useNavigate();
@@ -625,11 +326,11 @@ const CartPage = () => {
         minHeight: "100vh",
         background: `linear-gradient(135deg, ${CREAM} 0%, ${GREEN_PALE} 45%, #C5E4AC 100%)`,
         position: "relative",
+        overflowX: "hidden",
       }}
     >
       <style>
         {`
-          /* Responsive cart grid */
           @media (max-width: 1024px) {
             .cart-grid-responsive {
               grid-template-columns: 1fr !important;
@@ -679,6 +380,73 @@ const CartPage = () => {
               font-size: 18px !important;
             }
           }
+          @media (max-width: 375px) {
+            .cart-section-padding {
+              padding: 20px 12px !important;
+            }
+            .cart-grid-responsive {
+              gap: 24px !important;
+            }
+            .cart-item-card {
+              padding: 16px !important;
+              gap: 12px !important;
+            }
+            .cart-item-image {
+              max-width: 100px !important;
+            }
+            .qty-control button,
+            .qty-control span {
+              width: 28px !important;
+              height: 28px !important;
+              font-size: 14px !important;
+            }
+            .qty-control span {
+              width: 28px !important;
+            }
+            .circle-btn {
+              width: 30px !important;
+              height: 30px !important;
+            }
+            .cart-summary-padding {
+              padding: 16px !important;
+            }
+            .cart-summary-padding p {
+              font-size: 20px !important;
+            }
+            .order-summary-details {
+              padding: 16px !important;
+              gap: 12px !important;
+            }
+            .total-amount {
+              font-size: 26px !important;
+            }
+            .promo-input {
+              padding: 10px 12px !important;
+              font-size: 11px !important;
+            }
+            .promo-button {
+              padding: 8px 14px !important;
+              font-size: 9px !important;
+            }
+            .checkout-button {
+              padding: 14px !important;
+              font-size: 10px !important;
+            }
+            .trust-badge-row {
+              gap: 8px !important;
+              flex-wrap: wrap;
+            }
+            .trust-badge-row > div {
+              flex: 1 0 auto;
+              min-width: 70px;
+            }
+            .floating-orb {
+              display: none !important;
+            }
+            .big-leaf-icon {
+              display: none !important;
+            }
+          }
           @keyframes shimmer-text {
             0%   { background-position: 0%   center }
             50%  { background-position: 100% center }
@@ -690,6 +458,7 @@ const CartPage = () => {
       <NavBar />
 
       <FloatingOrb
+        className="floating-orb"
         style={{
           width: 520,
           height: 520,
@@ -702,6 +471,7 @@ const CartPage = () => {
         duration={14}
       />
       <FloatingOrb
+        className="floating-orb"
         style={{
           width: 380,
           height: 380,
@@ -715,6 +485,7 @@ const CartPage = () => {
         delay={3}
       />
       <FloatingOrb
+        className="floating-orb"
         style={{
           width: 260,
           height: 260,
@@ -729,6 +500,7 @@ const CartPage = () => {
       />
 
       <div
+        className="big-leaf-icon"
         style={{
           position: "fixed",
           top: "15%",
@@ -741,6 +513,7 @@ const CartPage = () => {
         <LeafIcon size={180} color={GREEN} />
       </div>
       <div
+        className="big-leaf-icon"
         style={{
           position: "fixed",
           bottom: "12%",
@@ -1228,6 +1001,7 @@ const CartPage = () => {
                   </p>
                 </div>
                 <div
+                  className="order-summary-details"
                   style={{
                     padding: "24px 30px",
                     display: "flex",
@@ -1301,6 +1075,7 @@ const CartPage = () => {
                       Total
                     </span>
                     <span
+                      className="total-amount"
                       style={{
                         fontFamily: "'Playfair Display', serif",
                         fontSize: 32,
@@ -1328,6 +1103,7 @@ const CartPage = () => {
                       placeholder="Promo code"
                       value={promoCode}
                       onChange={(e) => setPromoCode(e.target.value)}
+                      className="promo-input"
                       style={{
                         flex: 1,
                         background: "rgba(0,0,0,0.4)",
@@ -1342,6 +1118,7 @@ const CartPage = () => {
                       onClick={() => {
                         if (promoCode.trim()) setPromoApplied(true);
                       }}
+                      className="promo-button"
                       style={{
                         background: GREEN_LIGHT,
                         border: "none",
@@ -1383,6 +1160,7 @@ const CartPage = () => {
                   >
                     <button
                       disabled={visibleItems.length === 0}
+                      className="checkout-button"
                       style={{
                         width: "100%",
                         padding: "17px",
