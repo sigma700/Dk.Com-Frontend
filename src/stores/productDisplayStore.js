@@ -1,9 +1,8 @@
 import {create} from "zustand";
-
 export const useProductsStore = create((set) => ({
   isLoading: false,
   isSuccess: false,
-  allProducts: [], // start with empty array
+  allProducts: [],
 
   showAllProducts: async () => {
     set({isLoading: true, isSuccess: false});
@@ -19,16 +18,16 @@ export const useProductsStore = create((set) => ({
       );
 
       const dataSet = await response.json();
-      console.log("data", dataSet.data); // should be your products array
+      console.log("data", dataSet.data);
 
       set({
         isLoading: false,
-        allProducts: dataSet.data, // ← key change
+        allProducts: dataSet.data || [], // ✅ fallback
         isSuccess: true,
       });
     } catch (error) {
       console.error(error);
-      set({isLoading: false, allProducts: [], isSuccess: false});
+      set({isLoading: false, allProducts: [], isSuccess: false}); // ✅ already has []
     }
   },
 }));

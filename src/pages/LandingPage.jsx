@@ -639,178 +639,179 @@ const LandingPage = () => {
               }}
               className="products-grid"
             >
-              {allProducts.map((product) => (
-                <motion.div
-                  key={product._id}
-                  variants={productCardVariants}
-                  onHoverStart={() => setHoveredCard(product._id)}
-                  onHoverEnd={() => setHoveredCard(null)}
-                  style={{
-                    background: "white",
-                    borderRadius: 24,
-                    overflow: "hidden",
-                    transition: "box-shadow 0.4s ease, transform 0.3s ease",
-                    boxShadow:
-                      hoveredCard === product._id
-                        ? "0 25px 40px -12px rgba(0,0,0,0.15)"
-                        : "0 8px 20px -6px rgba(0,0,0,0.05)",
-                    transform:
-                      hoveredCard === product._id
-                        ? "translateY(-4px)"
-                        : "translateY(0)",
-                  }}
-                >
-                  <div style={{position: "relative", overflow: "hidden"}}>
-                    <Link to={`/order/${product._id}`}>
-                      <motion.img
-                        src={bufferToDataURL(product.image)}
-                        alt={product.name}
+              {allProducts ||
+                [].map((product) => (
+                  <motion.div
+                    key={product._id}
+                    variants={productCardVariants}
+                    onHoverStart={() => setHoveredCard(product._id)}
+                    onHoverEnd={() => setHoveredCard(null)}
+                    style={{
+                      background: "white",
+                      borderRadius: 24,
+                      overflow: "hidden",
+                      transition: "box-shadow 0.4s ease, transform 0.3s ease",
+                      boxShadow:
+                        hoveredCard === product._id
+                          ? "0 25px 40px -12px rgba(0,0,0,0.15)"
+                          : "0 8px 20px -6px rgba(0,0,0,0.05)",
+                      transform:
+                        hoveredCard === product._id
+                          ? "translateY(-4px)"
+                          : "translateY(0)",
+                    }}
+                  >
+                    <div style={{position: "relative", overflow: "hidden"}}>
+                      <Link to={`/order/${product._id}`}>
+                        <motion.img
+                          src={bufferToDataURL(product.image)}
+                          alt={product.name}
+                          style={{
+                            width: "100%",
+                            height: 320,
+                            objectFit: "cover",
+                            transition:
+                              "transform 0.5s cubic-bezier(0.16, 1, 0.3, 1)",
+                          }}
+                          whileHover={{scale: 1.05}}
+                        />
+                      </Link>
+                      <motion.div
+                        initial={{opacity: 0}}
+                        animate={{opacity: hoveredCard === product._id ? 1 : 0}}
+                        transition={{duration: 0.3}}
                         style={{
-                          width: "100%",
-                          height: 320,
-                          objectFit: "cover",
-                          transition:
-                            "transform 0.5s cubic-bezier(0.16, 1, 0.3, 1)",
-                        }}
-                        whileHover={{scale: 1.05}}
-                      />
-                    </Link>
-                    <motion.div
-                      initial={{opacity: 0}}
-                      animate={{opacity: hoveredCard === product._id ? 1 : 0}}
-                      transition={{duration: 0.3}}
-                      style={{
-                        position: "absolute",
-                        inset: 0,
-                        background: `linear-gradient(to top, ${DARK}CC, transparent)`,
-                        display: "flex",
-                        alignItems: "flex-end",
-                        justifyContent: "center",
-                        paddingBottom: 24,
-                        pointerEvents: "none",
-                      }}
-                    >
-                      <span
-                        style={{
-                          color: "white",
-                          fontSize: 11,
-                          letterSpacing: "0.3em",
-                          textTransform: "uppercase",
-                          borderBottom: `1px solid ${GOLD}`,
-                          paddingBottom: 6,
+                          position: "absolute",
+                          inset: 0,
+                          background: `linear-gradient(to top, ${DARK}CC, transparent)`,
+                          display: "flex",
+                          alignItems: "flex-end",
+                          justifyContent: "center",
+                          paddingBottom: 24,
+                          pointerEvents: "none",
                         }}
                       >
-                        View details
-                      </span>
-                    </motion.div>
-                  </div>
-
-                  <div style={{padding: "24px 20px 28px"}}>
-                    <div
-                      style={{
-                        fontSize: 10,
-                        fontWeight: 500,
-                        letterSpacing: "0.2em",
-                        color: GOLD,
-                        textTransform: "uppercase",
-                        marginBottom: 8,
-                      }}
-                    >
-                      {product.category}
-                    </div>
-                    <h3
-                      style={{
-                        fontFamily: "'Playfair Display', 'Georgia', serif",
-                        fontSize: 20,
-                        fontWeight: 400,
-                        color: DARK,
-                        margin: "0 0 12px 0",
-                        lineHeight: 1.3,
-                      }}
-                    >
-                      {product.name}
-                    </h3>
-                    <div
-                      style={{
-                        display: "flex",
-                        alignItems: "baseline",
-                        justifyContent: "space-between",
-                        marginBottom: 20,
-                        paddingBottom: 12,
-                        borderBottom: `1px solid ${GOLD}20`,
-                        flexWrap: "wrap",
-                        gap: 8,
-                      }}
-                    >
-                      <span
-                        style={{
-                          fontSize: 26,
-                          fontWeight: 300,
-                          fontFamily: "'Playfair Display', serif",
-                          color: DARK,
-                        }}
-                      >
-                        Ksh{product.price?.toFixed(2)}
-                      </span>
-                      <span
-                        style={{
-                          fontSize: 11,
-                          color: product.stock > 0 ? GOLD : "#C41E3A",
-                          letterSpacing: "0.02em",
-                        }}
-                      >
-                        {product.stock > 0
-                          ? `Stock: ${product.stock}`
-                          : "Out of Stock"}
-                      </span>
+                        <span
+                          style={{
+                            color: "white",
+                            fontSize: 11,
+                            letterSpacing: "0.3em",
+                            textTransform: "uppercase",
+                            borderBottom: `1px solid ${GOLD}`,
+                            paddingBottom: 6,
+                          }}
+                        >
+                          View details
+                        </span>
+                      </motion.div>
                     </div>
 
-                    <form onSubmit={(e) => handleSubmit(e, product._id)}>
-                      <motion.button
-                        type="submit"
-                        disabled={
-                          product.stock === 0 || addedStates[product._id]
-                        }
-                        whileTap={{scale: 0.97}}
+                    <div style={{padding: "24px 20px 28px"}}>
+                      <div
                         style={{
-                          width: "100%",
-                          background:
-                            product.stock === 0
-                              ? "#E0E0E0"
-                              : addedStates[product._id]
-                                ? GOLD_LIGHT
-                                : GOLD,
-                          border: "none",
-                          borderRadius: 40,
-                          padding: "12px 0",
-                          color: "white",
-                          fontSize: 12,
+                          fontSize: 10,
                           fontWeight: 500,
                           letterSpacing: "0.2em",
+                          color: GOLD,
                           textTransform: "uppercase",
-                          cursor:
-                            product.stock === 0 || addedStates[product._id]
-                              ? "not-allowed"
-                              : "pointer",
-                          transition: "background 0.2s ease",
-                        }}
-                        whileHover={{
-                          background:
-                            product.stock > 0 && !addedStates[product._id]
-                              ? GOLD_LIGHT
-                              : undefined,
+                          marginBottom: 8,
                         }}
                       >
-                        {product.stock === 0
-                          ? "Out of Stock"
-                          : addedStates[product._id]
-                            ? "✓ Added"
-                            : "Add to Cart"}
-                      </motion.button>
-                    </form>
-                  </div>
-                </motion.div>
-              ))}
+                        {product.category}
+                      </div>
+                      <h3
+                        style={{
+                          fontFamily: "'Playfair Display', 'Georgia', serif",
+                          fontSize: 20,
+                          fontWeight: 400,
+                          color: DARK,
+                          margin: "0 0 12px 0",
+                          lineHeight: 1.3,
+                        }}
+                      >
+                        {product.name}
+                      </h3>
+                      <div
+                        style={{
+                          display: "flex",
+                          alignItems: "baseline",
+                          justifyContent: "space-between",
+                          marginBottom: 20,
+                          paddingBottom: 12,
+                          borderBottom: `1px solid ${GOLD}20`,
+                          flexWrap: "wrap",
+                          gap: 8,
+                        }}
+                      >
+                        <span
+                          style={{
+                            fontSize: 26,
+                            fontWeight: 300,
+                            fontFamily: "'Playfair Display', serif",
+                            color: DARK,
+                          }}
+                        >
+                          Ksh{product.price?.toFixed(2)}
+                        </span>
+                        <span
+                          style={{
+                            fontSize: 11,
+                            color: product.stock > 0 ? GOLD : "#C41E3A",
+                            letterSpacing: "0.02em",
+                          }}
+                        >
+                          {product.stock > 0
+                            ? `Stock: ${product.stock}`
+                            : "Out of Stock"}
+                        </span>
+                      </div>
+
+                      <form onSubmit={(e) => handleSubmit(e, product._id)}>
+                        <motion.button
+                          type="submit"
+                          disabled={
+                            product.stock === 0 || addedStates[product._id]
+                          }
+                          whileTap={{scale: 0.97}}
+                          style={{
+                            width: "100%",
+                            background:
+                              product.stock === 0
+                                ? "#E0E0E0"
+                                : addedStates[product._id]
+                                  ? GOLD_LIGHT
+                                  : GOLD,
+                            border: "none",
+                            borderRadius: 40,
+                            padding: "12px 0",
+                            color: "white",
+                            fontSize: 12,
+                            fontWeight: 500,
+                            letterSpacing: "0.2em",
+                            textTransform: "uppercase",
+                            cursor:
+                              product.stock === 0 || addedStates[product._id]
+                                ? "not-allowed"
+                                : "pointer",
+                            transition: "background 0.2s ease",
+                          }}
+                          whileHover={{
+                            background:
+                              product.stock > 0 && !addedStates[product._id]
+                                ? GOLD_LIGHT
+                                : undefined,
+                          }}
+                        >
+                          {product.stock === 0
+                            ? "Out of Stock"
+                            : addedStates[product._id]
+                              ? "✓ Added"
+                              : "Add to Cart"}
+                        </motion.button>
+                      </form>
+                    </div>
+                  </motion.div>
+                ))}
             </motion.div>
           )}
 

@@ -12,9 +12,12 @@ export const useOrdersStore = create((set, get) => ({
       const params = new URLSearchParams({page, limit});
       if (status) params.append("status", status);
 
-      const res = await fetch(`http://localhost:4000/store/orders?${params}`, {
-        credentials: "include",
-      });
+      const res = await fetch(
+        `${import.meta.env.VITE_BACKEND_URL}/store/orders?${params}`,
+        {
+          credentials: "include",
+        },
+      );
 
       if (!res.ok) {
         const errorData = await res.json().catch(() => ({}));

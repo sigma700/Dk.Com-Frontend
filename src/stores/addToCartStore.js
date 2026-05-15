@@ -10,7 +10,6 @@ export const useAddToCartStore = create(
 
       addToCart: async (productId, quant) => {
         set({isLoading: true, isSent: false});
-
         try {
           const response = await fetch(
             `${import.meta.env.VITE_BACKEND_URL}/store/cart/add`,
@@ -21,15 +20,14 @@ export const useAddToCartStore = create(
               body: JSON.stringify({productId, quantity: quant}),
             },
           );
-
           const data = await response.json();
           console.log("Data from API", data);
-
-          set({
-            isLoading: false,
-            isSent: true,
-            addedProduct: data.data?.items || [],
-          });
+          if (response.ok) {
+            await get().fetchCart();
+            set({isLoading: false, isSent: true});
+          } else {
+            set({isLoading: false, isSent: false});
+          }
         } catch (error) {
           set({isLoading: false, isSent: false});
         }
