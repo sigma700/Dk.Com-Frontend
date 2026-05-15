@@ -1,6 +1,7 @@
 import {useState, useEffect} from "react";
 import {motion, AnimatePresence} from "framer-motion";
 import {Link, useLocation} from "react-router-dom";
+import {ShoppingCart, SquareUserRound} from "lucide-react";
 
 // ─── Theme tokens (matched to LandingPage) ────────────────────────────────────
 const GOLD = "#4A8C2A";
@@ -241,7 +242,7 @@ export default function MobileMenu() {
           overflow: "hidden",
         }}
       >
-        {/* Ambient gradient blob */}
+        {/* Ambient gradient blobs */}
         <motion.div
           animate={{x: [0, 20, 0], y: [0, -14, 0]}}
           transition={{duration: 10, repeat: Infinity, ease: "easeInOut"}}
@@ -289,7 +290,7 @@ export default function MobileMenu() {
           }}
         />
 
-        {/* ── Panel header ──────────────────────────────────────────────── */}
+        {/* ── Panel header (UPDATED with Cart & Profile) ──────────────────── */}
         <div
           style={{
             display: "flex",
@@ -328,25 +329,72 @@ export default function MobileMenu() {
             </div>
           </div>
 
-          {/* Close button */}
-          <motion.button
-            onClick={() => setIsOpen(false)}
-            whileTap={{scale: 0.9}}
-            aria-label="Close menu"
-            style={{
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              width: 44,
-              height: 44,
-              borderRadius: "50%",
-              border: `1px solid ${GOLD}40`,
-              background: `${GOLD}0A`,
-              cursor: "pointer",
-            }}
-          >
-            <HamburgerIcon isOpen={true} />
-          </motion.button>
+          {/* Action buttons (Cart + Profile + Close) */}
+          <div style={{display: "flex", alignItems: "center", gap: 12}}>
+            {/* Cart button */}
+            <Link to="/cart-page">
+              <motion.div
+                whileHover={{scale: 1.08}}
+                whileTap={{scale: 0.92}}
+                style={{
+                  width: 40,
+                  height: 40,
+                  borderRadius: "50%",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  border: `1px solid ${GOLD}30`,
+                  background: `${GOLD}0a`,
+                  cursor: "pointer",
+                  color: DARK,
+                }}
+              >
+                <ShoppingCart size={18} strokeWidth={1.6} />
+              </motion.div>
+            </Link>
+
+            {/* User profile button */}
+            <Link to="/user-profile">
+              <motion.div
+                whileHover={{scale: 1.08}}
+                whileTap={{scale: 0.92}}
+                style={{
+                  width: 40,
+                  height: 40,
+                  borderRadius: "50%",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  border: `1px solid ${GOLD}30`,
+                  background: `${GOLD}0a`,
+                  cursor: "pointer",
+                  color: DARK,
+                }}
+              >
+                <SquareUserRound size={18} strokeWidth={1.6} />
+              </motion.div>
+            </Link>
+
+            {/* Close button */}
+            <motion.button
+              onClick={() => setIsOpen(false)}
+              whileTap={{scale: 0.9}}
+              aria-label="Close menu"
+              style={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                width: 44,
+                height: 44,
+                borderRadius: "50%",
+                border: `1px solid ${GOLD}40`,
+                background: `${GOLD}0A`,
+                cursor: "pointer",
+              }}
+            >
+              <HamburgerIcon isOpen={true} />
+            </motion.button>
+          </div>
         </div>
 
         {/* Divider */}
@@ -507,7 +555,7 @@ export default function MobileMenu() {
               gap: 12,
             }}
           >
-            {/* Stats row — mirrors landing page */}
+            {/* Stats row */}
             <div style={{display: "flex", gap: 20, alignItems: "center"}}>
               {[
                 {num: "100%", label: "Natural"},
