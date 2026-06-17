@@ -295,41 +295,6 @@ const FeaturedBanner = () => (
     />
 
     <div style={{position: "relative", zIndex: 2}}>
-      <div
-        style={{
-          display: "inline-flex",
-          alignItems: "center",
-          gap: 8,
-          marginBottom: 20,
-          background: "rgba(74,140,42,0.18)",
-          border: `1px solid rgba(74,140,42,0.35)`,
-          borderRadius: 100,
-          padding: "5px 16px",
-        }}
-      >
-        <motion.div
-          animate={{scale: [1, 1.5, 1], opacity: [1, 0.4, 1]}}
-          transition={{duration: 2, repeat: Infinity}}
-          style={{
-            width: 6,
-            height: 6,
-            borderRadius: "50%",
-            background: GOLD_LIGHT,
-          }}
-        />
-        <span
-          style={{
-            fontSize: 9,
-            fontWeight: 500,
-            letterSpacing: "0.4em",
-            textTransform: "uppercase",
-            color: GOLD_LIGHT,
-          }}
-        >
-          Editor's Pick · This Week
-        </span>
-      </div>
-
       <h2
         style={{
           fontFamily: "'Playfair Display','Georgia',serif",
@@ -352,7 +317,7 @@ const FeaturedBanner = () => (
             animation: "shimmer-text 3s ease-in-out infinite",
           }}
         >
-          Ritual Glow
+          Glow
         </em>{" "}
         Bundle
       </h2>
@@ -1111,14 +1076,6 @@ const DiscoveryPage = () => {
             zIndex: 1,
           }}
         >
-          <motion.div
-            initial={{opacity: 0, y: 20}}
-            animate={isHeroInView ? {opacity: 1, y: 0} : {}}
-            transition={{duration: 0.7}}
-          >
-            <SectionLabel text="Botanical Wellness · Kenya" />
-          </motion.div>
-
           <motion.h1
             initial={{opacity: 0, y: 40, filter: "blur(8px)"}}
             animate={

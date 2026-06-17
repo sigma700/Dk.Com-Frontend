@@ -542,33 +542,6 @@ const LandingPage = () => {
 
           {/* Section header */}
           <div style={{textAlign: "center", marginBottom: 64}}>
-            <motion.div
-              initial={{opacity: 0, y: 20}}
-              whileInView={{opacity: 1, y: 0}}
-              viewport={{once: true}}
-              transition={{duration: 0.6}}
-              style={{
-                display: "inline-flex",
-                alignItems: "center",
-                gap: 14,
-                marginBottom: 20,
-              }}
-            >
-              <div style={{width: 36, height: 1, background: GOLD}} />
-              <span
-                style={{
-                  fontSize: 9,
-                  fontWeight: 500,
-                  letterSpacing: "0.4em",
-                  textTransform: "uppercase",
-                  color: MUTED,
-                }}
-              >
-                Handcrafted Collection
-              </span>
-              <div style={{width: 36, height: 1, background: GOLD}} />
-            </motion.div>
-
             <motion.h2
               initial={{opacity: 0, y: 20}}
               whileInView={{opacity: 1, y: 0}}

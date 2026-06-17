@@ -779,52 +779,6 @@ const Faqs = () => {
               maxWidth: 860,
             }}
           >
-            {/* Pill badge */}
-            <motion.div
-              initial={{opacity: 0, y: 20}}
-              animate={isHeroInView ? {opacity: 1, y: 0} : {}}
-              transition={{duration: 0.7}}
-              style={{
-                marginBottom: 36,
-                display: "flex",
-                justifyContent: "center",
-              }}
-            >
-              <div
-                style={{
-                  display: "inline-flex",
-                  alignItems: "center",
-                  gap: 10,
-                  padding: "8px 20px",
-                  border: `1px solid ${GOLD}55`,
-                  background: `${GOLD}18`,
-                  borderRadius: 100,
-                }}
-              >
-                <motion.div
-                  animate={{scale: [1, 1.5, 1], opacity: [1, 0.4, 1]}}
-                  transition={{duration: 2, repeat: Infinity}}
-                  style={{
-                    width: 6,
-                    height: 6,
-                    borderRadius: "50%",
-                    background: GOLD_LIGHT,
-                  }}
-                />
-                <span
-                  style={{
-                    fontSize: 10,
-                    fontWeight: 500,
-                    letterSpacing: "0.4em",
-                    textTransform: "uppercase",
-                    color: GOLD_LIGHT,
-                  }}
-                >
-                  Help Centre
-                </span>
-              </div>
-            </motion.div>
-
             {/* Headline */}
             <motion.h1
               initial={{opacity: 0, y: 52, filter: "blur(10px)"}}
@@ -1161,7 +1115,7 @@ const Faqs = () => {
                 {/* Section header */}
                 <RevealSection>
                   <div style={{textAlign: "center", marginBottom: 52}}>
-                    <SectionLabel text="Browse by Topic" />
+                    <SectionLabel text="Click a topic to learn more" />
                     <h2
                       style={{
                         fontFamily: "'Playfair Display', serif",
@@ -1468,7 +1422,6 @@ const Faqs = () => {
             transition={{duration: 0.9, ease: [0.16, 1, 0.3, 1]}}
             style={{position: "relative", zIndex: 1}}
           >
-            <SectionLabel text="Explore the Collection" light />
             <h2
               style={{
                 fontFamily: "'Playfair Display', serif",

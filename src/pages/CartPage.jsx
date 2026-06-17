@@ -538,40 +538,6 @@ const CartPage = () => {
             transition={{duration: 0.85}}
             style={{marginBottom: 52}}
           >
-            <div
-              style={{
-                display: "inline-flex",
-                alignItems: "center",
-                gap: 10,
-                padding: "6px 18px",
-                border: `1px solid ${GREEN}45`,
-                background: `${GREEN}12`,
-                borderRadius: 100,
-                marginBottom: 18,
-              }}
-            >
-              <motion.div
-                animate={{scale: [1, 1.5, 1], opacity: [1, 0.4, 1]}}
-                transition={{duration: 2, repeat: Infinity}}
-                style={{
-                  width: 5,
-                  height: 5,
-                  borderRadius: "50%",
-                  background: GREEN,
-                }}
-              />
-              <span
-                style={{
-                  fontSize: 10,
-                  fontWeight: 500,
-                  letterSpacing: "0.38em",
-                  textTransform: "uppercase",
-                  color: GREEN,
-                }}
-              >
-                Your Selection
-              </span>
-            </div>
             <h1
               className="cart-header-title"
               style={{
@@ -614,18 +580,6 @@ const CartPage = () => {
                   background: `linear-gradient(90deg, ${GREEN}, ${GREEN_LIGHT})`,
                 }}
               />
-              <span
-                style={{
-                  fontSize: 9,
-                  fontWeight: 500,
-                  letterSpacing: "0.42em",
-                  textTransform: "uppercase",
-                  color: MUTED,
-                }}
-              >
-                {visibleItems.length}{" "}
-                {visibleItems.length === 1 ? "Item" : "Items"} · The Natural Way
-              </span>
             </div>
           </motion.div>
 

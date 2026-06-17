@@ -974,48 +974,6 @@ const AboutPage = () => {
               className="hero-text-col"
               style={{flex: "1 1 380px", minWidth: 0}}
             >
-              {/* Pill */}
-              <motion.div
-                initial={{opacity: 0, y: 20}}
-                animate={isHeroInView ? {opacity: 1, y: 0} : {}}
-                transition={{duration: 0.7}}
-                style={{marginBottom: 36}}
-              >
-                <div
-                  style={{
-                    display: "inline-flex",
-                    alignItems: "center",
-                    gap: 10,
-                    padding: "8px 20px",
-                    border: `1px solid ${GOLD}55`,
-                    background: `${GOLD}18`,
-                    borderRadius: 100,
-                  }}
-                >
-                  <motion.div
-                    animate={{scale: [1, 1.5, 1], opacity: [1, 0.45, 1]}}
-                    transition={{duration: 2, repeat: Infinity}}
-                    style={{
-                      width: 6,
-                      height: 6,
-                      borderRadius: "50%",
-                      background: GOLD_LIGHT,
-                    }}
-                  />
-                  <span
-                    style={{
-                      fontSize: 10,
-                      fontWeight: 500,
-                      letterSpacing: "0.4em",
-                      textTransform: "uppercase",
-                      color: GOLD_LIGHT,
-                    }}
-                  >
-                    Our Story
-                  </span>
-                </div>
-              </motion.div>
-
               {/* Headline */}
               <motion.h1
                 initial={{opacity: 0, y: 48, filter: "blur(8px)"}}
@@ -1037,7 +995,7 @@ const AboutPage = () => {
                   letterSpacing: "-0.02em",
                 }}
               >
-                Born from the <br />
+                Made Naturally <br />
                 <em
                   style={{
                     fontStyle: "italic",
@@ -1049,27 +1007,9 @@ const AboutPage = () => {
                     animation: "shimmer-text 3s ease-in-out infinite",
                   }}
                 >
-                  Kenyan earth
+                  from nature's gift
                 </em>
               </motion.h1>
-
-              {/* Divider */}
-              <motion.div
-                initial={{opacity: 0, scaleX: 0}}
-                animate={isHeroInView ? {opacity: 1, scaleX: 1} : {}}
-                transition={{
-                  duration: 0.9,
-                  delay: 0.35,
-                  ease: [0.16, 1, 0.3, 1],
-                }}
-                style={{
-                  width: 64,
-                  height: 1,
-                  transformOrigin: "left",
-                  background: `linear-gradient(90deg, ${GOLD_LIGHT}, transparent)`,
-                  marginBottom: 28,
-                }}
-              />
 
               <motion.p
                 initial={{opacity: 0, y: 20}}
@@ -1546,27 +1486,6 @@ const AboutPage = () => {
               <div>
                 {/* Section label inside right side */}
                 <div style={{marginBottom: 32}}>
-                  <div
-                    style={{
-                      display: "inline-flex",
-                      alignItems: "center",
-                      gap: 12,
-                      marginBottom: 16,
-                    }}
-                  >
-                    <div style={{width: 28, height: 1, background: GOLD}} />
-                    <span
-                      style={{
-                        fontSize: 8,
-                        letterSpacing: "0.38em",
-                        textTransform: "uppercase",
-                        color: MUTED,
-                      }}
-                    >
-                      From Soil to Soul
-                    </span>
-                    <div style={{width: 28, height: 1, background: GOLD}} />
-                  </div>
                   <h3
                     style={{
                       fontFamily: "'Playfair Display', serif",
@@ -1684,7 +1603,7 @@ const AboutPage = () => {
                       borderRadius: 60,
                     }}
                   >
-                    proudly grown, made & loved in Kenya
+                    distributed in Kenya
                   </span>
                 </div>
               </div>
@@ -1924,8 +1843,6 @@ const AboutPage = () => {
             transition={{duration: 0.9, ease: [0.16, 1, 0.3, 1]}}
             style={{position: "relative", zIndex: 1}}
           >
-            <SectionLabel text="Start Your Ritual" light />
-
             <h2
               style={{
                 fontFamily: "'Playfair Display', serif",
@@ -1948,7 +1865,7 @@ const AboutPage = () => {
                   animation: "shimmer-text 3s ease-in-out infinite",
                 }}
               >
-                natural?
+                order?
               </em>
             </h2>
 

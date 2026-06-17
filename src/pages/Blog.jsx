@@ -668,43 +668,6 @@ const BlogPage = () => {
               }}
             />
 
-            {/* Tag */}
-            <div
-              className="hero-tag"
-              style={{
-                display: "inline-flex",
-                alignItems: "center",
-                gap: 10,
-                padding: "7px 16px",
-                border: "1px solid rgba(114,184,74,0.3)",
-                background: "rgba(114,184,74,0.08)",
-                borderRadius: 100,
-                marginBottom: 36,
-                width: "fit-content",
-              }}
-            >
-              <div
-                className="pulse-dot"
-                style={{
-                  width: 5,
-                  height: 5,
-                  borderRadius: "50%",
-                  background: GOLD_LIGHT,
-                }}
-              />
-              <span
-                style={{
-                  fontSize: 9,
-                  fontWeight: 500,
-                  letterSpacing: "0.4em",
-                  textTransform: "uppercase",
-                  color: GOLD_LIGHT,
-                }}
-              >
-                The Mindful Journal
-              </span>
-            </div>
-
             <p
               className="hero-feat"
               style={{
