@@ -8,7 +8,6 @@ import {useAddToCartStore} from "../stores/addToCartStore";
 import {bufferToDataURL} from "../utils/displayImage";
 import {PiPlantBold} from "react-icons/pi";
 
-// ── Brand Palette ──────────────────────────────────────────────
 const GOLD = "#4A8C2A";
 const GOLD_LIGHT = "#72B84A";
 const GOLD_PALE = "#E8F5E0";
@@ -17,7 +16,6 @@ const DARK = "#1A1A1A";
 const MUTED = "#5A7A4A";
 const DARK_GREEN = "#14280F";
 
-// ── Tag config ─────────────────────────────────────────────────
 const TAG_STYLES = {
   Trending: {bg: "rgba(74,140,42,0.92)", color: "#fff", icon: "🔥"},
   New: {bg: "rgba(20,40,15,0.90)", color: "#72B84A", icon: "✦"},
@@ -30,7 +28,6 @@ const TAG_STYLES = {
   },
 };
 
-// ── Mock data — replace with your store's allProducts ──────────
 const MOCK_PRODUCTS = [
   {
     _id: "1",
@@ -197,7 +194,6 @@ const CATEGORIES = [
 ];
 const TAG_FILTERS = ["Trending", "New", "Bestseller"];
 
-// ── Helpers ────────────────────────────────────────────────────
 const SectionLabel = ({text}) => (
   <div
     style={{
@@ -242,7 +238,6 @@ const StarRating = ({rating}) => {
   );
 };
 
-// ── Featured Banner (fixed image on side, responsive) ─────────
 const FeaturedBanner = () => (
   <motion.div
     initial={{opacity: 0, y: 40}}
@@ -264,7 +259,6 @@ const FeaturedBanner = () => (
       cursor: "pointer",
     }}
   >
-    {/* Ambient orbs */}
     {[
       {w: 420, h: 420, top: "-40%", right: "18%", op: 0.18},
       {w: 200, h: 200, bottom: "-20%", left: "30%", op: 0.1},
@@ -287,7 +281,6 @@ const FeaturedBanner = () => (
         }}
       />
     ))}
-    {/* Dashed ring */}
     <div
       style={{
         position: "absolute",
@@ -422,7 +415,6 @@ const FeaturedBanner = () => (
       </div>
     </div>
 
-    {/* Image container — fixed size, proper image */}
     <div
       className="banner-image"
       style={{
@@ -447,7 +439,6 @@ const FeaturedBanner = () => (
   </motion.div>
 );
 
-// ── Product Card ───────────────────────────────────────────────
 const ProductCard = ({product, index, onAdd, added}) => {
   const [hovered, setHovered] = useState(false);
   const ref = useRef(null);
@@ -480,7 +471,6 @@ const ProductCard = ({product, index, onAdd, added}) => {
         cursor: "pointer",
       }}
     >
-      {/* Image area */}
       <div
         style={{
           position: "relative",
@@ -514,7 +504,6 @@ const ProductCard = ({product, index, onAdd, added}) => {
           </motion.div>
         )}
 
-        {/* Tag */}
         {product.tag && (
           <div
             style={{
@@ -537,7 +526,6 @@ const ProductCard = ({product, index, onAdd, added}) => {
           </div>
         )}
 
-        {/* Stock warning */}
         {product.stock > 0 && product.stock <= 8 && (
           <div
             style={{
@@ -558,7 +546,6 @@ const ProductCard = ({product, index, onAdd, added}) => {
           </div>
         )}
 
-        {/* Dark hover overlay */}
         <motion.div
           animate={{opacity: hovered ? 1 : 0}}
           transition={{duration: 0.3}}
@@ -592,7 +579,6 @@ const ProductCard = ({product, index, onAdd, added}) => {
         </motion.div>
       </div>
 
-      {/* Body */}
       <div style={{padding: "22px 24px 26px"}}>
         <div
           style={{
@@ -630,7 +616,6 @@ const ProductCard = ({product, index, onAdd, added}) => {
           {product.description}
         </p>
 
-        {/* Rating */}
         <div
           style={{
             display: "flex",
@@ -645,7 +630,6 @@ const ProductCard = ({product, index, onAdd, added}) => {
           </span>
         </div>
 
-        {/* Footer */}
         <div
           style={{
             display: "flex",
@@ -758,7 +742,6 @@ const ProductCard = ({product, index, onAdd, added}) => {
   );
 };
 
-// ── Main Page ──────────────────────────────────────────────────
 const DiscoveryPage = () => {
   const {showAllProducts, allProducts} = useProductsStore();
   const {addToCart} = useAddToCartStore();
@@ -817,74 +800,256 @@ const DiscoveryPage = () => {
     <main style={{background: CREAM, minHeight: "100vh"}}>
       <NavBar />
 
-      <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,300;0,400;1,300;1,400&display=swap');
-        @keyframes shimmer-text {
-          0%   { background-position: 0% center }
-          50%  { background-position: 100% center }
-          100% { background-position: 0% center }
-        }
-        @keyframes float-orb {
-          0%, 100% { transform: translate(0,0) }
-          50%       { transform: translate(20px,-18px) }
-        }
-        .discover-grid { 
-          display: grid; 
-          grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); 
-          gap: 24px; 
-        }
-        
-        /* Mobile & Tablet Responsive */
-        @media (max-width: 900px) {
-          .hero-inner { 
-            padding: 70px 24px 48px !important; 
-          }
-          .filters-inner { 
-            padding: 0 20px !important; 
-          }
-          .grid-section { 
-            padding: 40px 20px 72px !important; 
-          }
-          .discover-grid { 
-            grid-template-columns: 1fr !important; 
-          }
-          /* Featured banner: stack and hide image on small screens */
-          .featured-banner {
-            grid-template-columns: 1fr !important;
-            text-align: center;
-            padding: 36px 28px !important;
-            gap: 32px !important;
-          }
-          .featured-banner .banner-image {
-            max-width: 180px !important;
-            margin: 0 auto !important;
-            display: block !important;
-          }
-          .stats-row {
-            flex-wrap: wrap !important;
-            gap: 24px !important;
-          }
-          .stats-row > div {
-            flex: 0 0 45% !important;
-            border-right: none !important;
-            padding: 0 !important;
-          }
-        }
-        
-        @media (max-width: 600px) {
-          .featured-banner .banner-image {
-            display: none !important;  /* hide image on very small phones */
-          }
-          .stats-row > div {
-            flex: 0 0 100% !important;
-          }
-          .hero-inner h1 {
-            font-size: clamp(32px, 8vw, 44px) !important;
-          }
-        }
-      `}</style>
+      <style>
+        {`
+  @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,300;0,400;1,300;1,400&display=swap');
 
-      {/* ── Hero ── */}
+  @keyframes shimmer-text {
+    0% { background-position: 0% center; }
+    50% { background-position: 100% center; }
+    100% { background-position: 0% center; }
+  }
+
+  @keyframes float-orb {
+    0%, 100% { transform: translate(0,0); }
+    50% { transform: translate(20px,-18px); }
+  }
+
+  html,
+  body {
+    overflow-x: hidden;
+    width: 100%;
+    margin: 0;
+    padding: 0;
+  }
+
+  * {
+    box-sizing: border-box;
+  }
+
+  main,
+  section,
+  div {
+    max-width: 100%;
+  }
+
+  img {
+    max-width: 100%;
+    height: auto;
+    display: block;
+  }
+
+  .discover-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 24px;
+    width: 100%;
+  }
+
+  .featured-banner {
+    width: 100%;
+  }
+
+  .filters-inner {
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+
+  .filters-inner::-webkit-scrollbar {
+    display: none;
+  }
+
+  @media (max-width: 992px) {
+    .hero-inner {
+      padding: 72px 24px 52px !important;
+    }
+
+    .hero-inner h1 {
+      font-size: clamp(34px, 7vw, 58px) !important;
+      line-height: 1.12 !important;
+    }
+
+    .hero-inner p {
+      font-size: 14px !important;
+      line-height: 1.8 !important;
+      max-width: 100% !important;
+    }
+
+    .filters-inner {
+      padding: 0 14px !important;
+    }
+
+    .grid-section {
+      padding: 42px 20px 72px !important;
+    }
+
+    .discover-grid {
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)) !important;
+      gap: 20px !important;
+    }
+
+    .featured-banner {
+      grid-template-columns: 1fr !important;
+      text-align: left !important;
+      padding: 34px 22px !important;
+      gap: 28px !important;
+      border-radius: 24px !important;
+    }
+
+    .featured-banner .banner-image {
+      max-width: 180px !important;
+      margin: 0 auto !important;
+      display: block !important;
+    }
+
+    .stats-row {
+      flex-wrap: wrap !important;
+      gap: 24px !important;
+    }
+
+    .stats-row > div {
+      flex: 0 0 45% !important;
+      border-right: none !important;
+      padding: 0 !important;
+    }
+  }
+
+  @media (max-width: 768px) {
+    .hero-inner {
+      padding: 88px 18px 44px !important;
+    }
+
+    .hero-inner h1 {
+      font-size: clamp(28px, 10vw, 42px) !important;
+      line-height: 1.15 !important;
+      margin-bottom: 14px !important;
+    }
+
+    .hero-inner p {
+      font-size: 13px !important;
+      line-height: 1.75 !important;
+      margin-bottom: 28px !important;
+    }
+
+    .hero-inner > div:last-child > div {
+      flex-direction: column !important;
+      align-items: stretch !important;
+      padding: 14px !important;
+      gap: 12px !important;
+      border-radius: 22px !important;
+    }
+
+    .hero-inner input {
+      width: 100% !important;
+      padding: 12px 4px !important;
+    }
+
+    .hero-inner button {
+      width: 100% !important;
+      justify-content: center !important;
+      padding: 12px !important;
+    }
+
+    .featured-banner {
+      grid-template-columns: 1fr !important;
+      padding: 28px 18px !important;
+      border-radius: 20px !important;
+      text-align: left !important;
+    }
+
+    .featured-banner h2 {
+      font-size: clamp(26px, 8vw, 34px) !important;
+      line-height: 1.2 !important;
+    }
+
+    .featured-banner p {
+      font-size: 12px !important;
+      line-height: 1.7 !important;
+    }
+
+    .featured-banner .banner-image {
+      display: none !important;
+    }
+
+    .discover-grid {
+      grid-template-columns: 1fr !important;
+      gap: 18px !important;
+    }
+
+    .filters-inner {
+      overflow-x: auto !important;
+    }
+
+    .filters-inner > div {
+      min-width: max-content !important;
+      padding-right: 12px !important;
+    }
+
+    .stats-row {
+      flex-direction: column !important;
+      gap: 24px !important;
+    }
+
+    .stats-row > div {
+      flex: 0 0 100% !important;
+      border-right: none !important;
+      border-bottom: 1px solid rgba(74,140,42,0.1);
+      padding-bottom: 18px !important;
+    }
+
+    .stats-row > div:last-child {
+      border-bottom: none !important;
+    }
+  }
+
+  @media (max-width: 600px) {
+    .hero-inner h1 {
+      font-size: clamp(24px, 11vw, 34px) !important;
+    }
+
+    .stats-row > div {
+      flex: 0 0 100% !important;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .hero-inner {
+      padding: 82px 14px 38px !important;
+    }
+
+    .hero-inner h1 {
+      font-size: clamp(24px, 11vw, 34px) !important;
+    }
+
+    .hero-inner p {
+      font-size: 12px !important;
+    }
+
+    .featured-banner {
+      margin-bottom: 18px !important;
+    }
+
+    .featured-banner h2 {
+      font-size: 24px !important;
+    }
+
+    .grid-section {
+      padding: 34px 14px 60px !important;
+    }
+
+    .discover-grid > * {
+      border-radius: 20px !important;
+    }
+
+    .filters-inner button,
+    .filters-inner select {
+      font-size: 9px !important;
+      padding: 5px 12px !important;
+    }
+  }
+`}
+      </style>
+
       <section
         ref={heroRef}
         style={{
@@ -1080,7 +1245,6 @@ const DiscoveryPage = () => {
         </div>
       </section>
 
-      {/* ── Sticky Filters ── */}
       <div
         style={{
           position: "sticky",
@@ -1196,7 +1360,6 @@ const DiscoveryPage = () => {
         </div>
       </div>
 
-      {/* ── Grid ── */}
       <section
         className="grid-section"
         style={{padding: "56px 80px 96px", maxWidth: 1440, margin: "0 auto"}}

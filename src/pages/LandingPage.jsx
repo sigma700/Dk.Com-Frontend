@@ -311,43 +311,6 @@ const LandingPage = () => {
               initial="hidden"
               animate="visible"
             >
-              {/* Badge */}
-              <motion.div variants={itemVariants} style={{marginBottom: 28}}>
-                <div
-                  style={{
-                    display: "inline-flex",
-                    alignItems: "center",
-                    gap: 10,
-                    padding: "8px 18px",
-                    border: `1px solid ${GOLD}50`,
-                    background: `${GOLD}14`,
-                    borderRadius: 100,
-                  }}
-                >
-                  <motion.div
-                    animate={{scale: [1, 1.4, 1], opacity: [1, 0.5, 1]}}
-                    transition={{duration: 2, repeat: Infinity}}
-                    style={{
-                      width: 6,
-                      height: 6,
-                      borderRadius: "50%",
-                      background: GOLD,
-                    }}
-                  />
-                  <span
-                    style={{
-                      fontSize: 10,
-                      fontWeight: 500,
-                      letterSpacing: "0.38em",
-                      textTransform: "uppercase",
-                      color: GOLD,
-                    }}
-                  >
-                    Kenya's Natural Choice
-                  </span>
-                </div>
-              </motion.div>
-
               {/* Headline */}
               {["Naturally", "Medicated", "Face Soap"].map((word, i) => (
                 <motion.div
@@ -386,24 +349,6 @@ const LandingPage = () => {
                   </h1>
                 </motion.div>
               ))}
-
-              {/* Divider label */}
-              <motion.div variants={itemVariants} style={{marginBottom: 20}}>
-                <div style={{display: "flex", alignItems: "center", gap: 14}}>
-                  <div style={{width: 36, height: 1, background: GOLD}} />
-                  <span
-                    style={{
-                      fontSize: 9,
-                      fontWeight: 500,
-                      letterSpacing: "0.4em",
-                      textTransform: "uppercase",
-                      color: MUTED,
-                    }}
-                  >
-                    The Natural Way
-                  </span>
-                </div>
-              </motion.div>
 
               {/* Description */}
               <motion.p
